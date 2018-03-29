@@ -6,4 +6,40 @@
     android:layout_height="match_parent"
     tools:context="pt.ulisboa.tecnico.cmov.hoponcmu.MainMenu">
 
+    <LinearLayout
+        android:layout_width="368dp"
+        android:layout_height="495dp"
+        android:orientation="vertical"
+        tools:layout_editor_absoluteX="8dp"
+        tools:layout_editor_absoluteY="8dp"
+        tools:ignore="MissingConstraints">
+
+        <Button
+            android:id="@+id/listLocats"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="List tour locations"
+            android:onClick="listLocations" />
+
+        <Button
+            android:id="@+id/dwnldQuestions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Download quiz questions"
+            android:onClick="downloadQuestions" />
+
+        <Button
+            android:id="@+id/postAnswers"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Post quiz answers"
+            android:onClick="postAnswers"/>
+
+        <Button
+            android:id="@+id/readResults"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Read quiz results"
+            android:onClick="readResults"/>
+    </LinearLayout>
 </android.support.constraint.ConstraintLayout>

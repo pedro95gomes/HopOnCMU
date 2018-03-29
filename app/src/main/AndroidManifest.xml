@@ -21,8 +21,17 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".SignUp"></activity>
-        <activity android:name=".MainMenu"></activity>
+        <activity android:name=".SignUp" />
+        <activity android:name=".MainMenu" />
+        <activity android:name=".ListTourLocations" />
+
+        <service
+            android:name=".DownloadQuizQuestions"
+            android:enabled="true"
+            android:exported="true" />
+
+        <activity android:name=".PostQuizAnswers" />
+        <activity android:name=".ReadQuizResults"></activity>
     </application>
 
 </manifest>
