@@ -12,6 +12,7 @@ public class MainMenu extends AppCompatActivity {
     Button downloadQuestions;
     Button postQuiz;
     Button readResults;
+    Button answerQuiz;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,6 +22,7 @@ public class MainMenu extends AppCompatActivity {
         downloadQuestions = (Button) findViewById(R.id.dwnldQuestions);
         postQuiz = (Button) findViewById(R.id.postAnswers);
         readResults = (Button) findViewById(R.id.readResults);
+        answerQuiz = (Button) findViewById(R.id.answerQuiz);
 
         setContentView(R.layout.main_menu);
     }
@@ -42,6 +44,11 @@ public class MainMenu extends AppCompatActivity {
 
     public void readResults(View view) {
         Intent intent = new Intent(this, ReadQuizResults.class);
+        startActivity(intent);
+    }
+
+    public void getQuiz(View view) {
+        Intent intent = new Intent(this, Quiz.class);
         startActivity(intent);
     }
 }
