@@ -1,4 +1,4 @@
-package pt.ulisboa.tecnico.cmov.response;
+package pt.ulisboa.tecnico.cmu.response;
 
 public class HelloResponse implements Response {
 

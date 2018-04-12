@@ -1,6 +1,6 @@
-package pt.ulisboa.tecnico.cmov.command;
+package pt.ulisboa.tecnico.cmu.command;
 
-import pt.ulisboa.tecnico.cmov.response.Response;
+import pt.ulisboa.tecnico.cmu.response.Response;
 
 public class HelloCommand implements Command {
 	

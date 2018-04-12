@@ -1,11 +1,11 @@
-package pt.ulisboa.tecnico.cmov.server;
+package pt.ulisboa.tecnico.cmu.server;
 
-import pt.ulisboa.tecnico.cmov.command.CommandHandler;
-import pt.ulisboa.tecnico.cmov.command.SignUpCommand;
-import pt.ulisboa.tecnico.cmov.command.HelloCommand;
-import pt.ulisboa.tecnico.cmov.response.HelloResponse;
-import pt.ulisboa.tecnico.cmov.response.Response;
-import pt.ulisboa.tecnico.cmov.response.SignUpResponse;
+import pt.ulisboa.tecnico.cmu.command.CommandHandler;
+import pt.ulisboa.tecnico.cmu.command.HelloCommand;
+import pt.ulisboa.tecnico.cmu.command.SignUpCommand;
+import pt.ulisboa.tecnico.cmu.response.HelloResponse;
+import pt.ulisboa.tecnico.cmu.response.Response;
+import pt.ulisboa.tecnico.cmu.response.SignUpResponse;
 
 public class CommandHandlerImpl implements CommandHandler {
 
@@ -14,11 +14,12 @@ public class CommandHandlerImpl implements CommandHandler {
 		System.out.println("Received: " + hc.getMessage());
 		return new HelloResponse("Hi from Server!");
 	}
-	
+
 	@Override
-	public Response handle(SignUpCommand su) {
-		System.out.println("Received: " + su.getUsername() + su.getBusCode());
-		return new SignUpResponse(su.getUsername(), "You just signed up (not yet)");
+	public Response handle(SignUpCommand suc){
+		System.out.println("Username:" + suc.getUsername() + " | Code: " + suc.getBusCode());
+		SignUpResponse registered =  new SignUpResponse(suc.getUsername(),suc.getBusCode());
+		return registered;
 	}
 	
 }
