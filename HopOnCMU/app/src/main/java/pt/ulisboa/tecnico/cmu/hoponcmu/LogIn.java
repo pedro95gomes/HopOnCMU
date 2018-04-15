@@ -12,6 +12,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks.LogInTask;
+
 public class LogIn extends AppCompatActivity {
 
     private EditText username;
@@ -41,6 +43,7 @@ public class LogIn extends AppCompatActivity {
 
     public void logIn (View v){
         //TODO autenticar o user com o servidor
+        new LogInTask(LogIn.this).execute(username.getText().toString(), code.getText().toString());
         boolean loginValido=true;   //Só para testar
 
         if(loginValido) {

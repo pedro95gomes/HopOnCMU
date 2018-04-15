@@ -9,6 +9,8 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks.ListLocationsTask;
+
 public class ListTourLocations extends AppCompatActivity {  //Lists all tour locations
 
     private ListView list;
@@ -21,20 +23,21 @@ public class ListTourLocations extends AppCompatActivity {  //Lists all tour loc
         setContentView(R.layout.activity_list_tour_locations);
 
         list = (ListView) findViewById(R.id.list);
-        list_location = new ArrayList<String>();
         nothing = (TextView) findViewById(R.id.nothing);
 
-        //Adicionar locations manualmente agora. Depois, estas locations devem ser pedidas ao servidor
-        list_location.add("Museu Oriente");
-        list_location.add("Torre de Belém");
+        new ListLocationsTask(ListTourLocations.this);
 
-        if(list_location.size()!=0) {
+        //TODO
+        //Depois se quisermos, também dá para fazer uma ação se o user clicar em cada item da lista
+    }
+
+    public void updateLocations(ArrayList<String> locations) {
+        if(locations.size()!=0) {
+            list_location = locations;
             ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, list_location);
             list.setAdapter(adapter);
         }
         else
-            nothing.setVisibility(View.VISIBLE);    //Se não houver nada a mostrar, aparecer uma mensagem a dizer isso
-
-        //Depois se quisermos, também dá para fazer uma ação se o user clicar em cada item da lista
+            nothing.setVisibility(View.VISIBLE);
     }
 }
