@@ -1,6 +1,7 @@
 package pt.ulisboa.tecnico.cmu.server;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 import pt.ulisboa.tecnico.cmu.command.CommandHandler;
 import pt.ulisboa.tecnico.cmu.command.DownloadQuestionsCommand;
@@ -40,8 +41,9 @@ public class CommandHandlerImpl implements CommandHandler {
 	public Response handle(LogInCommand lginc){
 		System.out.println("Username:" + lginc.getUsername() + " | Password: " + lginc.getPassword());
 		//TODO
-		// Gerar session ID e associar a username
-		String sessionId = "TESTESTESTESTESTE";
+		// Associar userid a username
+		UUID uuid = UUID.randomUUID();
+		String sessionId = uuid.toString();
 		LogInResponse logedIn =  new LogInResponse(lginc.getUsername(), sessionId);
 		return logedIn;
 	}
