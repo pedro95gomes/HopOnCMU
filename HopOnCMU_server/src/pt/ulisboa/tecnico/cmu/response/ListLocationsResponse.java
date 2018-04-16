@@ -6,7 +6,7 @@ public class ListLocationsResponse implements Response{
     private static final long serialVersionUID = 734457624276534179L;
     private ArrayList<String> tourlocations = new ArrayList<String>();
 
-    ListLocationsResponse(ArrayList<String> tourlocations){
+    public ListLocationsResponse(ArrayList<String> tourlocations){
         this.tourlocations = tourlocations;
     }
 

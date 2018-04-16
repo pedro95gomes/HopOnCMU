@@ -1,9 +1,23 @@
 package pt.ulisboa.tecnico.cmu.server;
 
+import java.util.ArrayList;
+
 import pt.ulisboa.tecnico.cmu.command.CommandHandler;
+import pt.ulisboa.tecnico.cmu.command.DownloadQuestionsCommand;
 import pt.ulisboa.tecnico.cmu.command.HelloCommand;
+import pt.ulisboa.tecnico.cmu.command.ListLocationsCommand;
+import pt.ulisboa.tecnico.cmu.command.LogInCommand;
+import pt.ulisboa.tecnico.cmu.command.LogOutCommand;
+import pt.ulisboa.tecnico.cmu.command.PostAnswersCommand;
+import pt.ulisboa.tecnico.cmu.command.QuizResultsCommand;
 import pt.ulisboa.tecnico.cmu.command.SignUpCommand;
+import pt.ulisboa.tecnico.cmu.response.DownloadQuestionsResponse;
 import pt.ulisboa.tecnico.cmu.response.HelloResponse;
+import pt.ulisboa.tecnico.cmu.response.ListLocationsResponse;
+import pt.ulisboa.tecnico.cmu.response.LogInResponse;
+import pt.ulisboa.tecnico.cmu.response.LogOutResponse;
+import pt.ulisboa.tecnico.cmu.response.PostAnswersResponse;
+import pt.ulisboa.tecnico.cmu.response.QuizResultsResponse;
 import pt.ulisboa.tecnico.cmu.response.Response;
 import pt.ulisboa.tecnico.cmu.response.SignUpResponse;
 
@@ -27,7 +41,7 @@ public class CommandHandlerImpl implements CommandHandler {
 		System.out.println("Username:" + lginc.getUsername() + " | Password: " + lginc.getPassword());
 		//TODO
 		// Gerar session ID e associar a username
-		String sessionId = "TESTESTESTESTESTE"
+		String sessionId = "TESTESTESTESTESTE";
 		LogInResponse logedIn =  new LogInResponse(lginc.getUsername(), sessionId);
 		return logedIn;
 	}
@@ -59,7 +73,7 @@ public class CommandHandlerImpl implements CommandHandler {
 
         //TODO
         // Gets questions from quizz Y
-        DownloadQuestionsCommand quizzes = new DownloadQuestionsResponse();
+        DownloadQuestionsResponse quizzes = new DownloadQuestionsResponse();
         
         return quizzes;
     }
@@ -85,5 +99,4 @@ public class CommandHandlerImpl implements CommandHandler {
         
         return results;
     }
-
 }

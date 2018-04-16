@@ -2,10 +2,10 @@ package pt.ulisboa.tecnico.cmu.command;
 
 import pt.ulisboa.tecnico.cmu.response.Response;
 
-public class LogOutCommand implements Command{
+public class PostAnswersCommand implements Command{
     private static final long serialVersionUID = -8807331723807741905L;
 
-    LogOutCommand(){}
+    public PostAnswersCommand(){}
 
     @Override
     public Response handle(CommandHandler ch)   {
