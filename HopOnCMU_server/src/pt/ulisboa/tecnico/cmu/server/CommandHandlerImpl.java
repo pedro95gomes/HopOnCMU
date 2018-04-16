@@ -1,6 +1,7 @@
 package pt.ulisboa.tecnico.cmu.server;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import pt.ulisboa.tecnico.cmu.command.CommandHandler;
@@ -12,6 +13,8 @@ import pt.ulisboa.tecnico.cmu.command.LogOutCommand;
 import pt.ulisboa.tecnico.cmu.command.PostAnswersCommand;
 import pt.ulisboa.tecnico.cmu.command.QuizResultsCommand;
 import pt.ulisboa.tecnico.cmu.command.SignUpCommand;
+import pt.ulisboa.tecnico.cmu.domain.Quizz;
+import pt.ulisboa.tecnico.cmu.domain.ServerUtil;
 import pt.ulisboa.tecnico.cmu.response.DownloadQuestionsResponse;
 import pt.ulisboa.tecnico.cmu.response.HelloResponse;
 import pt.ulisboa.tecnico.cmu.response.ListLocationsResponse;
@@ -24,6 +27,8 @@ import pt.ulisboa.tecnico.cmu.response.SignUpResponse;
 
 public class CommandHandlerImpl implements CommandHandler {
 
+	ServerUtil sv = new ServerUtil();
+	
 	@Override
 	public Response handle(HelloCommand hc) {
 		System.out.println("Received: " + hc.getMessage());
@@ -33,17 +38,28 @@ public class CommandHandlerImpl implements CommandHandler {
 	@Override
 	public Response handle(SignUpCommand suc){
 		System.out.println("Username:" + suc.getUsername() + " | Code: " + suc.getBusCode());
-		SignUpResponse registered =  new SignUpResponse(suc.getUsername(),suc.getBusCode());
+		// Get list of used codes
+		List<String> used_codes = sv.getCodes();
+
+		String code = null;
+		if(!used_codes.contains(suc.getBusCode())) { // Check if code was already used: if not, register user
+			code = suc.getBusCode();
+			sv.registerUser(suc.getUsername(), code);
+		}
+		SignUpResponse registered =  new SignUpResponse(suc.getUsername(),code);
 		return registered;
 	}
 	
 	@Override
 	public Response handle(LogInCommand lginc){
 		System.out.println("Username:" + lginc.getUsername() + " | Password: " + lginc.getPassword());
-		//TODO
-		// Associar userid a username
-		UUID uuid = UUID.randomUUID();
-		String sessionId = uuid.toString();
+		String sessionId = null;
+		// Check if password/busCode for user is correct
+		if(sv.isPassword(lginc.getUsername(), lginc.getPassword())) {
+			UUID uuid = UUID.randomUUID();
+			sessionId = uuid.toString();
+			sv.setSessionId(lginc.getUsername(), sessionId); // Generate and set user session Id
+		}
 		LogInResponse logedIn =  new LogInResponse(lginc.getUsername(), sessionId);
 		return logedIn;
 	}
@@ -51,9 +67,8 @@ public class CommandHandlerImpl implements CommandHandler {
 	@Override
 	public Response handle(ListLocationsCommand llc){
         System.out.println("Getting tour locations...");
-        //TODO
         // Obter localização dos spots da tour
-        ArrayList<String> locations = null;
+        ArrayList<String> locations = sv.getTourLocations();
         ListLocationsResponse listLocations = new ListLocationsResponse(locations);
         return listLocations;
 	}
@@ -61,10 +76,10 @@ public class CommandHandlerImpl implements CommandHandler {
 	@Override
 	public Response handle(LogOutCommand lgoutc){
         System.out.println("Logging out...");
-
-        //TODO
+        
         // Removes sessionID associated with user X
-        LogOutResponse loggedOut = new LogOutResponse();
+        sv.revokeSessionId(lgoutc.getUsername(), lgoutc.getSessionId());
+        LogOutResponse loggedOut = new LogOutResponse(lgoutc.getUsername());
         
         return loggedOut;
     }
@@ -73,11 +88,17 @@ public class CommandHandlerImpl implements CommandHandler {
 	public Response handle(DownloadQuestionsCommand dqc){
         System.out.println("Getting quizz questions...");
 
-        //TODO
+        List<String[]> questions = null;
         // Gets questions from quizz Y
-        DownloadQuestionsResponse quizzes = new DownloadQuestionsResponse();
+        List<Quizz> quizzes = sv.getQuizzes();
+        for(Quizz quizz : quizzes) {
+        	if(quizz.getName().equals(dqc.getName())) {
+        		 questions = quizz.getQuestions();
+        	}
+        }
+        DownloadQuestionsResponse response = new DownloadQuestionsResponse(questions);
         
-        return quizzes;
+        return response;
     }
     
     @Override
