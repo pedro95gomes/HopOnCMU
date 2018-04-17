@@ -105,9 +105,16 @@ public class CommandHandlerImpl implements CommandHandler {
 	public Response handle(PostAnswersCommand pac){
         System.out.println("Submiting tourist answers...");
 
-        //TODO
         // Calculates results for User X in quizz Y
-        PostAnswersResponse postResponse = new PostAnswersResponse();
+        List<Quizz> quizzes = sv.getQuizzes();
+        boolean success = false;
+        for(Quizz quizz : quizzes) {
+        	if(quizz.getName().equals(pac.getQuizzName())) {
+        		 sv.setUserAnswers(pac.getUserName(), quizz.getName(), pac.getAnswers());
+        		 success = true;
+        	}
+        }
+        PostAnswersResponse postResponse = new PostAnswersResponse(success);
         
         return postResponse;
     }
@@ -116,9 +123,15 @@ public class CommandHandlerImpl implements CommandHandler {
 	public Response handle(QuizResultsCommand qrc){
         System.out.println("Getting quizz results...");
 
-        //TODO
         // Gets results for user X in quiz Y
-        QuizResultsResponse results = new QuizResultsResponse();
+        List<Quizz> quizzes = sv.getQuizzes();
+        double result = 0;
+        for(Quizz quizz : quizzes) {
+        	if(quizz.getName().equals(qrc.getQuizzName())) {
+        		 result = sv.checkAnswers(qrc.getUserName(), quizz);
+        	}
+        }
+        QuizResultsResponse results = new QuizResultsResponse(result);
         
         return results;
     }

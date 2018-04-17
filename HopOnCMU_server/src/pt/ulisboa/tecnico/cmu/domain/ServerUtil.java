@@ -117,8 +117,8 @@ public class ServerUtil {
 		if(users.containsKey(username)){
 			User user = users.get(username);
 			user.setSessionId(sessionId);
-			saveUser(user.getUsername());
 			users.put(username, user);
+			saveUser(user.getUsername());
 			return true;
 		}
 		return false;
@@ -128,8 +128,8 @@ public class ServerUtil {
 		if(users.containsKey(username) && users.get(username).getSessionId().equals(sessionId)){
 			User user = users.get(username);
 			user.setSessionId(null);
-			saveUser(user.getUsername());
 			users.put(username, user);
+			saveUser(user.getUsername());
 			return true;
 		}
 		return false;
@@ -227,5 +227,28 @@ public class ServerUtil {
 		}
 		
 		return locations;
+	}
+	
+	public double checkAnswers(String username, Quizz quizz) {
+		int result = 0;
+		int numQuestion = 0;
+		User user = getUser(username);
+		for(String answer : user.getAnswers(quizz.getName())) {
+			if(answer.equals(quizz.getAnswer(numQuestion))) {
+				result+=1;
+			}
+			numQuestion+=1;
+		}
+		user.setResult(quizz.getName(),result);
+		this.users.put(user.getUsername(), user);
+		saveUser(user.getUsername());
+		return result/numQuestion;
+	}
+	
+	public void setUserAnswers(String username, String quizzname, List<String> answers) {
+		User user = getUser(username);
+		user.setAnswers(quizzname, answers);
+		this.users.put(username, user);
+		saveUser(username);
 	}
 }

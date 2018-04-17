@@ -5,12 +5,16 @@ import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 public class User implements Serializable{
 	private static final long serialVersionUID = 8766447384756338327L;
 	private String username = null;
 	private String sessionId = null;
 	private byte[] busCode = null;
+	private Map<String, List<String>> answers;
+	private Map<String,Integer> results = null;
 	
 	public User(String username, String busCode) {
 		this.username = username;
@@ -19,6 +23,14 @@ public class User implements Serializable{
 	
 	public void setSessionId(String sessionId) {
 		this.sessionId = sessionId;
+	}
+	
+	public List<String> getAnswers(String quizzname){
+		return this.answers.get(quizzname);
+	}
+	
+	public List<String> setAnswers(String quizzname, List<String> answers){
+		return this.answers.put(quizzname, answers);
 	}
 	
 	public String getUsername() {
@@ -31,6 +43,14 @@ public class User implements Serializable{
 	
 	public byte[] getBusCode() {
 		return this.busCode;
+	}
+	
+	public int getResult(String quizzname) {
+		return this.results.get(quizzname);
+	}
+	
+	public void setResult(String quizzname, int result) {
+		this.results.put(quizzname, result);
 	}
 	
 	public byte[] computeHash(String code) {
