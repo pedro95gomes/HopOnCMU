@@ -14,7 +14,7 @@ public class Server {
 
 	public static void main(String[] args) throws Exception {
 		CommandHandlerImpl chi = new CommandHandlerImpl();
-		ServerSocket socket = new ServerSocket(PORT);
+		final ServerSocket socket = new ServerSocket(PORT);
 		Socket client = null;
 
 		Runtime.getRuntime().addShutdownHook(new Thread() {

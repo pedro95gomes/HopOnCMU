@@ -80,8 +80,9 @@ public class ServerUtil {
 		File[] listOfFiles = folder.listFiles();
 		
 		for (File file : listOfFiles) {
-		    if (file.isFile()) {
+		    if (file.isFile() && file.length() > 0) {
 		        try {
+		        	System.out.println("1");
 			    	ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file.getAbsolutePath()));
 					User user = (User) ois.readObject();
 					users.add(user);
@@ -93,6 +94,9 @@ public class ServerUtil {
 					e.printStackTrace();
 					return null;
 				}
+		    }
+		    else{
+				System.out.println("User file is empty");
 		    }
 		}
 		return users;
@@ -140,6 +144,12 @@ public class ServerUtil {
 		List<String[]> questions = new ArrayList<String[]>();
 		Quizz result = null;
 		try {
+			File cod = new File(path_quizzes + name);
+			if(cod.length() == 0){
+				System.out.println("Quizzes file is empty: " + name);
+				return null;
+			}
+			
 			FileReader fr = new FileReader(path_quizzes + name);
 			BufferedReader br = new BufferedReader(fr);
 			String line = br.readLine();
@@ -179,10 +189,22 @@ public class ServerUtil {
 	}
 	
 	public List<String> getCodesFromFile() {
-		List<String> codes = null;
+		List<String> codes = new ArrayList<>();
 		try {
+			File cod = new File(path_codes);
+			if(cod.length() == 0){
+				System.out.println("Codes file is empty");
+				return null;
+			}
 	    	ObjectInputStream ois = new ObjectInputStream(new FileInputStream(path_codes));
-	    	codes = (List<String>) ois.readObject();
+	    	Object o = ois.readObject();
+	    	if (o instanceof ArrayList<?>){
+	    		for(Object ob : (ArrayList<?>)o){
+	    			if (ob instanceof String){
+	    				codes.add((String) ob);
+	    			}
+	    		}
+	    	}
 			ois.close();
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -209,6 +231,12 @@ public class ServerUtil {
 		FileReader fr;
 		ArrayList<String> locations = null;
 		try {
+			File cod = new File(path_locations);
+			if(cod.length() == 0){
+				System.out.println("Locations file is empty");
+				return null;
+			}
+			
 			fr = new FileReader(path_locations);
 			BufferedReader br = new BufferedReader(fr);
 			String line = br.readLine();
