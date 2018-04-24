@@ -43,6 +43,8 @@ public class SignUp extends AppCompatActivity {
                     signUp(v);
                 } catch (IOException e) {
                     e.printStackTrace();
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
                 }
             }
         });
@@ -50,27 +52,12 @@ public class SignUp extends AppCompatActivity {
 
     public void signUp(View v) throws IOException, ClassNotFoundException {
 
-        Socket client = new Socket("localhost",9090);
-        ObjectOutputStream oos = new ObjectOutputStream(client.getOutputStream());
-        SignUpCommand rqs = new SignUpCommand(username.toString(),code.toString());
-        oos.writeObject(rqs);
-
-        ObjectInputStream ois = new ObjectInputStream(client.getInputStream());
-        SignUpResponse rsp = (SignUpResponse) ois.readObject();
-        oos.close();
-        ois.close();
-        client.close();
-
-
         new SignUpTask(SignUp.this).execute(username.getText().toString(), code.getText().toString());
 
-        boolean registo_valido = rsp.getSuccess();   //Só para testar
-        if (registo_valido) {
+        /*if (invalid_account.getVisibility() == View.INVISIBLE) {
             Intent intent = new Intent(SignUp.this, LogIn.class);
             intent.putExtra("Toast", "User registered successfully!");
             startActivity(intent);  //Ir para a activity do LogIn
-        } else
-            invalid_account.setVisibility(View.VISIBLE);
+        }*/
     }
 }
-

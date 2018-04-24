@@ -39,18 +39,24 @@ public class CommandHandlerImpl implements CommandHandler {
 	public Response handle(SignUpCommand suc){
 		System.out.println("Username:" + suc.getUsername() + " | Code: " + suc.getBusCode());
 		// Get list of used codes
-		List<String> used_codes = sv.getCodes();
-		SignUpResponse registered;
-
-		String code = null;
-		if(!used_codes.contains(suc.getBusCode())) { // Check if code was already used: if not, register user
-			code = suc.getBusCode();
-			sv.registerUser(suc.getUsername(), code);
-			registered =  new SignUpResponse(suc.getUsername(),code);
-		}else
-			registered =  new SignUpResponse(suc.getUsername(),null);
+		List<String> all_codes = sv.getInitialCodes();
+		List<String> used_codes = sv.getUsedCodes();
+		Boolean isUsed = true;
 		
-		return registered;
+		String code = suc.getBusCode();
+		System.out.println(all_codes);
+		if(used_codes != null) { // Check if code was already used: if not, register user
+			if(used_codes.contains(code)){
+				isUsed=false;
+			}
+		}
+		if(all_codes != null){
+			if(!all_codes.contains(code)){
+				sv.registerUser(suc.getUsername(), code);
+				return new SignUpResponse(suc.getUsername(),code);
+			}
+		}
+		return new SignUpResponse(suc.getUsername(),null);
 	}
 	
 	@Override

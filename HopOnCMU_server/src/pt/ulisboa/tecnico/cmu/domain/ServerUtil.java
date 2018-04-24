@@ -17,11 +17,13 @@ import java.util.Map;
 public class ServerUtil {
 	private static final String path_quizzes = "resources/quizzes/";
 	private static final String path_users = "resources/users/";
-	private static final String path_codes = "resources/codes/codes.txt";
+	private static final String path_usedcodes = "resources/codes/usedcodes.txt";
+	private static final String path_allcodes = "resources/codes/allcodes.txt";
 	private static final String path_locations ="resources/tour/locations.txt";
 	private Map<String, User> users;
 	private List<Quizz> quizzes;
-	private List<String> codes;
+	private List<String> initial_codes;
+	private List<String> used_codes;
 	private ArrayList<String> tourLocations;
 	
 	public ServerUtil(){
@@ -31,7 +33,8 @@ public class ServerUtil {
 			this.users.put(u.getUsername(), u);
 		}
 		this.quizzes = getQuizzesFromDirectory();
-		this.codes = getCodesFromFile();
+		this.initial_codes = getInitialCodesFromFile();
+		this.used_codes = getCodesFromFile();
 		this.tourLocations = getLocationsFromFile();
 	}
 
@@ -184,19 +187,46 @@ public class ServerUtil {
 		}
 	}
 	
-	public List<String> getCodes() {
-		return this.codes;
+	public List<String> getInitialCodes(){
+		return this.initial_codes;
+	}
+	
+	public List<String> getInitialCodesFromFile(){
+		List<String> codes = new ArrayList<>();
+		try {
+			File cod = new File(path_allcodes);
+			if(cod.length() == 0){
+				System.out.println("Initial codes file is empty");
+				return null;
+			}
+			FileReader fr = new FileReader(path_allcodes);
+			BufferedReader br = new BufferedReader(fr);
+			String line = br.readLine();
+			while(line != null) {
+				codes.add(line);
+				line = br.readLine();
+			}
+			br.close();
+			fr.close();
+		}catch(IOException e){
+			e.printStackTrace();
+		}
+		return codes;
+	}
+	
+	public List<String> getUsedCodes() {
+		return this.used_codes;
 	}
 	
 	public List<String> getCodesFromFile() {
 		List<String> codes = new ArrayList<>();
 		try {
-			File cod = new File(path_codes);
+			File cod = new File(path_usedcodes);
 			if(cod.length() == 0){
-				System.out.println("Codes file is empty");
+				System.out.println("Used codes file is empty");
 				return null;
 			}
-	    	ObjectInputStream ois = new ObjectInputStream(new FileInputStream(path_codes));
+	    	ObjectInputStream ois = new ObjectInputStream(new FileInputStream(path_usedcodes));
 	    	Object o = ois.readObject();
 	    	if (o instanceof ArrayList<?>){
 	    		for(Object ob : (ArrayList<?>)o){
@@ -218,8 +248,8 @@ public class ServerUtil {
 	
 	public void saveCodes() {
 		try {
-	    	ObjectOutputStream ous = new ObjectOutputStream(new FileOutputStream(path_codes, false));
-			ous.writeObject(getCodes());
+	    	ObjectOutputStream ous = new ObjectOutputStream(new FileOutputStream(path_usedcodes, false));
+			ous.writeObject(getUsedCodes());
 			ous.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

@@ -72,7 +72,7 @@
         android:textSize="18sp"
         android:textStyle="bold"
         android:visibility="invisible"
-        android:text="Username or Ticket Code already taken!" />
+        android:text="Username or Ticket Code invalid!" />
 
     <Button
         android:id="@+id/btn_sign_up"
