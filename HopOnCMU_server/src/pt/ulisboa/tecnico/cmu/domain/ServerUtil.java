@@ -15,10 +15,10 @@ import java.util.List;
 import java.util.Map;
 
 public class ServerUtil {
-	private static final String path_quizzes = "quizzes/";
-	private static final String path_users = "users/";
-	private static final String path_codes = "codes/codes.txt";
-	private static final String path_locations ="tour/locations.txt";
+	private static final String path_quizzes = "resources/quizzes/";
+	private static final String path_users = "resources/users/";
+	private static final String path_codes = "resources/codes/codes.txt";
+	private static final String path_locations ="resources/tour/locations.txt";
 	private Map<String, User> users;
 	private List<Quizz> quizzes;
 	private List<String> codes;
@@ -87,11 +87,11 @@ public class ServerUtil {
 					users.add(user);
 					ois.close();
 				} catch (ClassNotFoundException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
+					return null;
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
+					return null;
 				}
 		    }
 		}
