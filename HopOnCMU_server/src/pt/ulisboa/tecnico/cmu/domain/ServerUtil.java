@@ -57,6 +57,10 @@ public class ServerUtil {
 	public ArrayList<String> getTourLocations() {
 		return tourLocations;
 	}
+	
+	public void addUsedCode(String code){
+		this.used_codes.add(code);
+	}
 
 	public void setTourLocations(ArrayList<String> tourLocations) {
 		this.tourLocations = tourLocations;
@@ -104,21 +108,6 @@ public class ServerUtil {
 		}
 		return users;
 	}
-	
-	private List<Quizz> getQuizzesFromDirectory() {
-		List<Quizz> quizzes = new ArrayList<>();
-
-		File folder = new File(path_users);
-		File[] listOfFiles = folder.listFiles();
-		
-		for (File file : listOfFiles) {
-		    if (file.isFile()) {
-		        Quizz quizz = getQuizz(file.getName());
-		        quizzes.add(quizz);
-		    }
-		}
-		return quizzes;
-	}
 
 	public boolean setSessionId(String username, String sessionId){
 		if(users.containsKey(username)){
@@ -142,6 +131,27 @@ public class ServerUtil {
 		return false;
 	}
 	
+	public Boolean verifyUsername(String username){
+		if(users.containsKey(username) && users.containsValue(username))
+			return false;
+		return true;
+	}
+	
+	private List<Quizz> getQuizzesFromDirectory() {
+		List<Quizz> quizzes = new ArrayList<>();
+
+		File folder = new File(path_quizzes);
+		File[] listOfFiles = folder.listFiles();
+		
+		for (File file : listOfFiles) {
+		    if (file.isFile()) {
+		        Quizz quizz = getQuizz(file.getName());
+		        quizzes.add(quizz);
+		    }
+		}
+		return quizzes;
+	}
+	
 	public Quizz getQuizz(String name){
 		String[] question = new String[4];
 		List<String[]> questions = new ArrayList<String[]>();
@@ -157,7 +167,7 @@ public class ServerUtil {
 			BufferedReader br = new BufferedReader(fr);
 			String line = br.readLine();
 			while(line != null) {
-				for(int i = 0; i < 5; i++) {
+				for(int i = 0; i < 4; i++) {
 					question[i]=line;
 					line = br.readLine();
 				}
@@ -192,12 +202,12 @@ public class ServerUtil {
 	}
 	
 	public List<String> getInitialCodesFromFile(){
-		List<String> codes = new ArrayList<>();
+		List<String> codes = new ArrayList<String>();
 		try {
 			File cod = new File(path_allcodes);
 			if(cod.length() == 0){
 				System.out.println("Initial codes file is empty");
-				return null;
+				return codes;
 			}
 			FileReader fr = new FileReader(path_allcodes);
 			BufferedReader br = new BufferedReader(fr);
@@ -219,12 +229,12 @@ public class ServerUtil {
 	}
 	
 	public List<String> getCodesFromFile() {
-		List<String> codes = new ArrayList<>();
+		List<String> codes = new ArrayList<String>();
 		try {
 			File cod = new File(path_usedcodes);
 			if(cod.length() == 0){
 				System.out.println("Used codes file is empty");
-				return null;
+				return codes;
 			}
 	    	ObjectInputStream ois = new ObjectInputStream(new FileInputStream(path_usedcodes));
 	    	Object o = ois.readObject();
@@ -247,19 +257,40 @@ public class ServerUtil {
 	}
 	
 	public void saveCodes() {
+		List<String> usedCodes = getUsedCodes();
 		try {
 	    	ObjectOutputStream ous = new ObjectOutputStream(new FileOutputStream(path_usedcodes, false));
-			ous.writeObject(getUsedCodes());
+			ous.writeObject(usedCodes);
 			ous.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			System.out.println(e.getMessage());
 			e.printStackTrace();
 		}
 	}
 	
+	public Boolean verifyCode(String code){
+		List<String> all_codes = getInitialCodes();
+		List<String> used_codes = getUsedCodes();
+		Boolean isUsed = false;
+		
+		System.out.println(all_codes);
+		if(used_codes != null) { // Check if code was already used: if not, register user
+			if(used_codes.contains(code)){
+				isUsed=true;
+			}
+		}
+		if(all_codes != null){
+			if(all_codes.contains(code) && !isUsed){
+				return true;
+			}
+		}
+		System.out.println("Code " + code + " does not exist or is already in use");
+		return false;
+	}
+	
 	public ArrayList<String> getLocationsFromFile(){
 		FileReader fr;
-		ArrayList<String> locations = null;
+		ArrayList<String> locations = new ArrayList<String>();
 		try {
 			File cod = new File(path_locations);
 			if(cod.length() == 0){

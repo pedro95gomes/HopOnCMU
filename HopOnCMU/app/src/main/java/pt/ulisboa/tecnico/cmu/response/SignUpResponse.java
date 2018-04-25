@@ -10,7 +10,7 @@ public class SignUpResponse implements Response {
         this.username = username;
         this.message = message;
 
-        if(message == null) register_success = false;
+        if(message == null) { register_success = false; }
     }
 
     public String getUsername() {

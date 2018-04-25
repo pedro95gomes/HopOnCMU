@@ -2,6 +2,7 @@ package pt.ulisboa.tecnico.cmu.domain;
 
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -58,11 +59,8 @@ public class User implements Serializable{
 		byte[] password = null;
 		try {
 			digest = MessageDigest.getInstance("SHA-256");
-			password = digest.digest(code.getBytes("UTF_8"));
+			password = digest.digest(code.getBytes(StandardCharsets.UTF_8));
 		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
