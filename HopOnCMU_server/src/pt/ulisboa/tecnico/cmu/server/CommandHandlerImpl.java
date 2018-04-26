@@ -78,7 +78,7 @@ public class CommandHandlerImpl implements CommandHandler {
 	
 	@Override
 	public Response handle(LogOutCommand lgoutc){
-        System.out.println("Logging out...");
+        System.out.println("Logging out... " + lgoutc.getUsername() +" with sessionID "+ lgoutc.getSessionId());
         
         // Removes sessionID associated with user X
         sv.revokeSessionId(lgoutc.getUsername(), lgoutc.getSessionId());
