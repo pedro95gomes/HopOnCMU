@@ -67,7 +67,9 @@ public class ServerUtil {
 	}
 	
 	public boolean isPassword(String username, String password) {
-		return getUser(username).checkPassword(password);
+		if(users.containsKey(username))
+			return getUser(username).checkPassword(password);
+		return false;
 	}
 	
 	public void registerUser(String username, String password) {
@@ -89,7 +91,6 @@ public class ServerUtil {
 		for (File file : listOfFiles) {
 		    if (file.isFile() && file.length() > 0) {
 		        try {
-		        	System.out.println("1");
 			    	ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file.getAbsolutePath()));
 					User user = (User) ois.readObject();
 					users.add(user);

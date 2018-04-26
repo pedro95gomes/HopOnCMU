@@ -1,7 +1,6 @@
 package pt.ulisboa.tecnico.cmu.domain;
 
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -56,20 +55,30 @@ public class User implements Serializable{
 	
 	public byte[] computeHash(String code) {
 		MessageDigest digest;
-		byte[] password = null;
+		byte[] password = code.getBytes(StandardCharsets.UTF_8);
+		byte[] result = null;
 		try {
 			digest = MessageDigest.getInstance("SHA-256");
-			password = digest.digest(code.getBytes(StandardCharsets.UTF_8));
+			digest.update(password);
+			result = digest.digest();
 		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return password;
+		return result;
+	}
+	
+	//to use just in case
+	public byte[] pad32(byte[] password){
+		byte[] padded = new byte[32];
+		for(int i=0; i<password.length; i++){
+			padded[i] = password[i];
+		}
+		return padded;
 	}
 	
 	public boolean checkPassword(String password) {
 		byte[] hashed = computeHash(password);
-		if(Arrays.equals(busCode, hashed)) 
+		if(Arrays.toString(hashed).equals(Arrays.toString(getBusCode())))
 			return true;
 		return false;
 	}

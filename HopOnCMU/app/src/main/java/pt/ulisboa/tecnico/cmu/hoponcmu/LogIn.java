@@ -38,26 +38,14 @@ public class LogIn extends AppCompatActivity {
             String toast_text = intent.getExtras().getString("Toast");  //Toast a dizer que o user foi registado com sucesso
             Toast.makeText(LogIn.this, toast_text, Toast.LENGTH_LONG).show();
         }
-
     }
 
     public void logIn (View v){
-        //TODO autenticar o user com o servidor
         new LogInTask(LogIn.this).execute(username.getText().toString(), code.getText().toString());
-        boolean loginValido=true;   //Só para testar
-
-        if(loginValido) {
-            Intent intent = new Intent(LogIn.this, MainMenu.class);
-            startActivity(intent);  //Ir para a activity do MainMenu
-        }
-        else
-            login_invalido.setVisibility(View.VISIBLE);
-
     }
 
     public void signUp (View v){
         Intent intent = new Intent(LogIn.this, SignUp.class);
         startActivity(intent);  //Ir para a activity do SignUp
     }
-
 }

@@ -42,10 +42,10 @@ public class ListLocationsTask extends AsyncTask<String, Void, String> {
             oos.close();
             ois.close();
             if(locations != null) {     //Só para testar, depois apagar!
-                System.out.println("TRUE");
+                register_success = "true";
             }
             else {
-                System.out.println("FALSE");
+                register_success = "false";
             }
             Log.d("DummyClient", "SUCCESS= " + locations.toString());
         }
@@ -59,14 +59,14 @@ public class ListLocationsTask extends AsyncTask<String, Void, String> {
             }
         }
         //return reply;
-        return "Tour locations updated";
+        return register_success;
     }
 
     @Override
     protected void onPostExecute(String o) {
-        ((ListTourLocations) listLocationsActivity).updateLocations(locations);
-        if (o != null) {
+        if (o != null && o.equals("true")) {
             Toast.makeText(listLocationsActivity, o, Toast.LENGTH_SHORT).show();
+            listLocationsActivity.updateLocations(locations);
         }
     }
 }

@@ -40,6 +40,8 @@ public class CommandHandlerImpl implements CommandHandler {
 		System.out.println("Username:" + suc.getUsername() + " | Code: " + suc.getBusCode());
 		
 		String code = suc.getBusCode();
+		System.out.println(code);
+		
 		String username = suc.getUsername();
 		if (sv.verifyCode(code) && sv.verifyUsername(username)){
 			sv.registerUser(suc.getUsername(), code);

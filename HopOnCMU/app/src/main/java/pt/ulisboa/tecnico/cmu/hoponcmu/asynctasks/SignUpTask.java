@@ -53,20 +53,18 @@ public class SignUpTask extends AsyncTask<String, Void, String> {
                 catch (Exception e) { }
             }
         }
-        //return reply;
         return success;
     }
 
     @Override
     protected void onPostExecute(String o) {
-        TextView t = (TextView) signUpActivity.findViewById(R.id.invalid_account);
         if (o != null && o.equals("true")) {
             //Toast.makeText(signUpActivity, "Registered Successfully", Toast.LENGTH_SHORT);
             Intent intent = new Intent(signUpActivity, LogIn.class);
             intent.putExtra("Toast", "User registered successfully!");
             signUpActivity.startActivity(intent);  //Ir para a activity do LogIn
         } else{
-            Toast.makeText(signUpActivity,"Failed to Register: Bus code invalid or already in use", Toast.LENGTH_SHORT);
+            TextView t = (TextView) signUpActivity.findViewById(R.id.invalid_account);
             t.setVisibility(View.VISIBLE);
         }
     }
