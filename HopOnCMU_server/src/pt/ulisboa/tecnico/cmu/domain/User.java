@@ -78,8 +78,9 @@ public class User implements Serializable{
 	
 	public boolean checkPassword(String password) {
 		byte[] hashed = computeHash(password);
-		if(Arrays.toString(hashed).equals(Arrays.toString(getBusCode())))
+		if(Arrays.toString(hashed).equals(Arrays.toString(getBusCode()))){
 			return true;
+		}
 		return false;
 	}
 }

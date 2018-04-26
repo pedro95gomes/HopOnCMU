@@ -40,7 +40,7 @@ public class LogInTask extends AsyncTask<String, Void, String> {
             ObjectInputStream ois = new ObjectInputStream(server.getInputStream());
 
             LogInResponse response = (LogInResponse) ois.readObject();
-            success = response.getSuccess() ? "true" : "false";
+            success = response.getSessionId()!=null ? "true" : "false";
 
             oos.close();
             ois.close();
