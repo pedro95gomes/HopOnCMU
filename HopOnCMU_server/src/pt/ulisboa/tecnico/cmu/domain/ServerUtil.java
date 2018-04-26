@@ -24,7 +24,7 @@ public class ServerUtil {
 	private List<Quizz> quizzes;
 	private List<String> initial_codes;
 	private List<String> used_codes;
-	private ArrayList<String> tourLocations;
+	private List<String> tourLocations;
 	
 	public ServerUtil(){
 		this.users = new HashMap<>();
@@ -54,7 +54,7 @@ public class ServerUtil {
 		this.quizzes = quizzes;
 	}
 	
-	public ArrayList<String> getTourLocations() {
+	public List<String> getTourLocations() {
 		return tourLocations;
 	}
 	
@@ -289,9 +289,9 @@ public class ServerUtil {
 		return false;
 	}
 	
-	public ArrayList<String> getLocationsFromFile(){
+	public List<String> getLocationsFromFile(){
 		FileReader fr;
-		ArrayList<String> locations = new ArrayList<String>();
+		List<String> locations = new ArrayList<String>();
 		try {
 			File cod = new File(path_locations);
 			if(cod.length() == 0){
@@ -302,10 +302,9 @@ public class ServerUtil {
 			fr = new FileReader(path_locations);
 			BufferedReader br = new BufferedReader(fr);
 			String line = br.readLine();
-			locations = new ArrayList<>();
 			while(line != null) {
-				line = br.readLine();
 				locations.add(line);
+				line = br.readLine();
 			}
 			br.close();
 		} catch (FileNotFoundException e) {

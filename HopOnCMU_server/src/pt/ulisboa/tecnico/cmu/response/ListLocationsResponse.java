@@ -1,16 +1,17 @@
 package pt.ulisboa.tecnico.cmu.response;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class ListLocationsResponse implements Response{
     private static final long serialVersionUID = 734457624276534179L;
-    private ArrayList<String> tourlocations = new ArrayList<String>();
+    private List<String> tourlocations;
 
-    public ListLocationsResponse(ArrayList<String> tourlocations){
+    public ListLocationsResponse(List<String> tourlocations){
         this.tourlocations = tourlocations;
     }
 
-    public ArrayList<String> getLocations(){
+    public List<String> getLocations(){
         return this.tourlocations;
     }
 }

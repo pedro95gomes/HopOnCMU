@@ -25,19 +25,9 @@ public class ListTourLocations extends AppCompatActivity {  //Lists all tour loc
         list = (ListView) findViewById(R.id.list);
         nothing = (TextView) findViewById(R.id.nothing);
 
-        new ListLocationsTask(ListTourLocations.this);
+        new ListLocationsTask(ListTourLocations.this).execute();
 
         //TODO
         //Depois se quisermos, também dá para fazer uma ação se o user clicar em cada item da lista
-    }
-
-    public void updateLocations(ArrayList<String> locations) {
-        if(locations.size()!=0) {
-            list_location = locations;
-            ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, list_location);
-            list.setAdapter(adapter);
-        }
-        else
-            nothing.setVisibility(View.VISIBLE);
     }
 }

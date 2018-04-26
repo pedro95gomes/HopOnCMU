@@ -2,21 +2,26 @@ package pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks;
 
 import android.os.AsyncTask;
 import android.util.Log;
+import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.List;
 
 import pt.ulisboa.tecnico.cmu.command.ListLocationsCommand;
 import pt.ulisboa.tecnico.cmu.hoponcmu.ListTourLocations;
+import pt.ulisboa.tecnico.cmu.hoponcmu.R;
 import pt.ulisboa.tecnico.cmu.response.ListLocationsResponse;
 
 public class ListLocationsTask extends AsyncTask<String, Void, String> {
 
     private ListTourLocations listLocationsActivity;
-    private ArrayList<String> locations = null;
+    private List<String> locations = null;
 
     public ListLocationsTask(ListTourLocations listLocationsActivity) {
         this.listLocationsActivity = listLocationsActivity;
@@ -65,8 +70,14 @@ public class ListLocationsTask extends AsyncTask<String, Void, String> {
     @Override
     protected void onPostExecute(String o) {
         if (o != null && o.equals("true")) {
-            Toast.makeText(listLocationsActivity, o, Toast.LENGTH_SHORT).show();
-            listLocationsActivity.updateLocations(locations);
+            ListView listlist_location = listLocationsActivity.findViewById(R.id.list);
+            if (locations.size() != 0) {
+                ArrayAdapter<String> adapter = new ArrayAdapter<String>(listLocationsActivity, android.R.layout.simple_list_item_1, locations);
+                listlist_location.setAdapter(adapter);
+            } else {
+                ListView nothing = listLocationsActivity.findViewById(R.id.nothing);
+                nothing.setVisibility(View.VISIBLE);
+            }
         }
     }
 }
