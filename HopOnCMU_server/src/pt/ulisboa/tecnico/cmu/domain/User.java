@@ -5,6 +5,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -19,6 +20,7 @@ public class User implements Serializable{
 	public User(String username, String busCode) {
 		this.username = username;
 		this.busCode = computeHash(busCode);
+		this.answers = new HashMap<String, List<String>>();
 	}
 	
 	public void setSessionId(String sessionId) {
@@ -29,8 +31,10 @@ public class User implements Serializable{
 		return this.answers.get(quizzname);
 	}
 	
-	public List<String> setAnswers(String quizzname, List<String> answers){
-		return this.answers.put(quizzname, answers);
+	public void setAnswers(String quizzname, List<String> answers){
+		for(String a : answers)
+			System.out.println(a);
+		this.answers.put(quizzname, answers);
 	}
 	
 	public String getUsername() {

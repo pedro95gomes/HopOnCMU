@@ -16,6 +16,7 @@ public class ListTourLocations extends AppCompatActivity {  //Lists all tour loc
     private ListView list;
     private ArrayList<String> list_location;      //Array que vai ter o strings com o nome das locations
     private TextView nothing;
+    private String ssid;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,6 +25,8 @@ public class ListTourLocations extends AppCompatActivity {  //Lists all tour loc
 
         list = (ListView) findViewById(R.id.list);
         nothing = (TextView) findViewById(R.id.nothing);
+
+        ssid = getIntent().getExtras().getString("ssid");
 
         new ListLocationsTask(ListTourLocations.this).execute();
 

@@ -38,14 +38,14 @@ public class Quizz {
 	public String getAnswer(String question){
 		for(String[] q : this.questions) {
 			if(question.equals(q[0])) {
-				return q[4];
+				return q[5];
 			}
 		}
 		return "";
 	}
 	
 	public String getAnswer(int numQuest) {
-		return this.questions.get(numQuest)[4];
+		return this.questions.get(numQuest)[5];
 	}
 	
 	public int getIndexQuestion(String question) {

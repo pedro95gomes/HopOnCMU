@@ -26,14 +26,9 @@
         <activity android:name=".MainMenu" />
         <activity android:name=".ListTourLocations" />
         <activity android:name=".Quiz" />
-
-        <service
-            android:name=".DownloadQuizQuestions"
-            android:enabled="true"
-            android:exported="true" />
-
+        <activity android:name=".DownloadQuizQuestions" />
         <activity android:name=".PostQuizAnswers" />
-        <activity android:name=".ReadQuizResults"></activity>
+        <activity android:name=".ReadQuizResults" />
     </application>
 
 </manifest>

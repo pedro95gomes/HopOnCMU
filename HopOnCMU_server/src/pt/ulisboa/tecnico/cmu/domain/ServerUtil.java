@@ -21,12 +21,14 @@ public class ServerUtil {
 	private static final String path_allcodes = "resources/codes/allcodes.txt";
 	private static final String path_locations ="resources/tour/locations.txt";
 	private Map<String, User> users;
+	private Map<String, String> sessions;
 	private List<Quizz> quizzes;
 	private List<String> initial_codes;
 	private List<String> used_codes;
 	private List<String> tourLocations;
 	
 	public ServerUtil(){
+		this.sessions = new HashMap<>();
 		this.users = new HashMap<>();
 		List<User> usersList = getUsersFromDirectory();
 		for(User u : usersList) {
@@ -112,6 +114,7 @@ public class ServerUtil {
 
 	public boolean setSessionId(String username, String sessionId){
 		if(users.containsKey(username)){
+			sessions.put(sessionId, username);
 			User user = users.get(username);
 			user.setSessionId(sessionId);
 			users.put(username, user);
@@ -154,7 +157,6 @@ public class ServerUtil {
 	}
 	
 	public Quizz getQuizz(String name){
-		String[] question = new String[4];
 		List<String[]> questions = new ArrayList<String[]>();
 		Quizz result = null;
 		try {
@@ -168,19 +170,19 @@ public class ServerUtil {
 			BufferedReader br = new BufferedReader(fr);
 			String line = br.readLine();
 			while(line != null) {
-				for(int i = 0; i < 4; i++) {
+				String[] question = new String[6];
+				for(int i = 0; i < 6; i++) {
 					question[i]=line;
 					line = br.readLine();
 				}
 				questions.add(question);
+				line = br.readLine();
 			}
 			br.close();
 			result = new Quizz(name, questions);
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return result;
@@ -193,7 +195,6 @@ public class ServerUtil {
 			ous.writeObject(user);
 			ous.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -248,10 +249,8 @@ public class ServerUtil {
 	    	}
 			ois.close();
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return codes;
@@ -334,10 +333,12 @@ public class ServerUtil {
 		return result/numQuestion;
 	}
 	
-	public void setUserAnswers(String username, String quizzname, List<String> answers) {
+	public void setUserAnswers(String ssid, String quizzname, List<String> answers) {
+		String username = sessions.get(ssid);
 		User user = getUser(username);
 		user.setAnswers(quizzname, answers);
 		this.users.put(username, user);
 		saveUser(username);
+		System.out.println("Saving answers for user "+username);
 	}
 }

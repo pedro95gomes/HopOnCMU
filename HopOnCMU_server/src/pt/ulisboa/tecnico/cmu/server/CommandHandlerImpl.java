@@ -106,7 +106,7 @@ public class CommandHandlerImpl implements CommandHandler {
     
     @Override
 	public Response handle(PostAnswersCommand pac){
-        System.out.println("Submiting tourist answers...");
+        System.out.println("Submiting tourist answers for " + pac.getQuizzName());
 
         // Calculates results for User X in quizz Y
         List<Quizz> quizzes = sv.getQuizzes();

@@ -12,24 +12,28 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 
 import pt.ulisboa.tecnico.cmu.command.LogInCommand;
+import pt.ulisboa.tecnico.cmu.command.PostAnswersCommand;
 import pt.ulisboa.tecnico.cmu.hoponcmu.LogIn;
 import pt.ulisboa.tecnico.cmu.hoponcmu.MainMenu;
+import pt.ulisboa.tecnico.cmu.hoponcmu.PostQuizAnswers;
 import pt.ulisboa.tecnico.cmu.hoponcmu.R;
 import pt.ulisboa.tecnico.cmu.response.LogInResponse;
+import pt.ulisboa.tecnico.cmu.response.PostAnswersResponse;
 
-public class LogInTask extends AsyncTask<String, Void, String> {
+public class PostQuizAnswersTask extends AsyncTask<String, Void, String> {
 
-    private LogIn logInActivity;
+    private PostQuizAnswers postQuizActivity;
     private String sessionId;
 
-    public LogInTask(LogIn logInActivity) {
-        this.logInActivity = logInActivity;
+    public PostQuizAnswersTask(PostQuizAnswers postQuizActivity) {
+        this.postQuizActivity = postQuizActivity;
     }
 
     @Override
-    protected String doInBackground(String[] params) {      //Username | Code
+    protected String doInBackground(String[] params) {      //SessionId | Quizname
         Socket server = null;
-        LogInCommand user_code = new LogInCommand(params[0],params[1]);
+        sessionId = params[0];
+        PostAnswersCommand user_code = new PostAnswersCommand(sessionId,params[1],postQuizActivity.getAnswers());
         String success = "false";
 
         try {
@@ -40,10 +44,8 @@ public class LogInTask extends AsyncTask<String, Void, String> {
 
             ObjectInputStream ois = new ObjectInputStream(server.getInputStream());
 
-            LogInResponse response = (LogInResponse) ois.readObject();
-            sessionId = response.getSessionId();
-            success = sessionId!=null ? "true" : "false";
-
+            PostAnswersResponse response = (PostAnswersResponse) ois.readObject();
+            success = response.getSuccess() ? "true" : "false";
 
             oos.close();
             ois.close();
@@ -65,13 +67,13 @@ public class LogInTask extends AsyncTask<String, Void, String> {
     @Override
     protected void onPostExecute(String o) {
         if (o != null && o.equals("true")) {
-            Intent intent = new Intent(logInActivity, MainMenu.class);
+            Intent intent = new Intent(postQuizActivity, MainMenu.class);
             intent.putExtra("ssid", sessionId);
-            logInActivity.startActivity(intent);  //Ir para a activity do MainMenu
+            intent.putExtra("Toast", "Answers submited successfully");
+            postQuizActivity.startActivity(intent);  //Ir para a activity do MainMenu
         }
         else {
-            TextView login_invalido = (TextView) logInActivity.findViewById(R.id.invalid_login);
-            login_invalido.setVisibility(View.VISIBLE);
+            Toast.makeText(postQuizActivity.getApplicationContext(), "Not possible to submit answers", Toast.LENGTH_LONG);
         }
    }
 }

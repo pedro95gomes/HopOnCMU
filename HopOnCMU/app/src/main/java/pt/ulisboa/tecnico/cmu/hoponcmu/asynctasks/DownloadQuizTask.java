@@ -27,6 +27,7 @@ public class DownloadQuizTask extends AsyncTask<String, Integer, String> {
 
     private DownloadQuizQuestions downloadQuizActivity;
     private List<String[]> questions;
+    private String ssid;
 
     public DownloadQuizTask(DownloadQuizQuestions downloadQuizActivity) {
         this.downloadQuizActivity = downloadQuizActivity;
@@ -37,6 +38,7 @@ public class DownloadQuizTask extends AsyncTask<String, Integer, String> {
         Socket server = null;
         String register_success = null;
         DownloadQuestionsCommand user_code = new DownloadQuestionsCommand(params[0]);
+        ssid = params[1];
 
         try {
             server = new Socket("10.0.2.2", 9090);
@@ -77,6 +79,8 @@ public class DownloadQuizTask extends AsyncTask<String, Integer, String> {
             downloadQuizActivity.saveQuizFile(questions);
             Intent intent = new Intent(downloadQuizActivity, MainMenu.class);
             intent.putExtra("Toast", "File downloaded successfully");
+            intent.putExtra("ssid", ssid);
+            Log.d("File:", "Successfully downloaded");
             downloadQuizActivity.startActivity(intent);  //Ir para a activity do LogIn
         }
     }

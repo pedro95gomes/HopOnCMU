@@ -11,6 +11,7 @@ public class ReadQuizResults extends AppCompatActivity {        //Asks results t
 
     private ListView list;
     private ArrayList<String> list_rank;      //Array que vai ter as posições do ranking
+    private String ssid;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,6 +21,7 @@ public class ReadQuizResults extends AppCompatActivity {        //Asks results t
         list = (ListView) findViewById(R.id.list);
         list_rank = new ArrayList<String>();
 
+        ssid = getIntent().getExtras().getString("ssid");
         //Adicionar locations manualmente agora. Depois, isto é pedido ao servidor
         list_rank.add("1º - User1");
         list_rank.add("2º - User2");
