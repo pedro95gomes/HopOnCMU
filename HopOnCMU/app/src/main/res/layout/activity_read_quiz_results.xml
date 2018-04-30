@@ -13,25 +13,9 @@
         android:text="Correct Answers:"
         android:textSize="24sp" />
 
-    <TextView
-        android:id="@+id/textView2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="5/10"
-        android:textSize="24sp" />
-
-    <TextView
-        android:id="@+id/textView5"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20sp"
-        android:text="Ranking:"
-        android:gravity="center"
-        android:textSize="24sp" />
-
     <ListView
         android:id="@+id/list"
         android:layout_width="match_parent"
         android:layout_height="462sp" />
+
 </LinearLayout>

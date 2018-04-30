@@ -1,16 +1,25 @@
 package pt.ulisboa.tecnico.cmu.hoponcmu;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.SimpleCursorAdapter;
 
 import java.util.ArrayList;
+import java.util.List;
+
+import pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks.ReadResultsTask;
+import pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks.ResultsAdapter;
 
 public class ReadQuizResults extends AppCompatActivity {        //Asks results to server and shows them
 
     private ListView list;
-    private ArrayList<String> list_rank;      //Array que vai ter as posições do ranking
+    private String[] list_quiz;      //Array que vai ter as posições do ranking
     private String ssid;
 
     @Override
@@ -19,15 +28,14 @@ public class ReadQuizResults extends AppCompatActivity {        //Asks results t
         setContentView(R.layout.activity_read_quiz_results);
 
         list = (ListView) findViewById(R.id.list);
-        list_rank = new ArrayList<String>();
 
         ssid = getIntent().getExtras().getString("ssid");
-        //Adicionar locations manualmente agora. Depois, isto é pedido ao servidor
-        list_rank.add("1º - User1");
-        list_rank.add("2º - User2");
-        list_rank.add("3º - User3");
+        list_quiz = getApplicationContext().fileList();
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, list_rank);
-        list.setAdapter(adapter);
+        new ReadResultsTask(this).execute(ssid);
+    }
+
+    public String[] getQuizNames() {
+        return this.list_quiz;
     }
 }

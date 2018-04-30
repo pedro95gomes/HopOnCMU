@@ -22,7 +22,6 @@ public class MainMenu extends AppCompatActivity {
 
         listLocations = (Button) findViewById(R.id.listLocats);
         downloadQuestions = (Button) findViewById(R.id.dwnldQuestions);
-        postQuiz = (Button) findViewById(R.id.postAnswers);
         readResults = (Button) findViewById(R.id.readResults);
         answerQuiz = (Button) findViewById(R.id.answerQuiz);
 

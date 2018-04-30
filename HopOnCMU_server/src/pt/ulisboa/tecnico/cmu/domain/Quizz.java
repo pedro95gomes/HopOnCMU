@@ -57,5 +57,7 @@ public class Quizz {
 		return -1;
 	}
 	
-	
+	public int getNumQuestions(){
+		return this.questions.size();
+	}
 }

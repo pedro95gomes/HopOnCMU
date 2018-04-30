@@ -15,12 +15,13 @@ public class User implements Serializable{
 	private String sessionId = null;
 	private byte[] busCode = null;
 	private Map<String, List<String>> answers;
-	private Map<String,Integer> results = null;
+	private Map<String,Integer> results;
 	
 	public User(String username, String busCode) {
 		this.username = username;
 		this.busCode = computeHash(busCode);
 		this.answers = new HashMap<String, List<String>>();
+		this.results = new HashMap<String, Integer>();
 	}
 	
 	public void setSessionId(String sessionId) {

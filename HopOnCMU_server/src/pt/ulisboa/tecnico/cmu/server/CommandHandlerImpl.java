@@ -1,7 +1,9 @@
 package pt.ulisboa.tecnico.cmu.server;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import pt.ulisboa.tecnico.cmu.command.CommandHandler;
@@ -128,14 +130,24 @@ public class CommandHandlerImpl implements CommandHandler {
 
         // Gets results for user X in quiz Y
         List<Quizz> quizzes = sv.getQuizzes();
-        double result = 0;
+        Map<String, Integer> results = new HashMap<String, Integer>();
+        Map<String, Integer> numQuestions = new HashMap<String,Integer>();
+        String[] answered_quizes = qrc.getQuizzName();
         for(Quizz quizz : quizzes) {
-        	if(quizz.getName().equals(qrc.getQuizzName())) {
-        		 result = sv.checkAnswers(qrc.getUserName(), quizz);
+        	for(String name : answered_quizes){
+        		if(quizz.getName().equals(name)){
+        			int result = sv.checkAnswers(qrc.getUserSSID(), quizz);
+        			results.put(name, result);
+        			numQuestions.put(name, quizz.getNumQuestions());
+        		}
+        		else{
+        			results.put(name, 0);
+        			numQuestions.put(name, quizz.getNumQuestions());
+        		}
         	}
         }
-        QuizResultsResponse results = new QuizResultsResponse(result);
+        QuizResultsResponse response = new QuizResultsResponse(results, numQuestions);
         
-        return results;
+        return response;
     }
 }

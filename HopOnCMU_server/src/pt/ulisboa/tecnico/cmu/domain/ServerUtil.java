@@ -317,9 +317,10 @@ public class ServerUtil {
 		return locations;
 	}
 	
-	public double checkAnswers(String username, Quizz quizz) {
+	public int checkAnswers(String ssid, Quizz quizz) {
 		int result = 0;
 		int numQuestion = 0;
+		String username = sessions.get(ssid);
 		User user = getUser(username);
 		for(String answer : user.getAnswers(quizz.getName())) {
 			if(answer.equals(quizz.getAnswer(numQuestion))) {
@@ -330,7 +331,7 @@ public class ServerUtil {
 		user.setResult(quizz.getName(),result);
 		this.users.put(user.getUsername(), user);
 		saveUser(user.getUsername());
-		return result/numQuestion;
+		return result;
 	}
 	
 	public void setUserAnswers(String ssid, String quizzname, List<String> answers) {

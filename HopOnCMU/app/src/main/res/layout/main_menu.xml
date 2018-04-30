@@ -34,13 +34,6 @@
             android:onClick="getQuiz"/>
 
         <Button
-            android:id="@+id/postAnswers"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Post quiz answers"
-            android:onClick="postAnswers"/>
-
-        <Button
             android:id="@+id/readResults"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
