@@ -55,7 +55,7 @@ public class ResultsAdapter extends BaseAdapter {
         TextView view2 = twoLineListItem.getText2();
 
         view1.setText(files[i]);
-        view2.setText("Result: "+results.get(files[i]) + " in " + numQ.get(files[i]) + " questions");
+        view2.setText("Result: "+results.get(files[i]) + " correct answer in " + numQ.get(files[i]) + " questions");
 
         return twoLineListItem;
     }
