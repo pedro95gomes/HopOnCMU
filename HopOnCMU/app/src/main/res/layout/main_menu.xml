@@ -39,5 +39,12 @@
             android:layout_height="wrap_content"
             android:text="Quiz results"
             android:onClick="readResults"/>
+
+        <Button
+            android:id="@+id/Ranking"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Ranking"
+            android:onClick="ranking"/>
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>

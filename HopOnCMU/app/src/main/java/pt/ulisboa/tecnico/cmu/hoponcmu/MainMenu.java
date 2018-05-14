@@ -52,6 +52,12 @@ public class MainMenu extends AppCompatActivity {
         startActivity(intent);
     }
 
+    public void ranking(View view) {
+        Intent intent = new Intent(this, Ranking.class);
+        intent.putExtra("ssid", sessionId);
+        startActivity(intent);
+    }
+
     public void getQuiz(View view) {
         Intent intent = new Intent(this, Quiz.class);
         intent.putExtra("ssid", sessionId);
