@@ -88,6 +88,10 @@ public class ServerUtil {
 		List<User> users = new ArrayList<>();
 
 		File folder = new File(path_users);
+
+		if(!folder.exists())
+			folder.mkdir();
+
 		File[] listOfFiles = folder.listFiles();
 		
 		for (File file : listOfFiles) {
@@ -146,7 +150,7 @@ public class ServerUtil {
 
 		File folder = new File(path_quizzes);
 		File[] listOfFiles = folder.listFiles();
-		
+
 		for (File file : listOfFiles) {
 		    if (file.isFile()) {
 		        Quizz quizz = getQuizz(file.getName());
