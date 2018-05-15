@@ -37,7 +37,7 @@ public class ReadResultsTask extends AsyncTask<String, Void, String> {
         QuizResultsCommand user_code = new QuizResultsCommand(params[0],files);
 
         try {
-            KeystoreManager keysManager = new KeystoreManager("phone", "123456");
+            KeystoreManager keysManager = new KeystoreManager("phone", "123456", this.readQuizResultsActivity);
             CryptoManager cryptoManager = new CryptoManager(keysManager.getKeyPair("phone", "123456").getPublic(), keysManager.getKeyPair("phone", "123456").getPrivate());
             server = new Socket("10.0.2.2", 9090);
 

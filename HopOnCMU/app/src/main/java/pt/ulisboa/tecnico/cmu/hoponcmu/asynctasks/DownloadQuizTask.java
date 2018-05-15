@@ -38,7 +38,7 @@ public class DownloadQuizTask extends AsyncTask<String, Integer, String> {
 
 
         try {
-            KeystoreManager keysManager = new KeystoreManager("phone", "123456");
+            KeystoreManager keysManager = new KeystoreManager("phone", "123456", this.downloadQuizActivity);
             CryptoManager cryptoManager = new CryptoManager(keysManager.getKeyPair("phone", "123456").getPublic(), keysManager.getKeyPair("phone", "123456").getPrivate());
             server = new Socket("10.0.2.2", 9090);
             Message message = new Message(cryptoManager.getPublicKey(), keysManager.getKeyStore().getCertificate("server").getPublicKey(), user_code);

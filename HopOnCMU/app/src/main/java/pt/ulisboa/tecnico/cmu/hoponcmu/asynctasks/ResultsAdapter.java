@@ -1,7 +1,6 @@
 package pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks;
 
 import android.content.Context;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,7 +8,6 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 import android.widget.TwoLineListItem;
 
-import java.util.ArrayList;
 import java.util.Map;
 
 public class ResultsAdapter extends BaseAdapter {

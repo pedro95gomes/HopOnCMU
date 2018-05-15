@@ -36,7 +36,7 @@ public class ListLocationsTask extends AsyncTask<String, Void, String> {
         ListLocationsCommand user_code = new ListLocationsCommand();
 
         try {
-            KeystoreManager keysManager = new KeystoreManager("phone", "123456");
+            KeystoreManager keysManager = new KeystoreManager("phone", "123456", this.listLocationsActivity);
             CryptoManager cryptoManager = new CryptoManager(keysManager.getKeyPair("phone", "123456").getPublic(), keysManager.getKeyPair("phone", "123456").getPrivate());
             server = new Socket("10.0.2.2", 9090);
 

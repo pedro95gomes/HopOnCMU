@@ -34,7 +34,7 @@ public class SignUpTask extends AsyncTask<String, Void, String> {
         SignUpCommand user_code = new SignUpCommand(params[0],params[1]);
         String success = null;
         try {
-            KeystoreManager keysManager = new KeystoreManager("phone", "123456");
+            KeystoreManager keysManager = new KeystoreManager("phone", "123456", this.signUpActivity);
             CryptoManager cryptoManager = new CryptoManager(keysManager.getKeyPair("phone", "123456").getPublic(), keysManager.getKeyPair("phone", "123456").getPrivate());
             server = new Socket("10.0.2.2", 9090);
 
