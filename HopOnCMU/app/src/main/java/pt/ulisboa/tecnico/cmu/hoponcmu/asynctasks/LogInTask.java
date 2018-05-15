@@ -41,7 +41,7 @@ public class LogInTask extends AsyncTask<String, Void, String> {
             server = new Socket("10.0.2.2", 9090);
 
             Message message = new Message(cryptoManager.getPublicKey(), keysManager.getKeyStore().getCertificate("server").getPublicKey(), user_code);
-            CipheredMessage cipheredMessage = cryptoManager.makeCipheredMessage(message,cryptoManager.getPublicKey());
+            CipheredMessage cipheredMessage = cryptoManager.makeCipheredMessage(message,keysManager.getKeyStore().getCertificate("server").getPublicKey());
             ObjectOutputStream oos = new ObjectOutputStream(server.getOutputStream());
             oos.writeObject(cipheredMessage);
 
