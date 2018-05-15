@@ -11,18 +11,13 @@ import android.widget.Toast;
  * Created by goncalo on 5/15/18.
  */
 
-public class WiFiDirectBroacastReceiver extends BroadcastReceiver {
+public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
 
     private WifiP2pManager mManager;
     private WifiP2pManager.Channel mChannel;
     private ShareQuizzes shareQuizzes;
 
-<<<<<<< HEAD
-    public WiFiDirectBroacastReceiver(WifiP2pManager mManager, WifiP2pManager.Channel mChannel, ShareQuizzes shareQuizzes) {
-=======
-
-    public WiFiDirectBroacastReceiver(WifiP2pManager mManager, WifiP2pManager.Channel mChannel, ShareQuizzes shareQuizzes){
->>>>>>> 37b02b4e8e646a9759a3e46cce100a95971de025
+    public WiFiDirectBroadcastReceiver(WifiP2pManager mManager, WifiP2pManager.Channel mChannel, ShareQuizzes shareQuizzes){
         this.mChannel=mChannel;
         this.mManager=mManager;
         this.shareQuizzes=shareQuizzes;

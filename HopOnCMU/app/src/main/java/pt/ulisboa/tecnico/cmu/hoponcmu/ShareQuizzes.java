@@ -35,7 +35,6 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
-<<<<<<< HEAD
 import android.net.wifi.p2p.WifiP2pManager.*;
 import android.view.View;
 import android.widget.AdapterView;
@@ -45,10 +44,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-=======
 
-
->>>>>>> 37b02b4e8e646a9759a3e46cce100a95971de025
 
 public class ShareQuizzes extends AppCompatActivity {
 
@@ -183,7 +179,7 @@ public class ShareQuizzes extends AppCompatActivity {
 
         mManager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
         mChannel = mManager.initialize(this, getMainLooper(),null);
-        mReceiver = new WiFiDirectBroacastReceiver(mManager,mChannel,this);
+        mReceiver = new WiFiDirectBroadcastReceiver(mManager,mChannel,this);
 
 
     }

@@ -2,7 +2,7 @@ package pt.ulisboa.tecnico.cmu.crypto;
 
 import java.io.Serializable;
 
-import javax.xml.bind.DatatypeConverter;
+import android.util.Base64;
 
 
 public class CipheredMessage implements Serializable{
@@ -43,19 +43,19 @@ public class CipheredMessage implements Serializable{
     }
 
     public byte[] getKey() {
-        return DatatypeConverter.parseHexBinary(key);
+        return Base64.decode(key, Base64.DEFAULT);
     }
 
     public byte[] getIntegrityCheck() {
-        return DatatypeConverter.parseHexBinary(integrityCheck);
+        return Base64.decode(integrityCheck, Base64.DEFAULT);
     }
 
     public byte[] getContent() {
-        return DatatypeConverter.parseHexBinary(content);
+        return Base64.decode(content, Base64.DEFAULT);
     }
 
     public byte[] getIV() {
-        return DatatypeConverter.parseHexBinary(IV);
+        return Base64.decode(IV, Base64.DEFAULT);
     }
     
     public String getStringKey(){
