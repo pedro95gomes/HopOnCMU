@@ -141,8 +141,8 @@ public class CommandHandlerImpl implements CommandHandler {
         			numQuestions.put(name, quizz.getNumQuestions());
         		}
         		else{
-        			results.put(name, 0);
-        			numQuestions.put(name, quizz.getNumQuestions());
+        			results.put(quizz.getName(), 0);
+        			numQuestions.put(quizz.getName(), quizz.getNumQuestions());
         		}
         	}
         }
