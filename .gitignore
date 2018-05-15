@@ -59,3 +59,4 @@ Deprecated - for older project format, add this section to your gitignore file:
 *.swp
 
 /.metadata/
+/.recommenders/
