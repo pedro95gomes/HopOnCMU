@@ -63,4 +63,10 @@ public class MainMenu extends AppCompatActivity {
         intent.putExtra("ssid", sessionId);
         startActivity(intent);
     }
+
+    public void shareQuizzes(View view) {
+        Intent intent = new Intent(this, ShareQuizzes.class);
+        intent.putExtra("ssid", sessionId);
+        startActivity(intent);
+    }
 }
