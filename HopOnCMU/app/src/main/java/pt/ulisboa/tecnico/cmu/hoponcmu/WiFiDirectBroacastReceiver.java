@@ -17,10 +17,8 @@ public class WiFiDirectBroacastReceiver extends BroadcastReceiver {
     private WifiP2pManager.Channel mChannel;
     private ShareQuizzes shareQuizzes;
 
-    public WiFiDirectBroacastReceiver(WifiP2pManager mManager, WifiP2pManager.Channel mChannel, ShareQuizzes shareQuizzes) {
-    }
 
-    public void WiFiDirectBroadcastReceiver(WifiP2pManager mManager, WifiP2pManager.Channel mChannel, ShareQuizzes shareQuizzes){
+    public WiFiDirectBroacastReceiver(WifiP2pManager mManager, WifiP2pManager.Channel mChannel, ShareQuizzes shareQuizzes){
         this.mChannel=mChannel;
         this.mManager=mManager;
         this.shareQuizzes=shareQuizzes;

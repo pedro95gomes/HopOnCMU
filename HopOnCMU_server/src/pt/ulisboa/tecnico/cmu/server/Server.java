@@ -6,6 +6,10 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 import pt.ulisboa.tecnico.cmu.command.Command;
+import pt.ulisboa.tecnico.cmu.crypto.CipheredMessage;
+import pt.ulisboa.tecnico.cmu.crypto.CryptoManager;
+import pt.ulisboa.tecnico.cmu.crypto.KeystoreManager;
+import pt.ulisboa.tecnico.cmu.crypto.Message;
 import pt.ulisboa.tecnico.cmu.response.Response;
 
 public class Server {
@@ -16,6 +20,8 @@ public class Server {
 		CommandHandlerImpl chi = new CommandHandlerImpl();
 		final ServerSocket socket = new ServerSocket(PORT);
 		Socket client = null;
+		KeystoreManager keysManager = new KeystoreManager("server", "123456");
+		CryptoManager cryptoManager = new CryptoManager(keysManager.getKeyPair("server", "123456").getPublic(), keysManager.getKeyPair("server", "123456").getPrivate());
 
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			public void run() {
@@ -32,11 +38,16 @@ public class Server {
 			client = socket.accept();
 			
 			ObjectInputStream ois = new ObjectInputStream(client.getInputStream());
-			Command cmd =  (Command) ois.readObject();
+			CipheredMessage cipheredMessage = (CipheredMessage) ois.readObject();
+			Message decipheredMessage = cryptoManager.decipherCipheredMessage(cipheredMessage);
+			
+			Command cmd =  decipheredMessage.getCommand();
 			Response rsp = cmd.handle(chi);
+			Message messageResponse = new Message(cryptoManager.getPublicKey(), decipheredMessage.getSender(), rsp);
+			CipheredMessage cipheredResponse = cryptoManager.makeCipheredMessage(messageResponse, decipheredMessage.getSender());
 
 			ObjectOutputStream oos = new ObjectOutputStream(client.getOutputStream());
-			oos.writeObject(rsp);
+			oos.writeObject(cipheredResponse);
 
 			} catch (Exception e) {
 				e.printStackTrace();
