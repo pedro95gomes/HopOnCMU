@@ -13,7 +13,9 @@ public class MainMenu extends AppCompatActivity {
     Button postQuiz;
     Button readResults;
     Button answerQuiz;
+    Button shareQuizzes;
     String sessionId;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,6 +26,7 @@ public class MainMenu extends AppCompatActivity {
         downloadQuestions = (Button) findViewById(R.id.dwnldQuestions);
         readResults = (Button) findViewById(R.id.readResults);
         answerQuiz = (Button) findViewById(R.id.answerQuiz);
+        shareQuizzes = (Button) findViewById(R.id.shareQuizzes);
 
         sessionId = getIntent().getExtras() != null ? getIntent().getExtras().getString("ssid") : null;
     }

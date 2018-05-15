@@ -103,7 +103,7 @@
         android:id="@+id/readMsg"
         android:layout_width="228dp"
         android:layout_height="35dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="144dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"

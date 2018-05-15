@@ -9,6 +9,7 @@ import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
+import android.net.wifi.p2p.WifiP2pManager.Channel;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -35,9 +36,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
-/**
- * Created by goncalo on 5/15/18.
- */
+
 
 public class ShareQuizzes extends AppCompatActivity {
 
@@ -48,7 +47,7 @@ public class ShareQuizzes extends AppCompatActivity {
     TextView readmagBox, connectionStatus;
     EditText writeMsg;
     WifiP2pManager mManager;
-    WifiP2pManager.Channel mChannel;
+    Channel mChannel;
     BroadcastReceiver mReceiver;
 
     List<WifiP2pDevice> peers = new ArrayList<WifiP2pDevice>();
@@ -64,7 +63,6 @@ public class ShareQuizzes extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.share_quizzes);
 
         initialWork();
@@ -170,7 +168,7 @@ public class ShareQuizzes extends AppCompatActivity {
         wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
 
         mManager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
-        mChannel = mManager.initialize(this,getMainLooper(),null);
+        mChannel = mManager.initialize(this, getMainLooper(),null);
         mReceiver = new WiFiDirectBroacastReceiver(mManager,mChannel,this);
 
         // Indicates a change in the Wi-Fi P2P status.

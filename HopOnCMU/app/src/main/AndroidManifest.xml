@@ -34,6 +34,7 @@
         <activity android:name=".DownloadQuizQuestions" />
         <activity android:name=".PostQuizAnswers" />
         <activity android:name=".ReadQuizResults" />
+        <activity android:name=".ShareQuizzes" />
         <activity android:name=".Ranking"></activity>
     </application>
 
