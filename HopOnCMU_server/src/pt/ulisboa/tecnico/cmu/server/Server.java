@@ -4,12 +4,10 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.security.KeyPair;
 
 import pt.ulisboa.tecnico.cmu.command.Command;
 import pt.ulisboa.tecnico.cmu.crypto.CipheredMessage;
 import pt.ulisboa.tecnico.cmu.crypto.CryptoManager;
-import pt.ulisboa.tecnico.cmu.crypto.KeystoreManager;
 import pt.ulisboa.tecnico.cmu.crypto.Message;
 import pt.ulisboa.tecnico.cmu.response.Response;
 

@@ -1,7 +1,5 @@
 package pt.ulisboa.tecnico.cmu.command;
 
-import java.util.List;
-
 import pt.ulisboa.tecnico.cmu.response.Response;
 
 public class QuizResultsCommand implements Command{
