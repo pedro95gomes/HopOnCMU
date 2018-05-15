@@ -1,11 +1,10 @@
 package pt.ulisboa.tecnico.cmu.crypto;
 
-import android.util.Base64;
-
 import java.io.Serializable;
 
+import javax.xml.bind.DatatypeConverter;
 
- 
+
 public class CipheredMessage implements Serializable{
 
 	private static final long serialVersionUID = 7621624716329836769L;
@@ -44,21 +43,21 @@ public class CipheredMessage implements Serializable{
     }
 
     public byte[] getKey() {
-        return Base64.decode(key,Base64.DEFAULT);
+        return DatatypeConverter.parseHexBinary(key);
     }
 
     public byte[] getIntegrityCheck() {
-        return Base64.decode(integrityCheck,Base64.DEFAULT);
+        return DatatypeConverter.parseHexBinary(integrityCheck);
     }
 
     public byte[] getContent() {
-        return Base64.decode(content,Base64.DEFAULT);
+        return DatatypeConverter.parseHexBinary(content);
     }
 
     public byte[] getIV() {
-        return Base64.decode(getIV(),Base64.DEFAULT);
+        return DatatypeConverter.parseHexBinary(IV);
     }
-
+    
     public String getStringKey(){
     	return key;
     }
