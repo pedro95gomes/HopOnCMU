@@ -2,22 +2,20 @@ package pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks;
 
 import android.os.AsyncTask;
 import android.util.Log;
-import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.List;
 import java.util.Map;
 
-import pt.ulisboa.tecnico.cmu.command.ListLocationsCommand;
 import pt.ulisboa.tecnico.cmu.command.QuizResultsCommand;
-import pt.ulisboa.tecnico.cmu.hoponcmu.ListTourLocations;
+import pt.ulisboa.tecnico.cmu.crypto.CipheredMessage;
+import pt.ulisboa.tecnico.cmu.crypto.CryptoManager;
+import pt.ulisboa.tecnico.cmu.crypto.KeystoreManager;
+import pt.ulisboa.tecnico.cmu.crypto.Message;
 import pt.ulisboa.tecnico.cmu.hoponcmu.R;
 import pt.ulisboa.tecnico.cmu.hoponcmu.ReadQuizResults;
-import pt.ulisboa.tecnico.cmu.response.ListLocationsResponse;
 import pt.ulisboa.tecnico.cmu.response.QuizResultsResponse;
 
 public class ReadResultsTask extends AsyncTask<String, Void, String> {
@@ -39,14 +37,19 @@ public class ReadResultsTask extends AsyncTask<String, Void, String> {
         QuizResultsCommand user_code = new QuizResultsCommand(params[0],files);
 
         try {
+            KeystoreManager keysManager = new KeystoreManager("phone", "123456");
+            CryptoManager cryptoManager = new CryptoManager(keysManager.getKeyPair("phone", "123456").getPublic(), keysManager.getKeyPair("phone", "123456").getPrivate());
             server = new Socket("10.0.2.2", 9090);
 
+            Message message = new Message(cryptoManager.getPublicKey(), keysManager.getKeyStore().getCertificate("server").getPublicKey(), user_code);
+            CipheredMessage cipheredMessage = cryptoManager.makeCipheredMessage(message,cryptoManager.getPublicKey());
             ObjectOutputStream oos = new ObjectOutputStream(server.getOutputStream());
-            oos.writeObject(user_code);
+            oos.writeObject(cipheredMessage);
 
             ObjectInputStream ois = new ObjectInputStream(server.getInputStream());
-
-            QuizResultsResponse response = (QuizResultsResponse) ois.readObject();
+            CipheredMessage responseCiphered = (CipheredMessage) ois.readObject();
+            Message responseDeciphered = cryptoManager.decipherCipheredMessage(responseCiphered);
+            QuizResultsResponse response = (QuizResultsResponse) responseDeciphered.getResponse();
 
             oos.close();
             ois.close();

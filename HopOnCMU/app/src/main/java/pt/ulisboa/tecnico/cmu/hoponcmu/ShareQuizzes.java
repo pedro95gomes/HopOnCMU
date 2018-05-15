@@ -9,11 +9,21 @@ import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
+import android.net.wifi.p2p.WifiP2pManager.ActionListener;
 import android.net.wifi.p2p.WifiP2pManager.Channel;
+import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,6 +35,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
+<<<<<<< HEAD
 import android.net.wifi.p2p.WifiP2pManager.*;
 import android.view.View;
 import android.widget.AdapterView;
@@ -34,6 +45,10 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+=======
+
+
+>>>>>>> 37b02b4e8e646a9759a3e46cce100a95971de025
 
 public class ShareQuizzes extends AppCompatActivity {
 
@@ -152,12 +167,6 @@ public class ShareQuizzes extends AppCompatActivity {
         writeMsg = findViewById(R.id.writeMsg);
         connectionStatus = findViewById(R.id.status);
 
-        wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-
-        mManager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
-        mChannel = mManager.initialize(this, getMainLooper(),null);
-        mReceiver = new WiFiDirectBroacastReceiver(mManager,mChannel,this);
-
         // Indicates a change in the Wi-Fi P2P status.
         intentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
 
@@ -169,6 +178,14 @@ public class ShareQuizzes extends AppCompatActivity {
 
         // Indicates this device's details have changed.
         intentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
+
+        wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+
+        mManager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
+        mChannel = mManager.initialize(this, getMainLooper(),null);
+        mReceiver = new WiFiDirectBroacastReceiver(mManager,mChannel,this);
+
+
     }
 
     WifiP2pManager.PeerListListener peerListListener = new PeerListListener() {
