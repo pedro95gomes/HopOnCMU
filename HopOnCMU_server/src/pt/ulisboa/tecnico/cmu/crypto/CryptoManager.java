@@ -22,15 +22,20 @@ import javax.crypto.SecretKey;
 
 public class CryptoManager {
 
-   
     private PublicKey pubKey;
-
     private PrivateKey privKey;
+    private static CryptoManager cryptoManager;
 
     public CryptoManager(PublicKey publicKey, PrivateKey privateKey){
-        
     	this.pubKey=publicKey;
     	this.privKey=privateKey;
+    }
+    
+    public static CryptoManager getInstance(PublicKey publicKey, PrivateKey privateKey){
+    	if(cryptoManager==null){
+    		cryptoManager = new CryptoManager(publicKey, privateKey);
+    	}
+    	return cryptoManager;
     }
     
     public CipheredMessage makeCipheredMessage(Message message, PublicKey receiverPubKey){
@@ -173,7 +178,7 @@ public class CryptoManager {
      */
     private byte[] concatHashParams(Message message, long timestamp, byte[] IV) throws IOException {
         byte[] msgBytes = toBytes(message);
-        ByteBuffer byteBuffer = ByteBuffer.allocate(Long.BYTES);
+        ByteBuffer byteBuffer = ByteBuffer.allocate(Long.SIZE/8);
         byteBuffer.putLong(timestamp);
         byte[] timestampBytes = byteBuffer.array();
         byte[] concatedParams = new byte[msgBytes.length + timestampBytes.length + IV.length];

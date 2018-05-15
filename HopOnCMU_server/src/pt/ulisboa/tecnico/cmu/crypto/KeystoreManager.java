@@ -9,10 +9,7 @@ import java.security.cert.Certificate;
 
 import javax.crypto.Cipher;
 
-
-
 public class KeystoreManager {
-
 
 	private KeyStore ks;
 

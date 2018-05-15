@@ -4,6 +4,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.security.KeyPair;
 
 import pt.ulisboa.tecnico.cmu.command.Command;
 import pt.ulisboa.tecnico.cmu.crypto.CipheredMessage;
@@ -20,9 +21,8 @@ public class Server {
 		CommandHandlerImpl chi = new CommandHandlerImpl();
 		final ServerSocket socket = new ServerSocket(PORT);
 		Socket client = null;
-		KeystoreManager keysManager = new KeystoreManager("server", "123456");
-		CryptoManager cryptoManager = new CryptoManager(keysManager.getKeyPair("server", "123456").getPublic(), keysManager.getKeyPair("server", "123456").getPrivate());
-
+		CryptoManager cryptoManager = CryptoManager.getInstance(chi.getPublicKey(), chi.getPrivateKey()); 
+		
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			public void run() {
 				System.out.println("Server now closed.");
@@ -40,9 +40,10 @@ public class Server {
 			ObjectInputStream ois = new ObjectInputStream(client.getInputStream());
 			CipheredMessage cipheredMessage = (CipheredMessage) ois.readObject();
 			Message decipheredMessage = cryptoManager.decipherCipheredMessage(cipheredMessage);
-			
 			Command cmd =  decipheredMessage.getCommand();
+			
 			Response rsp = cmd.handle(chi);
+			
 			Message messageResponse = new Message(cryptoManager.getPublicKey(), decipheredMessage.getSender(), rsp);
 			CipheredMessage cipheredResponse = cryptoManager.makeCipheredMessage(messageResponse, decipheredMessage.getSender());
 

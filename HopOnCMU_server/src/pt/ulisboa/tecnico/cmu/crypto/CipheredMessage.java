@@ -5,7 +5,6 @@ import java.io.Serializable;
 import javax.xml.bind.DatatypeConverter;
 
 
- 
 public class CipheredMessage implements Serializable{
 
 	private static final long serialVersionUID = 7621624716329836769L;

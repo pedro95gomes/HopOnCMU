@@ -1,5 +1,7 @@
 package pt.ulisboa.tecnico.cmu.crypto;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -102,6 +104,18 @@ public class CryptoUtil {
 		return getX509CertificateFromStream(is);
 	}
 	
+	public static Certificate getX509CertificateFromFile(File certificateFile)
+			throws FileNotFoundException, CertificateException {
+		FileInputStream fis = new FileInputStream(certificateFile);
+		return getX509CertificateFromStream(fis);
+	}
+
+	public static Certificate getX509CertificateFromFile(String certificateFilePath)
+			throws FileNotFoundException, CertificateException {
+		File certificateFile = new File(certificateFilePath);
+		return getX509CertificateFromFile(certificateFile);
+	}
+	
 	private static InputStream getResourceAsStream(String resourcePath) {
 		// uses current thread's class loader to also work correctly inside
 		// application servers
@@ -131,6 +145,24 @@ public class CryptoUtil {
 			throws FileNotFoundException, KeyStoreException, UnrecoverableKeyException {
 		KeyStore keystore = readKeystoreFromResource(keyStoreResourcePath, keyStorePassword);
 		return getPrivateKeyFromKeyStore(keyAlias, keyPassword, keystore);
+	}
+	
+	public static PrivateKey getPrivateKeyFromKeyStoreFile(String keyStoreFilePath, char[] keyStorePassword,
+			String keyAlias, char[] keyPassword)
+			throws FileNotFoundException, KeyStoreException, UnrecoverableKeyException {
+		return getPrivateKeyFromKeyStoreFile(new File(keyStoreFilePath), keyStorePassword, keyAlias, keyPassword);
+	}
+	
+	public static PrivateKey getPrivateKeyFromKeyStoreFile(File keyStoreFile, char[] keyStorePassword, String keyAlias,
+			char[] keyPassword) throws FileNotFoundException, KeyStoreException, UnrecoverableKeyException {
+		KeyStore keystore = readKeystoreFromFile(keyStoreFile, keyStorePassword);
+		return getPrivateKeyFromKeyStore(keyAlias, keyPassword, keystore);
+	}
+	
+	private static KeyStore readKeystoreFromFile(File keyStoreFile, char[] keyStorePassword)
+			throws FileNotFoundException, KeyStoreException {
+		FileInputStream fis = new FileInputStream(keyStoreFile);
+		return readKeystoreFromStream(fis, keyStorePassword);
 	}
 	
 	private static KeyStore readKeystoreFromStream(InputStream keyStoreInputStream, char[] keyStorePassword)
