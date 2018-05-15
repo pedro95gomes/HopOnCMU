@@ -140,10 +140,10 @@ public class CommandHandlerImpl implements CommandHandler {
         			results.put(name, result);
         			numQuestions.put(name, quizz.getNumQuestions());
         		}
-        		else{
+        		/*else{
         			results.put(quizz.getName(), 0);
         			numQuestions.put(quizz.getName(), quizz.getNumQuestions());
-        		}
+        		}*/
         	}
         }
         QuizResultsResponse response = new QuizResultsResponse(results, numQuestions);
