@@ -35,9 +35,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
-
-
 public class ShareQuizzes extends AppCompatActivity {
 
     private final IntentFilter intentFilter = new IntentFilter();
@@ -67,10 +64,7 @@ public class ShareQuizzes extends AppCompatActivity {
 
         initialWork();
         exqListner();
-
-
     }
-
     Handler handler = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
@@ -84,8 +78,6 @@ public class ShareQuizzes extends AppCompatActivity {
             return true;
         }
     });
-
-
 
     private void exqListner() {
         btnOff.setOnClickListener(new View.OnClickListener() {
@@ -142,7 +134,6 @@ public class ShareQuizzes extends AppCompatActivity {
             }
         });
 
-
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -150,10 +141,6 @@ public class ShareQuizzes extends AppCompatActivity {
                 sendReceive.write(msg.getBytes());
             }
         });
-
-
-
-
     }
 
     private void initialWork() {

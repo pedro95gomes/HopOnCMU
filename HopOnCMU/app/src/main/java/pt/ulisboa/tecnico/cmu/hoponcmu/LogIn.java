@@ -41,7 +41,12 @@ public class LogIn extends AppCompatActivity {
     }
 
     public void logIn (View v){
-        new LogInTask(LogIn.this).execute(username.getText().toString(), code.getText().toString());
+        /* Para execução correta */
+        //new LogInTask(LogIn.this).execute(username.getText().toString(), code.getText().toString());
+        /* Para testar no smartphone */
+        Intent intent = new Intent(this, MainMenu.class);
+        intent.putExtra("ssid", 420420420);
+        startActivity(intent);  //Ir para a activity do MainMenu
     }
 
     public void signUp (View v){
