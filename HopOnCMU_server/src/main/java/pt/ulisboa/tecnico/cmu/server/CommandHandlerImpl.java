@@ -31,8 +31,8 @@ public class CommandHandlerImpl implements CommandHandler {
 		char[] keyPassword = "securepwd".toCharArray(); //FIXME?
 		char[] keyStorePassword = keyPassword;
 		File f = new File(System.getProperty("user.dir"));
-		certificateFilePath = f.getParent()+"/keys/server/server.cer";
-		keystoreFilePath = f.getParent()+"/keys/server/server.jks";
+		certificateFilePath = f.getPath()+"/keys/server/server.cer";
+		keystoreFilePath = f.getPath()+"/keys/server/server.jks";
 
 		setKeys(certificateFilePath, keystoreFilePath, keyStorePassword, keyPassword);
 	}
