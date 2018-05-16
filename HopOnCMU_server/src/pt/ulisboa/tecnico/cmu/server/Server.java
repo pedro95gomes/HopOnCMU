@@ -13,7 +13,7 @@ import pt.ulisboa.tecnico.cmu.response.Response;
 
 public class Server {
 	
-	private static final int PORT = 9090;
+	private static final int PORT = 33333;
 
 	public static void main(String[] args) throws Exception {
 		CommandHandlerImpl chi = new CommandHandlerImpl();

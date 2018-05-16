@@ -1,69 +1,20 @@
 package pt.ulisboa.tecnico.cmu.server;
 
-import java.io.File;
-import java.io.IOException;
-import java.security.KeyStoreException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import pt.ulisboa.tecnico.cmu.command.CommandHandler;
-import pt.ulisboa.tecnico.cmu.command.DownloadQuestionsCommand;
-import pt.ulisboa.tecnico.cmu.command.HelloCommand;
-import pt.ulisboa.tecnico.cmu.command.ListLocationsCommand;
-import pt.ulisboa.tecnico.cmu.command.LogInCommand;
-import pt.ulisboa.tecnico.cmu.command.LogOutCommand;
-import pt.ulisboa.tecnico.cmu.command.PostAnswersCommand;
-import pt.ulisboa.tecnico.cmu.command.QuizResultsCommand;
-import pt.ulisboa.tecnico.cmu.command.SignUpCommand;
-import pt.ulisboa.tecnico.cmu.crypto.CryptoUtil;
+import pt.ulisboa.tecnico.cmu.command.*;
 import pt.ulisboa.tecnico.cmu.domain.Quizz;
 import pt.ulisboa.tecnico.cmu.domain.ServerUtil;
-import pt.ulisboa.tecnico.cmu.response.DownloadQuestionsResponse;
-import pt.ulisboa.tecnico.cmu.response.HelloResponse;
-import pt.ulisboa.tecnico.cmu.response.ListLocationsResponse;
-import pt.ulisboa.tecnico.cmu.response.LogInResponse;
-import pt.ulisboa.tecnico.cmu.response.LogOutResponse;
-import pt.ulisboa.tecnico.cmu.response.PostAnswersResponse;
-import pt.ulisboa.tecnico.cmu.response.QuizResultsResponse;
-import pt.ulisboa.tecnico.cmu.response.Response;
-import pt.ulisboa.tecnico.cmu.response.SignUpResponse;
+import pt.ulisboa.tecnico.cmu.response.*;
 
 public class CommandHandlerImpl implements CommandHandler {
 
 	ServerUtil sv = new ServerUtil();
-	private PrivateKey privkey = null;
-	private PublicKey pubkey = null;
-	private static String certificateFilePath = "";
-	private static String keystoreFilePath = "";
 	
-	public CommandHandlerImpl(){
-		char[] keyPassword = "securepwd".toCharArray(); //FIXME?
-		char[] keyStorePassword = keyPassword;
-		File f = new File(System.getProperty("user.dir"));
-		certificateFilePath = f.getParent()+"/keys/server/server.cer";
-		keystoreFilePath = f.getParent()+"/keys/server/server.jks";
-		
-		setKeys(certificateFilePath, keystoreFilePath, keyStorePassword, keyPassword);
-	}
-	
-	public PublicKey getPublicKey() {
-		return this.pubkey;
-	}
-
-	public PrivateKey getPrivateKey() {
-		return this.privkey;
-	}
-	
-	 /********************************************/
-	/*               HANDLERS                   */
-   /********************************************/
 	@Override
 	public Response handle(HelloCommand hc) {
 		System.out.println("Received: " + hc.getMessage());
@@ -183,21 +134,12 @@ public class CommandHandlerImpl implements CommandHandler {
         
         return response;
     }
-    
-	 /********************************************/
-	/*               AUX                        */
-   /********************************************/
-    private void setKeys(String certificateFilePath, String keyStoreFilePath, char[] keyStorePassword, char[] keyPassword){
-		Certificate certificate;
-		try {
-			certificate = CryptoUtil.getX509CertificateFromFile(certificateFilePath);
-			PrivateKey privKey = CryptoUtil.getPrivateKeyFromKeyStoreFile(keyStoreFilePath, keyStorePassword, "server", keyPassword);
-			PublicKey pubKey = certificate.getPublicKey();
-			this.privkey = privKey;
-			this.pubkey = pubKey;
-		} catch (CertificateException | UnrecoverableKeyException | KeyStoreException | IOException e) {
-			e.printStackTrace();
-			return;
-		}  
-}
+
+    @Override
+	public Response handle(RankingCommand rank){
+		System.out.println("Getting ranking...");
+		List<String> ranking = sv.getRanking();	//Método que vai devolver o ranking ordenado
+		RankingResponse rank_response = new RankingResponse(ranking);
+		return rank_response;
+	}
 }

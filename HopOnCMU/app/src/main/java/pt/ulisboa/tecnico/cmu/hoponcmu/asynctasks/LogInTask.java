@@ -5,16 +5,13 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
 import pt.ulisboa.tecnico.cmu.command.LogInCommand;
-import pt.ulisboa.tecnico.cmu.crypto.CipheredMessage;
-import pt.ulisboa.tecnico.cmu.crypto.CryptoManager;
-import pt.ulisboa.tecnico.cmu.crypto.KeystoreManager;
-import pt.ulisboa.tecnico.cmu.crypto.Message;
 import pt.ulisboa.tecnico.cmu.hoponcmu.LogIn;
 import pt.ulisboa.tecnico.cmu.hoponcmu.MainMenu;
 import pt.ulisboa.tecnico.cmu.hoponcmu.R;
@@ -36,20 +33,14 @@ public class LogInTask extends AsyncTask<String, Void, String> {
         String success = "false";
 
         try {
-            KeystoreManager keysManager = new KeystoreManager("phone", "123456", this.logInActivity);
-            CryptoManager cryptoManager = CryptoManager.getInstance(keysManager.getKeyPair("phone", "123456").getPublic(), keysManager.getKeyPair("phone", "123456").getPrivate());
-            server = new Socket("10.0.2.2", 9090);
+            server = new Socket("10.0.2.2", 33333);
 
-            Message message = new Message(cryptoManager.getPublicKey(), keysManager.getKeyStore().getCertificate("server").getPublicKey(), user_code);
-            CipheredMessage cipheredMessage = cryptoManager.makeCipheredMessage(message,keysManager.getKeyStore().getCertificate("server").getPublicKey());
             ObjectOutputStream oos = new ObjectOutputStream(server.getOutputStream());
-            oos.writeObject(cipheredMessage);
+            oos.writeObject(user_code);
 
             ObjectInputStream ois = new ObjectInputStream(server.getInputStream());
-            CipheredMessage responseCiphered = (CipheredMessage) ois.readObject();
-            Message responseDeciphered = cryptoManager.decipherCipheredMessage(responseCiphered);
 
-            LogInResponse response = (LogInResponse) responseDeciphered.getResponse();
+            LogInResponse response = (LogInResponse) ois.readObject();
             sessionId = response.getSessionId();
             success = sessionId!=null ? "true" : "false";
 
