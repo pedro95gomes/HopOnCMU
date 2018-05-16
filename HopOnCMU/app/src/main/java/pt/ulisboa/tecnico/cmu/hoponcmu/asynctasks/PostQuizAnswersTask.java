@@ -78,5 +78,5 @@ public class PostQuizAnswersTask extends AsyncTask<String, Void, String> {
         else {
             Toast.makeText(postQuizActivity.getApplicationContext(), "Not possible to submit answers", Toast.LENGTH_LONG);
         }
-   }
+    }
 }

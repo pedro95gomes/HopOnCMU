@@ -4,6 +4,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.ListView;
 
+import pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks.RankingTask;
+
 public class Ranking extends AppCompatActivity {
 
     private ListView list;
@@ -18,7 +20,7 @@ public class Ranking extends AppCompatActivity {
 
         ssid = getIntent().getExtras().getString("ssid");
 
-        //TODO todo o processamento relacionado com o ranking
+        new RankingTask(Ranking.this).execute();
 
     }
 }

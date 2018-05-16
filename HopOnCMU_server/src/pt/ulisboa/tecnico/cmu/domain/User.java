@@ -16,12 +16,26 @@ public class User implements Serializable{
 	private byte[] busCode = null;
 	private Map<String, List<String>> answers;
 	private Map<String,Integer> results;
+	private int num_questions_correct;
 	
 	public User(String username, String busCode) {
 		this.username = username;
 		this.busCode = computeHash(busCode);
 		this.answers = new HashMap<String, List<String>>();
 		this.results = new HashMap<String, Integer>();
+		num_questions_correct = 0;
+	}
+
+	public int getNumQuestionsCorrect(){
+		return num_questions_correct;
+	}
+
+	public void incrNumQuestionsCorrect(){
+		num_questions_correct++;
+	}
+
+	public void setNumQuenstionsCorrect(int v){
+		num_questions_correct = v;
 	}
 	
 	public void setSessionId(String sessionId) {

@@ -9,10 +9,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ServerUtil {
 	private static final String path_quizzes = "resources/quizzes/";
@@ -26,6 +23,7 @@ public class ServerUtil {
 	private List<String> initial_codes;
 	private List<String> used_codes;
 	private List<String> tourLocations;
+	private List<String> ranking;
 	
 	public ServerUtil(){
 		this.sessions = new HashMap<>();
@@ -38,6 +36,7 @@ public class ServerUtil {
 		this.initial_codes = getInitialCodesFromFile();
 		this.used_codes = getCodesFromFile();
 		this.tourLocations = getLocationsFromFile();
+		ranking = null;
 	}
 
 	public User getUser(String username) {
@@ -322,7 +321,7 @@ public class ServerUtil {
 	}
 	
 	public int checkAnswers(String ssid, Quizz quizz) {
-		int result = 0;
+		int result = 0;		//número de respostas corretas no quizz
 		int numQuestion = 0;
 		String username = sessions.get(ssid);
 		User user = getUser(username);
@@ -335,6 +334,7 @@ public class ServerUtil {
 		user.setResult(quizz.getName(),result);
 		this.users.put(user.getUsername(), user);
 		saveUser(user.getUsername());
+		System.out.println(user.getResult(quizz.getName()));
 		return result;
 	}
 	
@@ -346,4 +346,55 @@ public class ServerUtil {
 		saveUser(username);
 		System.out.println("Saving answers for user "+username);
 	}
+
+	public List<String> getRanking() {
+		List<User> all_users = getUsersFromDirectory();
+		List<Quizz> all_quizzes = getQuizzesFromDirectory();
+
+		for(int i = 0; i < all_users.size(); i++){
+			all_users.get(i).setNumQuenstionsCorrect(0);
+			int num_correct_answers = 0;
+			for(int j = 0; j < all_quizzes.size(); j++){
+				Quizz quizz = all_quizzes.get(j);
+				int result = 0;
+				try {
+					result = all_users.get(i).getResult(quizz.getName());
+				} catch (NullPointerException e){
+					result = 0;
+				}
+				num_correct_answers= num_correct_answers + result;
+			}
+			all_users.get(i).setNumQuenstionsCorrect(num_correct_answers);
+		}
+/*
+		for(int i = 0; i < all_users.size(); i++){
+			System.out.println("User: " + all_users.get(i).getUsername() + " Correct: " + all_users.get(i).getNumQuestionsCorrect());
+		}
+*/
+		all_users.sort(Comparator.comparingInt(User::getNumQuestionsCorrect).reversed());   //ordena a lista
+/*
+		System.out.println("ORDERED:");
+		for(int i = 0; i < all_users.size(); i++){
+			System.out.println("User: " + all_users.get(i).getUsername() + " Correct: " + all_users.get(i).getNumQuestionsCorrect());
+		}
+*/
+		ranking = composeRankingStrings(all_users); //all_users já está ordenado
+
+		return ranking;
+	}
+
+	public List<String> composeRankingStrings(List<User> users){
+        List<String> strings = new ArrayList<String>();;
+
+        for(int i = 0; i < users.size(); i++){
+            String s = (i+1) + " | " + users.get(i).getUsername() + " with " + users.get(i).getNumQuestionsCorrect() + " correct answers.";
+            strings.add(i,s);
+        }
+/*
+        for(int i = 0; i < strings.size(); i++){
+            System.out.println(strings.get(i));
+        }
+*/
+        return strings;
+    }
 }

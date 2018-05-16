@@ -82,5 +82,5 @@ public class LogInTask extends AsyncTask<String, Void, String> {
             TextView login_invalido = (TextView) logInActivity.findViewById(R.id.invalid_login);
             login_invalido.setVisibility(View.VISIBLE);
         }
-   }
+    }
 }

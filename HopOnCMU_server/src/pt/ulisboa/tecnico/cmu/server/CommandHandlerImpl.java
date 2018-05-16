@@ -13,27 +13,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import pt.ulisboa.tecnico.cmu.command.CommandHandler;
-import pt.ulisboa.tecnico.cmu.command.DownloadQuestionsCommand;
-import pt.ulisboa.tecnico.cmu.command.HelloCommand;
-import pt.ulisboa.tecnico.cmu.command.ListLocationsCommand;
-import pt.ulisboa.tecnico.cmu.command.LogInCommand;
-import pt.ulisboa.tecnico.cmu.command.LogOutCommand;
-import pt.ulisboa.tecnico.cmu.command.PostAnswersCommand;
-import pt.ulisboa.tecnico.cmu.command.QuizResultsCommand;
-import pt.ulisboa.tecnico.cmu.command.SignUpCommand;
+import pt.ulisboa.tecnico.cmu.command.*;
 import pt.ulisboa.tecnico.cmu.crypto.CryptoUtil;
 import pt.ulisboa.tecnico.cmu.domain.Quizz;
 import pt.ulisboa.tecnico.cmu.domain.ServerUtil;
-import pt.ulisboa.tecnico.cmu.response.DownloadQuestionsResponse;
-import pt.ulisboa.tecnico.cmu.response.HelloResponse;
-import pt.ulisboa.tecnico.cmu.response.ListLocationsResponse;
-import pt.ulisboa.tecnico.cmu.response.LogInResponse;
-import pt.ulisboa.tecnico.cmu.response.LogOutResponse;
-import pt.ulisboa.tecnico.cmu.response.PostAnswersResponse;
-import pt.ulisboa.tecnico.cmu.response.QuizResultsResponse;
-import pt.ulisboa.tecnico.cmu.response.Response;
-import pt.ulisboa.tecnico.cmu.response.SignUpResponse;
+import pt.ulisboa.tecnico.cmu.response.*;
 
 public class CommandHandlerImpl implements CommandHandler {
 
@@ -42,17 +26,17 @@ public class CommandHandlerImpl implements CommandHandler {
 	private PublicKey pubkey = null;
 	private static String certificateFilePath = "";
 	private static String keystoreFilePath = "";
-	
+
 	public CommandHandlerImpl(){
 		char[] keyPassword = "securepwd".toCharArray(); //FIXME?
 		char[] keyStorePassword = keyPassword;
 		File f = new File(System.getProperty("user.dir"));
 		certificateFilePath = f.getParent()+"/keys/server/server.cer";
 		keystoreFilePath = f.getParent()+"/keys/server/server.jks";
-		
+
 		setKeys(certificateFilePath, keystoreFilePath, keyStorePassword, keyPassword);
 	}
-	
+
 	public PublicKey getPublicKey() {
 		return this.pubkey;
 	}
@@ -60,10 +44,10 @@ public class CommandHandlerImpl implements CommandHandler {
 	public PrivateKey getPrivateKey() {
 		return this.privkey;
 	}
-	
-	 /********************************************/
+
+	/********************************************/
 	/*               HANDLERS                   */
-   /********************************************/
+	/********************************************/
 	@Override
 	public Response handle(HelloCommand hc) {
 		System.out.println("Received: " + hc.getMessage());
@@ -73,10 +57,10 @@ public class CommandHandlerImpl implements CommandHandler {
 	@Override
 	public Response handle(SignUpCommand suc){
 		System.out.println("Username:" + suc.getUsername() + " | Code: " + suc.getBusCode());
-		
+
 		String code = suc.getBusCode();
 		System.out.println(code);
-		
+
 		String username = suc.getUsername();
 		if (sv.verifyCode(code) && sv.verifyUsername(username)){
 			sv.registerUser(suc.getUsername(), code);
@@ -84,10 +68,10 @@ public class CommandHandlerImpl implements CommandHandler {
 			sv.saveCodes();
 			return new SignUpResponse(suc.getUsername(),code);
 		}
-		
+
 		return new SignUpResponse(suc.getUsername(),null);
 	}
-	
+
 	@Override
 	public Response handle(LogInCommand lginc){
 		System.out.println("Username:" + lginc.getUsername() + " | Password: " + lginc.getPassword());
@@ -101,93 +85,101 @@ public class CommandHandlerImpl implements CommandHandler {
 		LogInResponse logedIn =  new LogInResponse(lginc.getUsername(), sessionId);
 		return logedIn;
 	}
-	
+
 	@Override
 	public Response handle(ListLocationsCommand llc){
-        System.out.println("Getting tour locations...");
-        // Obter localização dos spots da tour
-        List<String> locations = sv.getTourLocations();
-        ListLocationsResponse listLocations = new ListLocationsResponse(locations);
-        return listLocations;
+		System.out.println("Getting tour locations...");
+		// Obter localização dos spots da tour
+		List<String> locations = sv.getTourLocations();
+		ListLocationsResponse listLocations = new ListLocationsResponse(locations);
+		return listLocations;
 	}
-	
+
 	@Override
 	public Response handle(LogOutCommand lgoutc){
-        System.out.println("Logging out... " + lgoutc.getUsername() +" with sessionID "+ lgoutc.getSessionId());
-        
-        // Removes sessionID associated with user X
-        sv.revokeSessionId(lgoutc.getUsername(), lgoutc.getSessionId());
-        LogOutResponse loggedOut = new LogOutResponse(lgoutc.getUsername());
-        
-        return loggedOut;
-    }
-    
-    @Override
+		System.out.println("Logging out... " + lgoutc.getUsername() +" with sessionID "+ lgoutc.getSessionId());
+
+		// Removes sessionID associated with user X
+		sv.revokeSessionId(lgoutc.getUsername(), lgoutc.getSessionId());
+		LogOutResponse loggedOut = new LogOutResponse(lgoutc.getUsername());
+
+		return loggedOut;
+	}
+
+	@Override
 	public Response handle(DownloadQuestionsCommand dqc){
-        System.out.println("Getting quizz questions...");
+		System.out.println("Getting quizz questions...");
 
-        List<String[]> questions = null;
-        // Gets questions from quizz Y
-        List<Quizz> quizzes = sv.getQuizzes();
-        for(Quizz quizz : quizzes) {
-        	if(quizz.getName().equals(dqc.getName())) {
-        		 questions = quizz.getQuestions();
-        	}
-        }
-        DownloadQuestionsResponse response = new DownloadQuestionsResponse(questions);
-        
-        return response;
-    }
-    
-    @Override
+		List<String[]> questions = null;
+		// Gets questions from quizz Y
+		List<Quizz> quizzes = sv.getQuizzes();
+		for(Quizz quizz : quizzes) {
+			if(quizz.getName().equals(dqc.getName())) {
+				questions = quizz.getQuestions();
+			}
+		}
+		DownloadQuestionsResponse response = new DownloadQuestionsResponse(questions);
+
+		return response;
+	}
+
+	@Override
 	public Response handle(PostAnswersCommand pac){
-        System.out.println("Submiting tourist answers for " + pac.getQuizzName());
+		System.out.println("Submiting tourist answers for " + pac.getQuizzName());
 
-        // Calculates results for User X in quizz Y
-        List<Quizz> quizzes = sv.getQuizzes();
-        boolean success = false;
-        for(Quizz quizz : quizzes) {
-        	if(quizz.getName().equals(pac.getQuizzName())) {
-        		 sv.setUserAnswers(pac.getUserName(), quizz.getName(), pac.getAnswers());
-        		 success = true;
-        	}
-        }
-        PostAnswersResponse postResponse = new PostAnswersResponse(success);
-        
-        return postResponse;
-    }
-    
-    @Override
+		// Calculates results for User X in quizz Y
+		List<Quizz> quizzes = sv.getQuizzes();
+		boolean success = false;
+		for(Quizz quizz : quizzes) {
+			if(quizz.getName().equals(pac.getQuizzName())) {
+				sv.setUserAnswers(pac.getUserName(), quizz.getName(), pac.getAnswers());
+				success = true;
+			}
+		}
+		PostAnswersResponse postResponse = new PostAnswersResponse(success);
+
+		return postResponse;
+	}
+
+	@Override
 	public Response handle(QuizResultsCommand qrc){
-        System.out.println("Getting quizz results...");
+		System.out.println("Getting quizz results...");
 
-        // Gets results for user X in quiz Y
-        List<Quizz> quizzes = sv.getQuizzes();
-        Map<String, Integer> results = new HashMap<String, Integer>();
-        Map<String, Integer> numQuestions = new HashMap<String,Integer>();
-        String[] answered_quizes = qrc.getQuizzName();
-        for(Quizz quizz : quizzes) {
-        	for(String name : answered_quizes){
-        		if(quizz.getName().equals(name)){
-        			int result = sv.checkAnswers(qrc.getUserSSID(), quizz);
-        			results.put(name, result);
-        			numQuestions.put(name, quizz.getNumQuestions());
-        		}
+		// Gets results for user X in quiz Y
+		List<Quizz> quizzes = sv.getQuizzes();
+		Map<String, Integer> results = new HashMap<String, Integer>();
+		Map<String, Integer> numQuestions = new HashMap<String,Integer>();
+		String[] answered_quizes = qrc.getQuizzName();
+		for(Quizz quizz : quizzes) {
+			for(String name : answered_quizes){
+				if(quizz.getName().equals(name)){
+					int result = sv.checkAnswers(qrc.getUserSSID(), quizz);
+					results.put(name, result);
+					numQuestions.put(name, quizz.getNumQuestions());
+				}
         		/*else{
         			results.put(quizz.getName(), 0);
         			numQuestions.put(quizz.getName(), quizz.getNumQuestions());
         		}*/
-        	}
-        }
-        QuizResultsResponse response = new QuizResultsResponse(results, numQuestions);
-        
-        return response;
-    }
-    
-	 /********************************************/
+			}
+		}
+		QuizResultsResponse response = new QuizResultsResponse(results, numQuestions);
+
+		return response;
+	}
+
+	@Override
+	public Response handle(RankingCommand rank){
+		System.out.println("Getting ranking...");
+		List<String> ranking = sv.getRanking();	//Método que vai devolver o ranking ordenado
+		RankingResponse rank_response = new RankingResponse(ranking);
+		return rank_response;
+	}
+
+	/********************************************/
 	/*               AUX                        */
-   /********************************************/
-    private void setKeys(String certificateFilePath, String keyStoreFilePath, char[] keyStorePassword, char[] keyPassword){
+	/********************************************/
+	private void setKeys(String certificateFilePath, String keyStoreFilePath, char[] keyStorePassword, char[] keyPassword){
 		Certificate certificate;
 		try {
 			certificate = CryptoUtil.getX509CertificateFromFile(certificateFilePath);
@@ -198,6 +190,7 @@ public class CommandHandlerImpl implements CommandHandler {
 		} catch (CertificateException | UnrecoverableKeyException | KeyStoreException | IOException e) {
 			e.printStackTrace();
 			return;
-		}  
-}
+		}
+	}
+
 }
