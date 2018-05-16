@@ -3,6 +3,7 @@ package pt.ulisboa.tecnico.cmu.hoponcmu;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -26,9 +27,28 @@ public class PostQuizAnswers extends AppCompatActivity {
     Button submit;
     TextView question;
     TextView qNum;
+    TextView texttime;
     String quizname;
     String sessionId;
     int currentQuestion;
+    QuizChronometer chronometer;
+    int timeTaken = 0;
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if(chronometer!=null){
+            chronometer.stop();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(chronometer!=null) {
+            chronometer.start();
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,7 +62,9 @@ public class PostQuizAnswers extends AppCompatActivity {
         submit = (Button) findViewById(R.id.buttonsubmit);
         question = (TextView) findViewById(R.id.pergunta);
         qNum = (TextView) findViewById(R.id.questionnumber);
+        texttime = (TextView) findViewById(R.id.texttime);
 
+        chronometer = new QuizChronometer(this);
         answers = new ArrayList<String>();
         currentQuestion = 0;
 
@@ -59,6 +81,7 @@ public class PostQuizAnswers extends AppCompatActivity {
         }
         setClickListeners();
         updateQuestions();
+        chronometer.start();
     }
 
     public List<String> getAnswers(){
@@ -115,6 +138,11 @@ public class PostQuizAnswers extends AppCompatActivity {
             third.setVisibility(View.INVISIBLE);
             fourth.setVisibility(View.INVISIBLE);
             submit.setVisibility(View.VISIBLE);
+            chronometer.stop();
+            timeTaken = chronometer.getMsElapsed();
+            Log.d("TimeTaken", String.valueOf(timeTaken));
+            texttime.setText("Time taken (milliseconds): "+String.valueOf(timeTaken));
+            texttime.setVisibility(View.VISIBLE);
         }
         else{
             qNum.setText(Integer.toString(currentQuestion+1));
