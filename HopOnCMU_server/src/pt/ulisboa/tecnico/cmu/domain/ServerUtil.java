@@ -12,11 +12,11 @@ import java.io.ObjectOutputStream;
 import java.util.*;
 
 public class ServerUtil {
-	private static final String path_quizzes = "src/resources/quizzes/";
-	private static final String path_users = "src/resources/users/";
-	private static final String path_usedcodes = "src/resources/codes/usedcodes.txt";
-	private static final String path_allcodes = "src/resources/codes/allcodes.txt";
-	private static final String path_locations ="src/resources/tour/locations.txt";
+	private static final String path_quizzes = "resources/quizzes/";
+	private static final String path_users = "resources/users/";
+	private static final String path_usedcodes = "resources/codes/usedcodes.txt";
+	private static final String path_allcodes = "resources/codes/allcodes.txt";
+	private static final String path_locations ="resources/tour/locations.txt";
 	private Map<String, User> users;
 	private Map<String, String> sessions;
 	private List<Quizz> quizzes;
