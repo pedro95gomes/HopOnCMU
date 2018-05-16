@@ -57,6 +57,8 @@ Deprecated - for older project format, add this section to your gitignore file:
 *.ipr
 *~
 *.swp
+HopOnCMU/app/app.iml
+HopOnCMU/local.properties
 
 /.metadata/
 /.recommenders/
