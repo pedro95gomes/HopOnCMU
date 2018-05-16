@@ -3,25 +3,20 @@ package pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.List;
 
 import pt.ulisboa.tecnico.cmu.command.DownloadQuestionsCommand;
-import pt.ulisboa.tecnico.cmu.command.ListLocationsCommand;
+import pt.ulisboa.tecnico.cmu.crypto.CipheredMessage;
+import pt.ulisboa.tecnico.cmu.crypto.CryptoManager;
+import pt.ulisboa.tecnico.cmu.crypto.KeystoreManager;
+import pt.ulisboa.tecnico.cmu.crypto.Message;
 import pt.ulisboa.tecnico.cmu.hoponcmu.DownloadQuizQuestions;
-import pt.ulisboa.tecnico.cmu.hoponcmu.ListTourLocations;
-import pt.ulisboa.tecnico.cmu.hoponcmu.LogIn;
 import pt.ulisboa.tecnico.cmu.hoponcmu.MainMenu;
-import pt.ulisboa.tecnico.cmu.hoponcmu.R;
 import pt.ulisboa.tecnico.cmu.response.DownloadQuestionsResponse;
-import pt.ulisboa.tecnico.cmu.response.ListLocationsResponse;
 
 public class DownloadQuizTask extends AsyncTask<String, Integer, String> {
 
@@ -38,18 +33,24 @@ public class DownloadQuizTask extends AsyncTask<String, Integer, String> {
         Socket server = null;
         String register_success = null;
         DownloadQuestionsCommand user_code = new DownloadQuestionsCommand(params[0]);
+
         ssid = params[1];
 
+
         try {
-
-            server = new Socket("10.0.2.2", 33333);
-
+            KeystoreManager keysManager = new KeystoreManager("phone", "123456", this.downloadQuizActivity);
+            CryptoManager cryptoManager = CryptoManager.getInstance(keysManager.getKeyPair("phone", "123456").getPublic(), keysManager.getKeyPair("phone", "123456").getPrivate());
+            server = new Socket("10.0.2.2", 9090);
+            Message message = new Message(cryptoManager.getPublicKey(), keysManager.getKeyStore().getCertificate("server").getPublicKey(), user_code);
+            CipheredMessage cipheredMessage = cryptoManager.makeCipheredMessage(message,keysManager.getKeyStore().getCertificate("server").getPublicKey());
             ObjectOutputStream oos = new ObjectOutputStream(server.getOutputStream());
-            oos.writeObject(user_code);
+            oos.writeObject(cipheredMessage);
 
             ObjectInputStream ois = new ObjectInputStream(server.getInputStream());
 
-            DownloadQuestionsResponse response = (DownloadQuestionsResponse) ois.readObject();
+            CipheredMessage responseCiphered = (CipheredMessage) ois.readObject();
+            Message responseDeciphered = cryptoManager.decipherCipheredMessage(responseCiphered);
+            DownloadQuestionsResponse response = (DownloadQuestionsResponse) responseDeciphered.getResponse();
             questions = response.getQuestions();
 
             oos.close();
