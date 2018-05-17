@@ -17,6 +17,8 @@ public class User implements Serializable{
 	private Map<String, List<String>> answers;
 	private Map<String,Integer> results;
 	private int num_questions_correct;
+	private Map<String,Integer> time_taken;
+	private int total_time;
 	
 	public User(String username, String busCode) {
 		this.username = username;
@@ -24,18 +26,24 @@ public class User implements Serializable{
 		this.answers = new HashMap<String, List<String>>();
 		this.results = new HashMap<String, Integer>();
 		num_questions_correct = 0;
+		this.time_taken = new HashMap<String, Integer>();
+		total_time = 0;
 	}
 
 	public int getNumQuestionsCorrect(){
 		return num_questions_correct;
 	}
 
-	public void incrNumQuestionsCorrect(){
-		num_questions_correct++;
-	}
-
 	public void setNumQuenstionsCorrect(int v){
 		num_questions_correct = v;
+	}
+
+	public int getTotalTime(){
+		return total_time;
+	}
+
+	public void setTotalTime(int x){
+		total_time = x;
 	}
 	
 	public void setSessionId(String sessionId) {
@@ -70,6 +78,14 @@ public class User implements Serializable{
 	
 	public void setResult(String quizzname, int result) {
 		this.results.put(quizzname, result);
+	}
+
+	public int getTime(String quizzname) {
+		return time_taken.get(quizzname);
+	}
+
+	public void setTimeTaken(String quizzname, int time) {
+		time_taken.put(quizzname, time);
 	}
 	
 	public byte[] computeHash(String code) {

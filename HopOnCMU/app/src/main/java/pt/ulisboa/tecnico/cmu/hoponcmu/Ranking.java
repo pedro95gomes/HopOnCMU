@@ -4,8 +4,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.ListView;
 
-import pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks.LogOutTask;
-import pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks.RankingTask;
+import pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks.*;
 
 public class Ranking extends AppCompatActivity {
 
@@ -21,7 +20,7 @@ public class Ranking extends AppCompatActivity {
 
         ssid = getIntent().getExtras().getString("ssid");
 
-        new RankingTask(Ranking.this).execute();
+        new RankingTask(this).execute();
 
     }
 

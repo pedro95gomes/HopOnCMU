@@ -132,7 +132,7 @@ public class CommandHandlerImpl implements CommandHandler {
 		boolean success = false;
 		for(Quizz quizz : quizzes) {
 			if(quizz.getName().equals(pac.getQuizzName())) {
-				sv.setUserAnswers(pac.getSessionId(), quizz.getName(), pac.getAnswers());
+				sv.setUserAnswers(pac.getUserName(), quizz.getName(), pac.getAnswers(), pac.getTime_taken());
 				success = true;
 			}
 		}

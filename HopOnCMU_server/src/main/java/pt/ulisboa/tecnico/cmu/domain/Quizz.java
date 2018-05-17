@@ -8,11 +8,21 @@ public class Quizz {
 	String name;
 	List<String[]> questions;
 	List<Integer> results;
+	int time_taken;
 	
 	public Quizz(String name, List<String[]> questions) {
 		this.name = name;
 		this.questions = questions;
 		results = new ArrayList<Integer>(questions.size());
+		time_taken = 0;
+	}
+
+	public int getTimeTaken(){
+		return time_taken;
+	}
+
+	public void setTimeTaken(int x){
+		time_taken = x;
 	}
 	
 	public String getName() {

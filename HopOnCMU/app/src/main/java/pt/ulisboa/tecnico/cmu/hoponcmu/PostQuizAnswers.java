@@ -13,8 +13,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
-import pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks.LogOutTask;
-import pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks.PostQuizAnswersTask;
+import pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks.*;
 
 public class PostQuizAnswers extends AppCompatActivity {
 
@@ -87,6 +86,10 @@ public class PostQuizAnswers extends AppCompatActivity {
 
     public List<String> getAnswers(){
         return this.answers;
+    }
+
+    public int getTimeTaken(){
+        return timeTaken;
     }
 
     private void setClickListeners() {

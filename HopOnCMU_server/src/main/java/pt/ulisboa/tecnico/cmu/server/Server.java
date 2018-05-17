@@ -53,7 +53,7 @@ public class Server {
 
 				Message messageResponse = new Message(Base64.getEncoder().encodeToString(chi.getPublicKey().getEncoded()), Base64.getEncoder().encodeToString(pubKey.getEncoded()), rsp);
 				CipheredMessage cipheredResponse = cryptoManager.makeCipheredMessage(messageResponse, pubKey);
-				System.out.println("QQQQQQQQQQQQQQ"+cipheredMessage.getKey().length);
+				//System.out.println("QQQQQQQQQQQQQQ"+cipheredMessage.getKey().length);
 				ObjectOutputStream oos = new ObjectOutputStream(client.getOutputStream());
 				oos.writeObject(cipheredResponse);
 

@@ -24,7 +24,7 @@ public class ServerUtil {
 	private List<String> used_codes;
 	private List<String> tourLocations;
 	private List<String> ranking;
-	
+
 	public ServerUtil(){
 		this.sessions = new HashMap<>();
 		this.users = new HashMap<>();
@@ -160,7 +160,7 @@ public class ServerUtil {
 		}
 		return quizzes;
 	}
-	
+
 	public Quizz getQuizz(String name){
 		List<String[]> questions = new ArrayList<String[]>();
 		Quizz result = null;
@@ -170,7 +170,7 @@ public class ServerUtil {
 				System.out.println("Quizzes file is empty: " + name);
 				return null;
 			}
-			
+
 			FileReader fr = new FileReader(path_quizzes + name);
 			BufferedReader br = new BufferedReader(fr);
 			String line = br.readLine();
@@ -321,7 +321,7 @@ public class ServerUtil {
 		
 		return locations;
 	}
-	
+
 	public int checkAnswers(String ssid, Quizz quizz) {
 		int result = 0;		//número de respostas corretas no quizz
 		int numQuestion = 0;
@@ -334,16 +334,18 @@ public class ServerUtil {
 			numQuestion+=1;
 		}
 		user.setResult(quizz.getName(),result);
+		//System.out.println("Time : "+ user.getTime(quizz.getName()));
 		this.users.put(user.getUsername(), user);
 		saveUser(user.getUsername());
-		System.out.println(user.getResult(quizz.getName()));
+		//System.out.println(user.getResult(quizz.getName()));
 		return result;
 	}
-	
-	public void setUserAnswers(String ssid, String quizzname, List<String> answers) {
+
+	public void setUserAnswers(String ssid, String quizzname, List<String> answers, int time_taken) {
 		String username = sessions.get(ssid);
 		User user = getUser(username);
 		user.setAnswers(quizzname, answers);
+		user.setTimeTaken(quizzname, time_taken);
 		this.users.put(username, user);
 		saveUser(username);
 		System.out.println("Saving answers for user "+username);
@@ -356,17 +358,27 @@ public class ServerUtil {
 		for(int i = 0; i < all_users.size(); i++){
 			all_users.get(i).setNumQuenstionsCorrect(0);
 			int num_correct_answers = 0;
+			int total_time = 0;
 			for(int j = 0; j < all_quizzes.size(); j++){
 				Quizz quizz = all_quizzes.get(j);
 				int result = 0;
+				int answer_time =0;
 				try {
 					result = all_users.get(i).getResult(quizz.getName());
 				} catch (NullPointerException e){
 					result = 0;
 				}
+				try{
+					answer_time = all_users.get(i).getTime(quizz.getName());
+				} catch(Exception e){
+					//System.out.println("Este user ainda não respondeu a este quizz.");
+				}
 				num_correct_answers= num_correct_answers + result;
+				total_time = total_time + answer_time;
 			}
 			all_users.get(i).setNumQuenstionsCorrect(num_correct_answers);
+			//System.out.println("Tempo total de respostas a quizzes: " + total_time);
+			all_users.get(i).setTotalTime(total_time);
 		}
 /*
 		for(int i = 0; i < all_users.size(); i++){
@@ -380,23 +392,52 @@ public class ServerUtil {
 			System.out.println("User: " + all_users.get(i).getUsername() + " Correct: " + all_users.get(i).getNumQuestionsCorrect());
 		}
 */
+
+		//Em caso de empate de numero de respostas corretas, desempatar pelo tempo
+		for (int i=0; i < all_users.size(); i++){
+			int correct_answers = all_users.get(i).getNumQuestionsCorrect();
+			if(i != (all_users.size()-1)) {    //Quem está em último vai ficar ordenado antes
+				if(correct_answers > all_users.get(i+1).getNumQuestionsCorrect())
+					continue;
+				else{	//caso de empate
+					int index = i;
+					int initial_index = i;
+					int final_index = -1;	//só para inicializar, nunca vai ser -1... Hopefully
+					while(all_users.get(index).getNumQuestionsCorrect() == all_users.get(index+1).getNumQuestionsCorrect()){
+						final_index = index+1;
+						index++;
+						try {
+							if (all_users.get(index) == null || all_users.get(index + 1) == null)    //para não dar exceção
+								break;
+						} catch(IndexOutOfBoundsException e){
+							//System.out.println("Yup, out of bounds");
+							break;
+						}
+
+					}
+					(all_users.subList(initial_index,final_index+1)).sort(Comparator.comparingInt(User::getTotalTime));	//ordenar a sublista dos empatados
+				}
+			}
+		}
+
 		ranking = composeRankingStrings(all_users); //all_users já está ordenado
 
 		return ranking;
 	}
 
 	public List<String> composeRankingStrings(List<User> users){
-        List<String> strings = new ArrayList<String>();;
+		List<String> strings = new ArrayList<String>();;
 
-        for(int i = 0; i < users.size(); i++){
-            String s = (i+1) + " | " + users.get(i).getUsername() + " with " + users.get(i).getNumQuestionsCorrect() + " correct answers.";
-            strings.add(i,s);
-        }
+		for(int i = 0; i < users.size(); i++){
+			String s = (i+1) + "|" + users.get(i).getUsername() + "|" + users.get(i).getNumQuestionsCorrect() + "|" + users.get(i).getTotalTime();
+			strings.add(i,s);
+		}
+
 /*
         for(int i = 0; i < strings.size(); i++){
             System.out.println(strings.get(i));
         }
 */
-        return strings;
-    }
+		return strings;
+	}
 }
