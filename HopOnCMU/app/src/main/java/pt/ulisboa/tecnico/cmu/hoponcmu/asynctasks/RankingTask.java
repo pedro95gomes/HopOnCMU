@@ -44,8 +44,6 @@ public class RankingTask extends AsyncTask<String, Void, String> {
         RankingCommand user_code = new RankingCommand();
 
         try {
-            server = new Socket("10.0.2.2", 9090);
-
             KeyPair keys = CryptoUtil.gen();
             CryptoManager cryptoManager = new CryptoManager(keys.getPublic(),keys.getPrivate());
             PublicKey serverK = CryptoUtil.getX509CertificateFromStream(this.ranking_activity.getResources().openRawResource(R.raw.server)).getPublicKey();
