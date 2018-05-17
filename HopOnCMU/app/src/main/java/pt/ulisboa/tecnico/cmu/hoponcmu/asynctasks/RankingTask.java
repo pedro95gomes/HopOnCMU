@@ -1,6 +1,8 @@
 package pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks;
 
+import android.annotation.TargetApi;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -10,10 +12,17 @@ import android.widget.Toast;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.security.KeyPair;
+import java.security.PublicKey;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 import pt.ulisboa.tecnico.cmu.command.RankingCommand;
+import pt.ulisboa.tecnico.cmu.crypto.CipheredMessage;
+import pt.ulisboa.tecnico.cmu.crypto.CryptoManager;
+import pt.ulisboa.tecnico.cmu.crypto.CryptoUtil;
+import pt.ulisboa.tecnico.cmu.crypto.Message;
 import pt.ulisboa.tecnico.cmu.hoponcmu.R;
 import pt.ulisboa.tecnico.cmu.hoponcmu.Ranking;
 import pt.ulisboa.tecnico.cmu.response.RankingResponse;
@@ -27,6 +36,7 @@ public class RankingTask extends AsyncTask<String, Void, String> {
         ranking_activity = r;
     }
 
+    @TargetApi(Build.VERSION_CODES.O)
     @Override
     protected String doInBackground(String[] params) {      //Username | Code
         Socket server = null;
@@ -36,12 +46,22 @@ public class RankingTask extends AsyncTask<String, Void, String> {
         try {
             server = new Socket("10.0.2.2", 9090);
 
+            KeyPair keys = CryptoUtil.gen();
+            CryptoManager cryptoManager = new CryptoManager(keys.getPublic(),keys.getPrivate());
+            PublicKey serverK = CryptoUtil.getX509CertificateFromStream(this.ranking_activity.getResources().openRawResource(R.raw.server)).getPublicKey();
+            server = new Socket("10.0.2.2", 9090);
+
+
+            Message message = new Message(Base64.getEncoder().encodeToString(keys.getPublic().getEncoded()),Base64.getEncoder().encodeToString(serverK.getEncoded()) , user_code);
+            CipheredMessage cipheredMessage = cryptoManager.makeCipheredMessage(message,serverK);
             ObjectOutputStream oos = new ObjectOutputStream(server.getOutputStream());
-            oos.writeObject(user_code);
+            oos.writeObject(cipheredMessage);
 
             ObjectInputStream ois = new ObjectInputStream(server.getInputStream());
+            CipheredMessage responseCiphered = (CipheredMessage) ois.readObject();
+            Message responseDeciphered = cryptoManager.decipherCipheredMessage(responseCiphered);
 
-            RankingResponse response = (RankingResponse) ois.readObject();
+            RankingResponse response = (RankingResponse) responseDeciphered.getResponse();
             ranking_list = response.getRanking();
 
             oos.close();

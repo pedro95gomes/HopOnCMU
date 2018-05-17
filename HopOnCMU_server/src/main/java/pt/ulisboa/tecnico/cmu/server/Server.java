@@ -7,6 +7,7 @@ import java.net.Socket;
 import java.security.KeyFactory;
 import java.security.PublicKey;
 import java.security.Security;
+import java.security.interfaces.RSAPublicKey;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 
@@ -50,10 +51,11 @@ public class Server {
 				X509EncodedKeySpec keySpec = new X509EncodedKeySpec(Base64.getDecoder().decode(decipheredMessage.getSender().getBytes()));
 	            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
 	            PublicKey pubKey = keyFactory.generatePublic(keySpec);
+	            
 
 				Message messageResponse = new Message(Base64.getEncoder().encodeToString(chi.getPublicKey().getEncoded()), Base64.getEncoder().encodeToString(pubKey.getEncoded()), rsp);
 				CipheredMessage cipheredResponse = cryptoManager.makeCipheredMessage(messageResponse, pubKey);
-
+				System.out.println("QQQQQQQQQQQQQQ"+cipheredMessage.getKey().length);
 				ObjectOutputStream oos = new ObjectOutputStream(client.getOutputStream());
 				oos.writeObject(cipheredResponse);
 

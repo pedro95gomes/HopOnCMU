@@ -182,7 +182,15 @@ public class CryptoManager {
     private Object fromBytes(byte[] toConvert) throws IOException, ClassNotFoundException {
         ByteArrayInputStream byteInStream = new ByteArrayInputStream(toConvert);
         ObjectInputStream is = new ObjectInputStream(byteInStream);
-        return is.readObject();
+        Object o = null;
+        System.out.println("+1 times");
+        try{
+            o = is.readObject();
+            System.out.println(o.getClass());
+        } catch(ClassNotFoundException e){
+            System.out.println("Error "+e.getMessage());
+        }
+        return o;
     }
 
     /**
