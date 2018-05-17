@@ -11,29 +11,29 @@ public class Message implements Serializable{
 
 	private static final long serialVersionUID = 8409517480516262028L;
 
-	private PublicKey sender;
-    private PublicKey destination;
+	private String sender;
+    private String destination;
     private Command command;
     private Response response;
 
     
-    public Message(PublicKey sender, PublicKey destination, Command command){
+    public Message(String sender, String destination, Command command){
         this.sender = sender;
         this.destination=destination;
         this.command = command;
     }
     
-    public Message(PublicKey sender, PublicKey destination, Response response){
+    public Message(String sender, String destination, Response response){
         this.sender = sender;
         this.destination=destination;
         this.response=response;
     }
 
-    public PublicKey getSender() {
+    public String getSender() {
         return sender;
     }
 
-    public PublicKey getDestination() {
+    public String getDestination() {
 		return destination;
 	}
     

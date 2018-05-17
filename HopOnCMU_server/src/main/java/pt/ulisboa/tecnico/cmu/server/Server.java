@@ -4,6 +4,11 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.security.KeyFactory;
+import java.security.PublicKey;
+import java.security.Security;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.Base64;
 
 import pt.ulisboa.tecnico.cmu.command.Command;
 import pt.ulisboa.tecnico.cmu.crypto.CipheredMessage;
@@ -19,7 +24,7 @@ public class Server {
 		CommandHandlerImpl chi = new CommandHandlerImpl();
 		final ServerSocket socket = new ServerSocket(PORT);
 		Socket client = null;
-		CryptoManager cryptoManager = CryptoManager.getInstance(chi.getPublicKey(), chi.getPrivateKey());
+		CryptoManager cryptoManager = new CryptoManager(chi.getPublicKey(), chi.getPrivateKey());
 
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			public void run() {
@@ -33,6 +38,7 @@ public class Server {
 
 		while (true) {
 			try {
+			
 				client = socket.accept();
 
 				ObjectInputStream ois = new ObjectInputStream(client.getInputStream());
@@ -41,9 +47,12 @@ public class Server {
 				Command cmd =  decipheredMessage.getCommand();
 
 				Response rsp = cmd.handle(chi);
+				X509EncodedKeySpec keySpec = new X509EncodedKeySpec(Base64.getDecoder().decode(decipheredMessage.getSender().getBytes()));
+	            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+	            PublicKey pubKey = keyFactory.generatePublic(keySpec);
 
-				Message messageResponse = new Message(cryptoManager.getPublicKey(), decipheredMessage.getSender(), rsp);
-				CipheredMessage cipheredResponse = cryptoManager.makeCipheredMessage(messageResponse, decipheredMessage.getSender());
+				Message messageResponse = new Message(Base64.getEncoder().encodeToString(chi.getPublicKey().getEncoded()), Base64.getEncoder().encodeToString(pubKey.getEncoded()), rsp);
+				CipheredMessage cipheredResponse = cryptoManager.makeCipheredMessage(messageResponse, pubKey);
 
 				ObjectOutputStream oos = new ObjectOutputStream(client.getOutputStream());
 				oos.writeObject(cipheredResponse);

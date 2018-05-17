@@ -8,6 +8,8 @@ import java.io.InputStream;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.Key;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.MessageDigest;
@@ -34,7 +36,19 @@ public class CryptoUtil {
 	private static final String SYM_CIPHER = "AES/CBC/PKCS5Padding";
 	/** Digital signature algorithm. */
 	private static final String SIGNATURE_ALGO = "SHA256withRSA";
-	
+
+	public static KeyPair gen(){
+		try {
+			KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
+			kpg.initialize(2048);
+			KeyPair kp = kpg.generateKeyPair();
+			return kp;
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
 	public static byte[] asymCipher(byte[] plainBytes, Key publicKey) throws NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException{
 		Cipher cipher = Cipher.getInstance(ASYM_CIPHER);
 		cipher.init(Cipher.ENCRYPT_MODE, publicKey);

@@ -8,10 +8,14 @@ import java.io.ObjectOutputStream;
 import java.nio.ByteBuffer;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
+import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.Base64;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -88,13 +92,21 @@ public class CryptoManager {
             SecretKey key = (SecretKey) fromBytes(CryptoUtil.asymDecipher(cipheredMessage.getKey(), privKey));
             byte[] decipheredContent = CryptoUtil.symDecipher(cipheredMessage.getContent(), cipheredMessage.getIV(), key);
             deciphMsg = (Message) fromBytes(decipheredContent);
+
+
+            X509EncodedKeySpec keySpec = new X509EncodedKeySpec(Base64.getDecoder().decode(deciphMsg.getSender().getBytes()));
+            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+            PublicKey pubKey = keyFactory.generatePublic(keySpec);
+
             byte[] decipheredIntegrityBytes = CryptoUtil.symDecipher(cipheredMessage.getIntegrityCheck(), cipheredMessage.getIV(), key);
             IntegrityCheck check = (IntegrityCheck) fromBytes(decipheredIntegrityBytes);
-            if(verifyIntegrity(deciphMsg, cipheredMessage.getIV(), check, deciphMsg.getSender())) return deciphMsg;
+            if(verifyIntegrity(deciphMsg, cipheredMessage.getIV(), check,pubKey )) return deciphMsg;
             else throw new IllegalStateException("Invalid Signature");
         } catch (ClassNotFoundException | IOException | NoSuchAlgorithmException | NoSuchPaddingException | InvalidAlgorithmParameterException | InvalidKeyException | BadPaddingException | IllegalBlockSizeException e) {
             e.printStackTrace();
             System.out.println("Decipher error...");
+        } catch (InvalidKeySpecException e) {
+            e.printStackTrace();
         }
         return deciphMsg;
     }

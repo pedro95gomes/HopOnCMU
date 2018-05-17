@@ -1,21 +1,28 @@
 package pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks;
 
+import android.annotation.TargetApi;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.util.Log;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.security.KeyPair;
+import java.security.PublicKey;
+import java.util.Base64;
 import java.util.List;
 
 import pt.ulisboa.tecnico.cmu.command.DownloadQuestionsCommand;
 import pt.ulisboa.tecnico.cmu.crypto.CipheredMessage;
 import pt.ulisboa.tecnico.cmu.crypto.CryptoManager;
+import pt.ulisboa.tecnico.cmu.crypto.CryptoUtil;
 import pt.ulisboa.tecnico.cmu.crypto.KeystoreManager;
 import pt.ulisboa.tecnico.cmu.crypto.Message;
 import pt.ulisboa.tecnico.cmu.hoponcmu.DownloadQuizQuestions;
 import pt.ulisboa.tecnico.cmu.hoponcmu.MainMenu;
+import pt.ulisboa.tecnico.cmu.hoponcmu.R;
 import pt.ulisboa.tecnico.cmu.response.DownloadQuestionsResponse;
 
 public class DownloadQuizTask extends AsyncTask<String, Integer, String> {
@@ -28,6 +35,7 @@ public class DownloadQuizTask extends AsyncTask<String, Integer, String> {
         this.downloadQuizActivity = downloadQuizActivity;
     }
 
+    @TargetApi(Build.VERSION_CODES.O)
     @Override
     protected String doInBackground(String[] params) {      //Username | Code
         Socket server = null;
@@ -38,16 +46,17 @@ public class DownloadQuizTask extends AsyncTask<String, Integer, String> {
 
 
         try {
-            KeystoreManager keysManager = new KeystoreManager("phone", "123456", this.downloadQuizActivity);
-            CryptoManager cryptoManager = CryptoManager.getInstance(keysManager.getKeyPair("phone", "123456").getPublic(), keysManager.getKeyPair("phone", "123456").getPrivate());
+            KeyPair keys = CryptoUtil.gen();
+            CryptoManager cryptoManager = new CryptoManager(keys.getPublic(),keys.getPrivate());
+            PublicKey serverK = CryptoUtil.getX509CertificateFromStream(this.downloadQuizActivity.getResources().openRawResource(R.raw.server)).getPublicKey();
             server = new Socket("10.0.2.2", 9090);
-            Message message = new Message(cryptoManager.getPublicKey(), keysManager.getKeyStore().getCertificate("server").getPublicKey(), user_code);
-            CipheredMessage cipheredMessage = cryptoManager.makeCipheredMessage(message,keysManager.getKeyStore().getCertificate("server").getPublicKey());
+
+            Message message = new Message(Base64.getEncoder().encodeToString(keys.getPublic().getEncoded()),Base64.getEncoder().encodeToString(serverK.getEncoded()) , user_code);
+            CipheredMessage cipheredMessage = cryptoManager.makeCipheredMessage(message,serverK);
             ObjectOutputStream oos = new ObjectOutputStream(server.getOutputStream());
             oos.writeObject(cipheredMessage);
 
             ObjectInputStream ois = new ObjectInputStream(server.getInputStream());
-
             CipheredMessage responseCiphered = (CipheredMessage) ois.readObject();
             Message responseDeciphered = cryptoManager.decipherCipheredMessage(responseCiphered);
             DownloadQuestionsResponse response = (DownloadQuestionsResponse) responseDeciphered.getResponse();
