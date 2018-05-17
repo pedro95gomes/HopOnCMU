@@ -26,13 +26,12 @@ import pt.ulisboa.tecnico.cmu.hoponcmu.ListTourLocations;
 import pt.ulisboa.tecnico.cmu.hoponcmu.R;
 import pt.ulisboa.tecnico.cmu.response.ListLocationsResponse;
 
-public class ListLocationsTask extends AsyncTask<String, Void, String> {
+public class ListLocationsTask extends BaseTask {
 
-    private ListTourLocations listLocationsActivity;
     private List<String> locations = null;
 
     public ListLocationsTask(ListTourLocations listLocationsActivity) {
-        this.listLocationsActivity = listLocationsActivity;
+        super(listLocationsActivity);
     }
 
     @TargetApi(Build.VERSION_CODES.O)
@@ -45,7 +44,7 @@ public class ListLocationsTask extends AsyncTask<String, Void, String> {
         try {
             KeyPair keys = CryptoUtil.gen();
             CryptoManager cryptoManager = new CryptoManager(keys.getPublic(),keys.getPrivate());
-            PublicKey serverK = CryptoUtil.getX509CertificateFromStream(this.listLocationsActivity.getResources().openRawResource(R.raw.server)).getPublicKey();
+            PublicKey serverK = CryptoUtil.getX509CertificateFromStream(getActivity().getResources().openRawResource(R.raw.server)).getPublicKey();
             server = new Socket("10.0.2.2", 9090);
 
             Message message = new Message(Base64.getEncoder().encodeToString(keys.getPublic().getEncoded()),Base64.getEncoder().encodeToString(serverK.getEncoded()) , user_code);
@@ -85,12 +84,12 @@ public class ListLocationsTask extends AsyncTask<String, Void, String> {
     @Override
     protected void onPostExecute(String o) {
         if (o != null && o.equals("true")) {
-            ListView listlist_location = listLocationsActivity.findViewById(R.id.list);
+            ListView listlist_location = getActivity().findViewById(R.id.list);
             if (locations.size() != 0) {
-                ArrayAdapter<String> adapter = new ArrayAdapter<String>(listLocationsActivity, android.R.layout.simple_list_item_1, locations);
+                ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, locations);
                 listlist_location.setAdapter(adapter);
             } else {
-                ListView nothing = listLocationsActivity.findViewById(R.id.nothing);
+                ListView nothing = getActivity().findViewById(R.id.nothing);
                 nothing.setVisibility(View.VISIBLE);
             }
         }

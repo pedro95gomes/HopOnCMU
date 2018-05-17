@@ -26,12 +26,10 @@ import pt.ulisboa.tecnico.cmu.hoponcmu.R;
 import pt.ulisboa.tecnico.cmu.hoponcmu.SignUp;
 import pt.ulisboa.tecnico.cmu.response.SignUpResponse;
 
-public class SignUpTask extends AsyncTask<String, Void, String> {
-
-    private SignUp signUpActivity;
+public class SignUpTask extends BaseTask {
 
     public SignUpTask(SignUp signUpActivity) {
-        this.signUpActivity = signUpActivity;
+        super(signUpActivity);
     }
 
     @TargetApi(Build.VERSION_CODES.O)
@@ -43,7 +41,7 @@ public class SignUpTask extends AsyncTask<String, Void, String> {
         try {
             KeyPair keys = CryptoUtil.gen();
             CryptoManager cryptoManager = new CryptoManager(keys.getPublic(),keys.getPrivate());
-            PublicKey serverK = CryptoUtil.getX509CertificateFromStream(this.signUpActivity.getResources().openRawResource(R.raw.server)).getPublicKey();
+            PublicKey serverK = CryptoUtil.getX509CertificateFromStream(getActivity().getResources().openRawResource(R.raw.server)).getPublicKey();
             server = new Socket("10.0.2.2", 9090);
 
             Message message = new Message(Base64.getEncoder().encodeToString(keys.getPublic().getEncoded()),Base64.getEncoder().encodeToString(serverK.getEncoded()) , user_code);
@@ -77,11 +75,11 @@ public class SignUpTask extends AsyncTask<String, Void, String> {
     protected void onPostExecute(String o) {
         if (o != null && o.equals("true")) {
             //Toast.makeText(signUpActivity, "Registered Successfully", Toast.LENGTH_SHORT);
-            Intent intent = new Intent(signUpActivity, LogIn.class);
+            Intent intent = new Intent(getActivity(), LogIn.class);
             intent.putExtra("Toast", "User registered successfully!");
-            signUpActivity.startActivity(intent);  //Ir para a activity do LogIn
+            getActivity().startActivity(intent);  //Ir para a activity do LogIn
         } else{
-            TextView t = (TextView) signUpActivity.findViewById(R.id.invalid_account);
+            TextView t = (TextView) getActivity().findViewById(R.id.invalid_account);
             t.setVisibility(View.VISIBLE);
         }
     }

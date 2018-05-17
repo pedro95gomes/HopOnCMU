@@ -28,14 +28,12 @@ import pt.ulisboa.tecnico.cmu.hoponcmu.R;
 import pt.ulisboa.tecnico.cmu.response.LogInResponse;
 import pt.ulisboa.tecnico.cmu.response.LogOutResponse;
 
-public class LogOutTask extends AsyncTask<String, Void, String> {
-
-    private AppCompatActivity appCompatActivity;
+public class LogOutTask extends BaseTask {
     private String ssid;
     private String username;
 
     public LogOutTask(AppCompatActivity appCompatActivity) {
-        this.appCompatActivity = appCompatActivity;
+        super(appCompatActivity);
     }
 
     @TargetApi(Build.VERSION_CODES.O)
@@ -48,7 +46,7 @@ public class LogOutTask extends AsyncTask<String, Void, String> {
         try {
             KeyPair keys = CryptoUtil.gen();
             CryptoManager cryptoManager = new CryptoManager(keys.getPublic(),keys.getPrivate());
-            PublicKey serverK = CryptoUtil.getX509CertificateFromStream(this.appCompatActivity.getResources().openRawResource(R.raw.server)).getPublicKey();
+            PublicKey serverK = CryptoUtil.getX509CertificateFromStream(getActivity().getResources().openRawResource(R.raw.server)).getPublicKey();
             server = new Socket("10.0.2.2", 9090);
 
             Message message = new Message(Base64.getEncoder().encodeToString(keys.getPublic().getEncoded()),Base64.getEncoder().encodeToString(serverK.getEncoded()) , user_code);
@@ -85,9 +83,10 @@ public class LogOutTask extends AsyncTask<String, Void, String> {
     @Override
     protected void onPostExecute(String o) {
         if (o != null && o.equals("true")) {
-            Intent intent = new Intent(appCompatActivity, LogIn.class);
+            Intent intent = new Intent(getActivity(), LogIn.class);
             intent.putExtra("Toast", "User "+username+" logged out!");
-            appCompatActivity.startActivity(intent);  //Ir para a activity do MainMenu
+            getActivity().startActivity(intent);  //Ir para a activity do Log In
+            getActivity().finish();
         }
     }
 }

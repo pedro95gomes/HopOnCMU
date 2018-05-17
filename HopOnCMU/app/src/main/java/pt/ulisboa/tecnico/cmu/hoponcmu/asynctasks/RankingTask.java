@@ -27,13 +27,12 @@ import pt.ulisboa.tecnico.cmu.hoponcmu.R;
 import pt.ulisboa.tecnico.cmu.hoponcmu.Ranking;
 import pt.ulisboa.tecnico.cmu.response.RankingResponse;
 
-public class RankingTask extends AsyncTask<String, Void, String> {
+public class RankingTask extends BaseTask {
 
-    private Ranking ranking_activity;
     private List<String> ranking_list = null;
 
     public RankingTask(Ranking r) {
-        ranking_activity = r;
+        super(r);
     }
 
     @TargetApi(Build.VERSION_CODES.O)
@@ -46,7 +45,7 @@ public class RankingTask extends AsyncTask<String, Void, String> {
         try {
             KeyPair keys = CryptoUtil.gen();
             CryptoManager cryptoManager = new CryptoManager(keys.getPublic(),keys.getPrivate());
-            PublicKey serverK = CryptoUtil.getX509CertificateFromStream(this.ranking_activity.getResources().openRawResource(R.raw.server)).getPublicKey();
+            PublicKey serverK = CryptoUtil.getX509CertificateFromStream(getActivity().getResources().openRawResource(R.raw.server)).getPublicKey();
             server = new Socket("10.0.2.2", 9090);
 
 
@@ -88,12 +87,12 @@ public class RankingTask extends AsyncTask<String, Void, String> {
     @Override
     protected void onPostExecute(String o) {
         if (o != null && o.equals("true")) {
-            ListView list_ranking = ranking_activity.findViewById(R.id.list);
+            ListView list_ranking = getActivity().findViewById(R.id.list);
             if (ranking_list.size() != 0) {
-                ArrayAdapter<String> adapter = new ArrayAdapter<String>(ranking_activity, android.R.layout.simple_list_item_1, ranking_list);
+                ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, ranking_list);
                 list_ranking.setAdapter(adapter);
             } else {
-                ListView nothing = ranking_activity.findViewById(R.id.nothing);
+                ListView nothing = getActivity().findViewById(R.id.nothing);
                 nothing.setVisibility(View.VISIBLE);
             }
         }

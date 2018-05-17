@@ -24,15 +24,14 @@ import pt.ulisboa.tecnico.cmu.hoponcmu.R;
 import pt.ulisboa.tecnico.cmu.hoponcmu.ReadQuizResults;
 import pt.ulisboa.tecnico.cmu.response.QuizResultsResponse;
 
-public class ReadResultsTask extends AsyncTask<String, Void, String> {
+public class ReadResultsTask extends BaseTask {
 
-    private ReadQuizResults readQuizResultsActivity;
     private String[] files;
     private Map<String, Integer> results;
     private Map<String, Integer> numQuestions;
 
     public ReadResultsTask(ReadQuizResults readQuizResultsActivity) {
-        this.readQuizResultsActivity = readQuizResultsActivity;
+        super(readQuizResultsActivity);
     }
 
     @TargetApi(Build.VERSION_CODES.O)
@@ -40,13 +39,13 @@ public class ReadResultsTask extends AsyncTask<String, Void, String> {
     protected String doInBackground(String[] params) {      //Username | Code
         Socket server = null;
         String register_success = null;
-        files = readQuizResultsActivity.getQuizNames();
+        files = ((ReadQuizResults)getActivity()).getQuizNames();
         QuizResultsCommand user_code = new QuizResultsCommand(params[0],files);
 
         try {
             KeyPair keys = CryptoUtil.gen();
             CryptoManager cryptoManager = new CryptoManager(keys.getPublic(),keys.getPrivate());
-            PublicKey serverK = CryptoUtil.getX509CertificateFromStream(this.readQuizResultsActivity.getResources().openRawResource(R.raw.server)).getPublicKey();
+            PublicKey serverK = CryptoUtil.getX509CertificateFromStream(getActivity().getResources().openRawResource(R.raw.server)).getPublicKey();
             server = new Socket("10.0.2.2", 9090);
 
             Message message = new Message(Base64.getEncoder().encodeToString(keys.getPublic().getEncoded()),Base64.getEncoder().encodeToString(serverK.getEncoded()) , user_code);
@@ -87,8 +86,8 @@ public class ReadResultsTask extends AsyncTask<String, Void, String> {
     @Override
     protected void onPostExecute(String o) {
         if (o != null && o.equals("true")) {
-            ListView list = (ListView) readQuizResultsActivity.findViewById(R.id.list);
-            ResultsAdapter fileslist = new ResultsAdapter(readQuizResultsActivity, files, results, numQuestions);
+            ListView list = (ListView) getActivity().findViewById(R.id.list);
+            ResultsAdapter fileslist = new ResultsAdapter(getActivity(), files, results, numQuestions);
             list.setAdapter(fileslist);
         }
     }

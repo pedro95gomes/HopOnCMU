@@ -25,14 +25,13 @@ import pt.ulisboa.tecnico.cmu.hoponcmu.MainMenu;
 import pt.ulisboa.tecnico.cmu.hoponcmu.R;
 import pt.ulisboa.tecnico.cmu.response.DownloadQuestionsResponse;
 
-public class DownloadQuizTask extends AsyncTask<String, Integer, String> {
+public class DownloadQuizTask extends BaseTask {
 
-    private DownloadQuizQuestions downloadQuizActivity;
     private List<String[]> questions;
     private String ssid;
 
     public DownloadQuizTask(DownloadQuizQuestions downloadQuizActivity) {
-        this.downloadQuizActivity = downloadQuizActivity;
+        super(downloadQuizActivity);
     }
 
     @TargetApi(Build.VERSION_CODES.O)
@@ -44,11 +43,10 @@ public class DownloadQuizTask extends AsyncTask<String, Integer, String> {
 
         ssid = params[1];
 
-
         try {
             KeyPair keys = CryptoUtil.gen();
             CryptoManager cryptoManager = new CryptoManager(keys.getPublic(),keys.getPrivate());
-            PublicKey serverK = CryptoUtil.getX509CertificateFromStream(this.downloadQuizActivity.getResources().openRawResource(R.raw.server)).getPublicKey();
+            PublicKey serverK = CryptoUtil.getX509CertificateFromStream(getActivity().getResources().openRawResource(R.raw.server)).getPublicKey();
             server = new Socket("10.0.2.2", 9090);
 
             Message message = new Message(Base64.getEncoder().encodeToString(keys.getPublic().getEncoded()),Base64.getEncoder().encodeToString(serverK.getEncoded()) , user_code);
@@ -87,12 +85,12 @@ public class DownloadQuizTask extends AsyncTask<String, Integer, String> {
     @Override
     protected void onPostExecute(String o) {
         if (o != null && o.equals("true")) {
-            downloadQuizActivity.saveQuizFile(questions);
-            Intent intent = new Intent(downloadQuizActivity, MainMenu.class);
+            ((DownloadQuizQuestions)getActivity()).saveQuizFile(questions);
+            Intent intent = new Intent(getActivity(), MainMenu.class);
             intent.putExtra("Toast", "File downloaded successfully");
             intent.putExtra("ssid", ssid);
             Log.d("File:", "Successfully downloaded");
-            downloadQuizActivity.startActivity(intent);  //Ir para a activity do LogIn
+            getActivity().startActivity(intent);  //Ir para a activity do LogIn
         }
     }
 }

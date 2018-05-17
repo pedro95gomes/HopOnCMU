@@ -27,13 +27,11 @@ import pt.ulisboa.tecnico.cmu.hoponcmu.MainMenu;
 import pt.ulisboa.tecnico.cmu.hoponcmu.R;
 import pt.ulisboa.tecnico.cmu.response.LogInResponse;
 
-public class LogInTask extends AsyncTask<String, Void, String> {
-
-    private LogIn logInActivity;
+public class LogInTask extends BaseTask {
     private String sessionId;
 
     public LogInTask(LogIn logInActivity) {
-        this.logInActivity = logInActivity;
+        super(logInActivity);
     }
 
     @TargetApi(Build.VERSION_CODES.O)
@@ -47,7 +45,7 @@ public class LogInTask extends AsyncTask<String, Void, String> {
 
             KeyPair keys = CryptoUtil.gen();
             CryptoManager cryptoManager = new CryptoManager(keys.getPublic(),keys.getPrivate());
-            PublicKey serverK = CryptoUtil.getX509CertificateFromStream(this.logInActivity.getResources().openRawResource(R.raw.server)).getPublicKey();
+            PublicKey serverK = CryptoUtil.getX509CertificateFromStream(getActivity().getResources().openRawResource(R.raw.server)).getPublicKey();
             server = new Socket("10.0.2.2", 9090);
 
 
@@ -85,12 +83,12 @@ public class LogInTask extends AsyncTask<String, Void, String> {
     @Override
     protected void onPostExecute(String o) {
         if (o != null && o.equals("true")) {
-            Intent intent = new Intent(logInActivity, MainMenu.class);
+            Intent intent = new Intent(getActivity(), MainMenu.class);
             intent.putExtra("ssid", sessionId);
-            logInActivity.startActivity(intent);  //Ir para a activity do MainMenu
+            getActivity().startActivity(intent);  //Ir para a activity do MainMenu
         }
         else {
-            TextView login_invalido = (TextView) logInActivity.findViewById(R.id.invalid_login);
+            TextView login_invalido = (TextView) getActivity().findViewById(R.id.invalid_login);
             login_invalido.setVisibility(View.VISIBLE);
         }
     }
