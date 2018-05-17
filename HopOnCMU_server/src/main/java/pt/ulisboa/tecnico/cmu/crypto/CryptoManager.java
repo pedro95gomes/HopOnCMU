@@ -177,12 +177,10 @@ public class CryptoManager {
         ByteArrayInputStream byteInStream = new ByteArrayInputStream(toConvert);
         ObjectInputStream is = new ObjectInputStream(byteInStream);
         Object o = null;
-        System.out.println("+1 times");
         try{
         	o = is.readObject();
-        	System.out.println(o.getClass());
         } catch(ClassNotFoundException e){
-        	System.out.println("Error "+e.getMessage());
+        	e.printStackTrace();
         }
         return o;
     }

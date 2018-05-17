@@ -7,8 +7,6 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.Certificate;
 
-import javax.crypto.Cipher;
-
 public class KeystoreManager {
 
 	private KeyStore ks;

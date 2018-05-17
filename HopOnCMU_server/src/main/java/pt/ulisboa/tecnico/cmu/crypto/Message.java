@@ -1,7 +1,6 @@
 package pt.ulisboa.tecnico.cmu.crypto;
 
 import java.io.Serializable;
-import java.security.PublicKey;
 
 import pt.ulisboa.tecnico.cmu.command.Command;
 import pt.ulisboa.tecnico.cmu.response.Response;
