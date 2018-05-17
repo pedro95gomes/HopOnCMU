@@ -13,6 +13,7 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.security.KeyPair;
 import java.security.PublicKey;
+import java.security.interfaces.RSAPublicKey;
 import java.util.Base64;
 
 import pt.ulisboa.tecnico.cmu.command.LogInCommand;
@@ -48,6 +49,7 @@ public class LogInTask extends AsyncTask<String, Void, String> {
             CryptoManager cryptoManager = new CryptoManager(keys.getPublic(),keys.getPrivate());
             PublicKey serverK = CryptoUtil.getX509CertificateFromStream(this.logInActivity.getResources().openRawResource(R.raw.server)).getPublicKey();
             server = new Socket("10.0.2.2", 9090);
+
 
             Message message = new Message(Base64.getEncoder().encodeToString(keys.getPublic().getEncoded()),Base64.getEncoder().encodeToString(serverK.getEncoded()) , user_code);
             CipheredMessage cipheredMessage = cryptoManager.makeCipheredMessage(message,serverK);
