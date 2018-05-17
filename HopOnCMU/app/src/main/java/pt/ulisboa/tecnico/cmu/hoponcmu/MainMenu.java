@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
+import pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks.LogOutTask;
+
 public class MainMenu extends AppCompatActivity {
 
     Button listLocations;
@@ -14,6 +16,7 @@ public class MainMenu extends AppCompatActivity {
     Button readResults;
     Button answerQuiz;
     Button shareQuizzes;
+    Button logOut;
     String sessionId;
 
 
@@ -27,6 +30,7 @@ public class MainMenu extends AppCompatActivity {
         readResults = (Button) findViewById(R.id.readResults);
         answerQuiz = (Button) findViewById(R.id.answerQuiz);
         shareQuizzes = (Button) findViewById(R.id.shareQuizzes);
+        logOut = (Button) findViewById(R.id.logOut);
 
         sessionId = getIntent().getExtras() != null ? getIntent().getExtras().getString("ssid") : null;
     }
@@ -71,5 +75,14 @@ public class MainMenu extends AppCompatActivity {
         Intent intent = new Intent(this, ShareQuizzes.class);
         intent.putExtra("ssid", sessionId);
         startActivity(intent);
+    }
+
+    public void logOut(View v) {
+        new LogOutTask(this).execute(sessionId);
+    }
+
+    public void onDestroy() {
+        new LogOutTask(this).execute(sessionId);
+        super.onDestroy();
     }
 }

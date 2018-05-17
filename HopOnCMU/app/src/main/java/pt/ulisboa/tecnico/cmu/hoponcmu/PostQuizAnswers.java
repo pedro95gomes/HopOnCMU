@@ -13,6 +13,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
+import pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks.LogOutTask;
 import pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks.PostQuizAnswersTask;
 
 public class PostQuizAnswers extends AppCompatActivity {
@@ -153,5 +154,10 @@ public class PostQuizAnswers extends AppCompatActivity {
             fourth.setText(questions.get(currentQuestion)[4]);
             currentQuestion++;
         }
+    }
+
+    public void onDestroy() {
+        new LogOutTask(this).execute(sessionId);
+        super.onDestroy();
     }
 }

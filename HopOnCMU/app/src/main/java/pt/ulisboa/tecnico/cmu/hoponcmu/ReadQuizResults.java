@@ -13,6 +13,7 @@ import android.widget.SimpleCursorAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
+import pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks.LogOutTask;
 import pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks.ReadResultsTask;
 import pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks.ResultsAdapter;
 
@@ -37,5 +38,10 @@ public class ReadQuizResults extends AppCompatActivity {        //Asks results t
 
     public String[] getQuizNames() {
         return this.list_quiz;
+    }
+
+    public void onDestroy() {
+        new LogOutTask(this).execute(ssid);
+        super.onDestroy();
     }
 }

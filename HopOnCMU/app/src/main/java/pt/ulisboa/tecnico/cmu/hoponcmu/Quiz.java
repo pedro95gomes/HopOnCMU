@@ -16,10 +16,13 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks.LogOutTask;
+
 public class Quiz extends AppCompatActivity {
 
     String[] files;
     ListView quizzes;
+    String sessionId;
     //Answer a quiz
 
     @Override
@@ -29,6 +32,7 @@ public class Quiz extends AppCompatActivity {
 
         quizzes = (ListView) findViewById(R.id.listquizes);
         files = getApplicationContext().fileList();
+        sessionId = getIntent().getExtras().getString("ssid");
 
         ArrayAdapter<String> fileslist = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,files);
         quizzes.setAdapter(fileslist);
@@ -68,5 +72,10 @@ public class Quiz extends AppCompatActivity {
             e.printStackTrace();
         }
         return questions;
+    }
+
+    public void onDestroy() {
+        new LogOutTask(this).execute(sessionId);
+        super.onDestroy();
     }
 }

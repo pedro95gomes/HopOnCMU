@@ -45,6 +45,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks.LogOutTask;
+
 
 public class ShareQuizzes extends AppCompatActivity {
 
@@ -67,11 +69,14 @@ public class ShareQuizzes extends AppCompatActivity {
     ServerClass server;
     ClientClass client;
     SendReceive sendReceive;
+    String ssid;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.share_quizzes);
+
+        ssid = getIntent().getExtras().getString("ssid");
 
         initialWork();
         exqListner();
@@ -322,5 +327,10 @@ public class ShareQuizzes extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
+    }
+
+    public void onDestroy() {
+        new LogOutTask(this).execute(ssid);
+        super.onDestroy();
     }
 }

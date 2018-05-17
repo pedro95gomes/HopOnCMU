@@ -22,6 +22,7 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
+import java.util.Base64;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -59,6 +60,8 @@ public class CryptoUtil {
 	public static byte[] asymDecipher(byte[] cipherBytes, Key privateKey) throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException{
 		Cipher cipher = Cipher.getInstance(ASYM_CIPHER);
 		cipher.init(Cipher.DECRYPT_MODE, privateKey);
+		System.out.println(privateKey.getEncoded().length);
+		System.out.println(cipherBytes.length);
 		byte[] plainBytes = cipher.doFinal(cipherBytes);
 		return plainBytes;
 	}

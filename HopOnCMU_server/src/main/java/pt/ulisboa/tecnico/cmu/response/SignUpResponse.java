@@ -4,16 +4,13 @@ public class SignUpResponse implements Response {
 
     private static final long serialVersionUID = 734457624276534179L;
     private String username, message;
-    private boolean register_success;
+    private boolean register_success = true;
 
     public SignUpResponse(String username, String message) {
         this.username = username;
         this.message = message;
 
-        if(message!=null)
-        	register_success = true;   //só para testar. Depois apagar
-        else 
-        	register_success = false;
+        if(message == null) { register_success = false; }
     }
 
     public String getUsername() {

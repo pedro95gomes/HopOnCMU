@@ -97,11 +97,11 @@ public class CommandHandlerImpl implements CommandHandler {
 
 	@Override
 	public Response handle(LogOutCommand lgoutc){
-		System.out.println("Logging out... " + lgoutc.getUsername() +" with sessionID "+ lgoutc.getSessionId());
+		System.out.println("Logging out... sessionID "+ lgoutc.getSessionId());
 
 		// Removes sessionID associated with user X
-		sv.revokeSessionId(lgoutc.getUsername(), lgoutc.getSessionId());
-		LogOutResponse loggedOut = new LogOutResponse(lgoutc.getUsername());
+		String logoutuser = sv.revokeSessionId(lgoutc.getSessionId());
+		LogOutResponse loggedOut = new LogOutResponse(lgoutc.getSessionId(), logoutuser);
 
 		return loggedOut;
 	}
@@ -132,7 +132,7 @@ public class CommandHandlerImpl implements CommandHandler {
 		boolean success = false;
 		for(Quizz quizz : quizzes) {
 			if(quizz.getName().equals(pac.getQuizzName())) {
-				sv.setUserAnswers(pac.getUserName(), quizz.getName(), pac.getAnswers());
+				sv.setUserAnswers(pac.getSessionId(), quizz.getName(), pac.getAnswers());
 				success = true;
 			}
 		}

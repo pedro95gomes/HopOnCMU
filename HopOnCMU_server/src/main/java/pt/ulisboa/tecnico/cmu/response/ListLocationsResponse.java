@@ -1,5 +1,6 @@
 package pt.ulisboa.tecnico.cmu.response;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ListLocationsResponse implements Response{

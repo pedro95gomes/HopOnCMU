@@ -53,5 +53,12 @@
             android:layout_height="wrap_content"
             android:text="Share Quizzes"
             android:onClick="shareQuizzes"/>
+
+        <Button
+            android:id="@+id/logOut"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Log Out"
+            android:onClick="logOut"/>
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>

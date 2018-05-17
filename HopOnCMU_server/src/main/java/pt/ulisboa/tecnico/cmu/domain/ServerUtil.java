@@ -127,19 +127,21 @@ public class ServerUtil {
 		return false;
 	}
 	
-	public boolean revokeSessionId(String username, String sessionId){
-		if(users.containsKey(username) && users.get(username).getSessionId().equals(sessionId)){
+	public String revokeSessionId(String sessionId){
+		String username = sessions.get(sessionId);
+		if(username!= null){
 			User user = users.get(username);
 			user.setSessionId(null);
 			users.put(username, user);
+			sessions.remove(sessionId);
 			saveUser(user.getUsername());
-			return true;
+			return user.getUsername();
 		}
-		return false;
+		return null;
 	}
 	
 	public Boolean verifyUsername(String username){
-		if(users.containsKey(username) && users.containsValue(username))
+		if(users.containsKey(username) && users.get(username)!=null)
 			return false;
 		return true;
 	}

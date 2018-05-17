@@ -10,6 +10,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks.ListLocationsTask;
+import pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks.LogOutTask;
 
 public class ListTourLocations extends AppCompatActivity {  //Lists all tour locations
 
@@ -32,5 +33,10 @@ public class ListTourLocations extends AppCompatActivity {  //Lists all tour loc
 
         //TODO
         //Depois se quisermos, também dá para fazer uma ação se o user clicar em cada item da lista
+    }
+
+    public void onDestroy() {
+        new LogOutTask(this).execute(ssid);
+        super.onDestroy();
     }
 }

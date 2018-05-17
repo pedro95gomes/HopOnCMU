@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks.DownloadQuizTask;
+import pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks.LogOutTask;
 
 public class DownloadQuizQuestions extends AppCompatActivity {
 
@@ -78,5 +79,10 @@ public class DownloadQuizQuestions extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void onDestroy() {
+        new LogOutTask(this).execute(ssid);
+        super.onDestroy();
     }
 }
