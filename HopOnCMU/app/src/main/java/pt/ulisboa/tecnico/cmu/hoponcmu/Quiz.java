@@ -21,6 +21,7 @@ import pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks.LogOutTask;
 public class Quiz extends AppCompatActivity {
 
     String[] files;
+    String[] getfiles;
     ListView quizzes;
     String sessionId;
     //Answer a quiz
@@ -31,16 +32,9 @@ public class Quiz extends AppCompatActivity {
         setContentView(R.layout.quiz);
 
         quizzes = (ListView) findViewById(R.id.listquizes);
-        files = getApplicationContext().fileList();
-        int i = 0;
-        for(String file : files) {
-            if (file.equals("museums.txt")) {
-                files[i] = "";
-                break;
-            }
-            i++;
-
-        }
+        getfiles = getApplicationContext().fileList();
+        files = new String[getfiles.length-1];
+        System.arraycopy( getfiles, 1, files, 0, files.length );
         sessionId = getIntent().getExtras().getString("ssid");
 
         ArrayAdapter<String> fileslist = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,files);
