@@ -52,7 +52,6 @@ public class DownloadQuizQuestions extends AppCompatActivity {
         Map<String,String> museums = openLocationsFile();
         for(String key: museums.keySet()){
             if(netssid.equals("M"+key)){
-                System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"+museums.get(key));
                 name = museums.get(key);
             }
         }

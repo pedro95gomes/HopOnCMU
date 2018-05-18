@@ -46,6 +46,7 @@ public class PostQuizAnswersTask extends AsyncTask<String, Void, String> {
     protected String doInBackground(String[] params) {      //SessionId | Quizname
         Socket server = null;
         sessionId = params[0];
+        System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAA" + postQuizActivity.getTimeTaken());
         PostAnswersCommand user_code = new PostAnswersCommand(sessionId,params[1],postQuizActivity.getAnswers(),postQuizActivity.getTimeTaken());
         String success = "false";
 

@@ -129,10 +129,11 @@ public class CommandHandlerImpl implements CommandHandler {
 		System.out.println("Submiting tourist answers for " + pac.getQuizzName());
 
 		// Calculates results for User X in quizz Y
+		String name = pac.getQuizzName() + ".txt";
 		List<Quizz> quizzes = sv.getQuizzes();
 		boolean success = false;
 		for(Quizz quizz : quizzes) {
-			if(quizz.getName().equals(pac.getQuizzName())) {
+			if(quizz.getName().equals(name)) {
 				sv.setUserAnswers(pac.getSessionId(), quizz.getName(), pac.getAnswers(), pac.getTime_taken());
 				success = true;
 			}

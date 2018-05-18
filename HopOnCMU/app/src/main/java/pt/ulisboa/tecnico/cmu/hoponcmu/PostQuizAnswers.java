@@ -145,6 +145,7 @@ public class PostQuizAnswers extends AppCompatActivity {
     private void submitAnswers(){
         Map<String,String> museums = openLocationsFile();
         int idmuseum=-1;
+        quizname = quizname.substring(0, quizname.indexOf("."));
         for(String key: museums.keySet()){
             String file = museums.get(key);
             if(file.equals(quizname)){
@@ -153,6 +154,7 @@ public class PostQuizAnswers extends AppCompatActivity {
             Log.d("idmuseum",String.valueOf(idmuseum));
         }
         String netssid = getCurrentSSID();
+        netssid = new String("M"+1);
         //Check if user is submitting this on the first stop or the second
         if(netssid.equals("M"+idmuseum) || netssid.equals("M"+(idmuseum+1))) {
             new PostQuizAnswersTask(this).execute(sessionId, quizname);
