@@ -1,1 +1,1 @@
-include ':app', ':mylibrary', ':Termite-WifiP2P-API'
+include ':app', ':Termite-WifiP2P-API'
