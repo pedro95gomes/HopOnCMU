@@ -12,14 +12,20 @@ import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.security.KeyPair;
 import java.security.PublicKey;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import pt.ulisboa.tecnico.cmu.command.DownloadQuestionsCommand;
 import pt.ulisboa.tecnico.cmu.crypto.CipheredMessage;
@@ -36,6 +42,7 @@ public class DownloadQuizTask extends AsyncTask<String, Void, String>  {
 
     private DownloadQuizQuestions downloadQuizActivity;
     private List<String[]> questions;
+    private String sessionId;
     private String ssid;
 
     public DownloadQuizTask(DownloadQuizQuestions downloadQuizActivity) {
@@ -49,7 +56,7 @@ public class DownloadQuizTask extends AsyncTask<String, Void, String>  {
         String register_success = null;
         DownloadQuestionsCommand user_code = new DownloadQuestionsCommand(params[0]);
 
-        ssid = params[1];
+        sessionId = params[1];
 
         try {
             KeyPair keys = CryptoUtil.gen();
@@ -97,23 +104,9 @@ public class DownloadQuizTask extends AsyncTask<String, Void, String>  {
             downloadQuizActivity.saveQuizFile(questions);
             Intent intent = new Intent(downloadQuizActivity, MainMenu.class);
             intent.putExtra("Toast", "File downloaded successfully");
-            intent.putExtra("ssid", ssid);
+            intent.putExtra("ssid", sessionId);
             Log.d("File:", "Successfully downloaded");
             downloadQuizActivity.startActivity(intent);  //Ir para a activity do LogIn
         }
-    }
-
-    public String getCurrentSSID() {
-        ConnectivityManager connManager = (ConnectivityManager) downloadQuizActivity.getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-        String ssid= null;
-        if (networkInfo.isConnected()) {
-            WifiManager wifiManager = (WifiManager) downloadQuizActivity.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-            WifiInfo connectionInfo = wifiManager.getConnectionInfo();
-            if (connectionInfo != null && !TextUtils.isEmpty(connectionInfo.getSSID())) {
-                ssid = connectionInfo.getSSID();
-            }
-        }
-        return ssid;
     }
 }

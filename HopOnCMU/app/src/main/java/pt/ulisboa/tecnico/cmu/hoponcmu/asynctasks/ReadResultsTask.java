@@ -100,18 +100,4 @@ public class ReadResultsTask extends AsyncTask<String, Void, String>  {
         }
     }
 
-    public String getCurrentSSID() {
-        ConnectivityManager connManager = (ConnectivityManager) readQuizResultsActivity.getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-        String ssid=null;
-        if (networkInfo.isConnected()) {
-            WifiManager wifiManager = (WifiManager) readQuizResultsActivity.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-            WifiInfo connectionInfo = wifiManager.getConnectionInfo();
-            if (connectionInfo != null && !TextUtils.isEmpty(connectionInfo.getSSID())) {
-                ssid = connectionInfo.getSSID();
-            }
-        }
-        return ssid;
-    }
-
 }

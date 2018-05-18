@@ -98,18 +98,4 @@ public class LogOutTask extends AsyncTask<String, Void, String>  {
             mainMenu.finish();
         }
     }
-
-    public String getCurrentSSID() {
-        ConnectivityManager connManager = (ConnectivityManager) mainMenu.getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-        String ssid=null;
-        if (networkInfo.isConnected()) {
-            WifiManager wifiManager = (WifiManager) mainMenu.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-            WifiInfo connectionInfo = wifiManager.getConnectionInfo();
-            if (connectionInfo != null && !TextUtils.isEmpty(connectionInfo.getSSID())) {
-                ssid = connectionInfo.getSSID();
-            }
-        }
-        return ssid;
-    }
 }

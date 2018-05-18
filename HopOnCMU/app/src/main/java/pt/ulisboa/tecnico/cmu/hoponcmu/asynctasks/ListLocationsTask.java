@@ -20,8 +20,10 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.security.KeyPair;
 import java.security.PublicKey;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.Map;
 
 import pt.ulisboa.tecnico.cmu.command.ListLocationsCommand;
 import pt.ulisboa.tecnico.cmu.crypto.CipheredMessage;
@@ -36,7 +38,7 @@ import pt.ulisboa.tecnico.cmu.response.ListLocationsResponse;
 public class ListLocationsTask extends AsyncTask<String, Void, String>  {
 
     private ListTourLocations listLocationsActivity;
-    private List<String> locations = null;
+    private Map<String,String> locations = null;
 
     public ListLocationsTask(ListTourLocations listLocationsActivity) {
         this.listLocationsActivity = listLocationsActivity;
@@ -94,27 +96,18 @@ public class ListLocationsTask extends AsyncTask<String, Void, String>  {
     protected void onPostExecute(String o) {
         if (o != null && o.equals("true")) {
             ListView listlist_location = listLocationsActivity.findViewById(R.id.list);
+            List<String> locs = new ArrayList<String>();
+            for(String key: locations.keySet()){
+                locs.add(locations.get(locs));
+            }
             if (locations.size() != 0) {
-                ArrayAdapter<String> adapter = new ArrayAdapter<String>(listLocationsActivity, android.R.layout.simple_list_item_1, locations);
+                ArrayAdapter<String> adapter = new ArrayAdapter<String>(listLocationsActivity, android.R.layout.simple_list_item_1, locs);
                 listlist_location.setAdapter(adapter);
+                listLocationsActivity.saveLocations(locations);
             } else {
                 ListView nothing = listLocationsActivity.findViewById(R.id.nothing);
                 nothing.setVisibility(View.VISIBLE);
             }
         }
-    }
-
-    public String getCurrentSSID() {
-        ConnectivityManager connManager = (ConnectivityManager) listLocationsActivity.getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-        String ssid=null;
-        if (networkInfo.isConnected()) {
-            WifiManager wifiManager = (WifiManager) listLocationsActivity.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-            WifiInfo connectionInfo = wifiManager.getConnectionInfo();
-            if (connectionInfo != null && !TextUtils.isEmpty(connectionInfo.getSSID())) {
-                ssid = connectionInfo.getSSID();
-            }
-        }
-        return ssid;
     }
 }

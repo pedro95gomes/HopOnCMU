@@ -16,13 +16,13 @@ public class ServerUtil {
 	private static final String path_users = "resources/users/";
 	private static final String path_usedcodes = "resources/codes/usedcodes.txt";
 	private static final String path_allcodes = "resources/codes/allcodes.txt";
-	private static final String path_locations ="resources/tour/locations.txt";
+	private static final String path_locations ="resources/tour/museums.txt";
 	private Map<String, User> users;
 	private Map<String, String> sessions;
 	private List<Quizz> quizzes;
 	private List<String> initial_codes;
 	private List<String> used_codes;
-	private List<String> tourLocations;
+	private Map<String,String> tourLocations;
 	private List<String> ranking;
 
 	public ServerUtil(){
@@ -55,7 +55,7 @@ public class ServerUtil {
 		this.quizzes = quizzes;
 	}
 	
-	public List<String> getTourLocations() {
+	public Map<String,String> getTourLocations() {
 		return tourLocations;
 	}
 	
@@ -63,7 +63,7 @@ public class ServerUtil {
 		this.used_codes.add(code);
 	}
 
-	public void setTourLocations(ArrayList<String> tourLocations) {
+	public void setTourLocations(Map<String,String> tourLocations) {
 		this.tourLocations = tourLocations;
 	}
 	
@@ -293,9 +293,9 @@ public class ServerUtil {
 		return false;
 	}
 	
-	public List<String> getLocationsFromFile(){
+	public Map<String,String> getLocationsFromFile(){
 		FileReader fr;
-		List<String> locations = new ArrayList<String>();
+		Map<String,String> locations = new HashMap<String,String>();
 		try {
 			File cod = new File(path_locations);
 			if(cod.length() == 0){
@@ -306,16 +306,15 @@ public class ServerUtil {
 			fr = new FileReader(path_locations);
 			BufferedReader br = new BufferedReader(fr);
 			String line = br.readLine();
+			String[] splitline = line.split("\\s+");
 			while(line != null) {
-				locations.add(line);
+				locations.put(splitline[0], splitline[1]);
 				line = br.readLine();
 			}
 			br.close();
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		

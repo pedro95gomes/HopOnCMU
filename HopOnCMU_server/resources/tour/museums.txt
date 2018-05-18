@@ -1,0 +1,6 @@
+1 BelemTower
+2 MuseuEletricidade
+3 Oceanario
+4 ParqueDasNacoes
+5 PanteaoNacional
+

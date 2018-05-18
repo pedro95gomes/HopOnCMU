@@ -1,17 +1,30 @@
 package pt.ulisboa.tecnico.cmu.hoponcmu;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks.*;
 
@@ -130,7 +143,24 @@ public class PostQuizAnswers extends AppCompatActivity {
     }
 
     private void submitAnswers(){
-        new PostQuizAnswersTask(this).execute(sessionId,quizname);
+        Map<String,String> museums = openLocationsFile();
+        int idmuseum=-1;
+        for(String key: museums.keySet()){
+            String file = museums.get(key);
+            if(file.equals(quizname)){
+                idmuseum=Integer.valueOf(key);
+            }
+            Log.d("idmuseum",String.valueOf(idmuseum));
+        }
+        String netssid = getCurrentSSID();
+        //Check if user is submitting this on the first stop or the second
+        if(netssid.equals("M"+idmuseum) || netssid.equals("M"+(idmuseum+1))) {
+            new PostQuizAnswersTask(this).execute(sessionId, quizname);
+        }
+        else{
+            Toast t = Toast.makeText(this, "Please connect to M"+idmuseum+" or M"+(idmuseum+1)+" SSID via WiFi", Toast.LENGTH_LONG);
+            t.show();
+        }
     }
 
     private void updateQuestions() {
@@ -159,6 +189,37 @@ public class PostQuizAnswers extends AppCompatActivity {
         }
     }
 
+    public String getCurrentSSID() {
+        ConnectivityManager connManager = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        String ssid= null;
+        if (networkInfo.isConnected()) {
+            WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+            WifiInfo connectionInfo = wifiManager.getConnectionInfo();
+            if (connectionInfo != null && !TextUtils.isEmpty(connectionInfo.getSSID())) {
+                ssid = connectionInfo.getSSID();
+            }
+        }
+        return ssid;
+    }
+
+    public Map<String,String> openLocationsFile(){
+        Map<String,String> locations = new HashMap<>();
+        try {
+            FileInputStream fis = getApplicationContext().openFileInput("museums.txt");
+            ObjectInputStream ois = new ObjectInputStream(fis);
+            locations = (Map<String,String>) ois.readObject();
+            ois.close();
+            fis.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return locations;
+    }
 
     public void logOut2(View view) {
         new LogOutTask(this).execute(sessionId);

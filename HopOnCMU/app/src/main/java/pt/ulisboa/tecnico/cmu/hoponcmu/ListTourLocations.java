@@ -1,13 +1,21 @@
 package pt.ulisboa.tecnico.cmu.hoponcmu;
 
+import android.content.Context;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks.ListLocationsTask;
 import pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks.LogOutTask;
@@ -35,6 +43,19 @@ public class ListTourLocations extends AppCompatActivity {  //Lists all tour loc
         //Depois se quisermos, também dá para fazer uma ação se o user clicar em cada item da lista
     }
 
+    public void saveLocations(Map<String,String> locations){
+        try {
+            FileOutputStream fos = getApplicationContext().openFileOutput("museums.txt", Context.MODE_PRIVATE);
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(locations);
+            oos.close();
+            fos.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     public void logOut2(View view) {
         new LogOutTask(this).execute(ssid);

@@ -91,7 +91,7 @@ public class CommandHandlerImpl implements CommandHandler {
 	public Response handle(ListLocationsCommand llc){
 		System.out.println("Getting tour locations...");
 		// Obter localização dos spots da tour
-		List<String> locations = sv.getTourLocations();
+		Map<String,String> locations = sv.getTourLocations();
 		ListLocationsResponse listLocations = new ListLocationsResponse(locations);
 		return listLocations;
 	}

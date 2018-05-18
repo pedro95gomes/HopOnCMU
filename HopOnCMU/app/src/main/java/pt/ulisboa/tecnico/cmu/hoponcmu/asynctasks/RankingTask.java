@@ -113,19 +113,5 @@ public class RankingTask extends AsyncTask<String, Void, String> {
             list.setAdapter(fileslist);
         }
     }
-
-    public String getCurrentSSID() {
-        ConnectivityManager connManager = (ConnectivityManager) ranking_activity.getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-        String ssid=null;
-        if (networkInfo.isConnected()) {
-            WifiManager wifiManager = (WifiManager) ranking_activity.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-            WifiInfo connectionInfo = wifiManager.getConnectionInfo();
-            if (connectionInfo != null && !TextUtils.isEmpty(connectionInfo.getSSID())) {
-                ssid = connectionInfo.getSSID();
-            }
-        }
-        return ssid;
-    }
 }
 

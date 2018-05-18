@@ -96,18 +96,4 @@ public class PostQuizAnswersTask extends AsyncTask<String, Void, String> {
             Toast.makeText(postQuizActivity.getApplicationContext(), "Not possible to submit answers", Toast.LENGTH_LONG);
         }
     }
-    public String getCurrentSSID() {
-        ConnectivityManager connManager = (ConnectivityManager) postQuizActivity.getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-        String ssid=null;
-        if (networkInfo.isConnected()) {
-            WifiManager wifiManager = (WifiManager) postQuizActivity.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-            WifiInfo connectionInfo = wifiManager.getConnectionInfo();
-            if (connectionInfo != null && !TextUtils.isEmpty(connectionInfo.getSSID())) {
-                ssid = connectionInfo.getSSID();
-            }
-        }
-        return ssid;
-    }
-
 }
