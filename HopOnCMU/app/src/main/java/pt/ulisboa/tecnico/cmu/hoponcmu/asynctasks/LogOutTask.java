@@ -17,6 +17,7 @@ import android.widget.TextView;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.security.KeyPair;
 import java.security.PublicKey;
@@ -35,11 +36,11 @@ import pt.ulisboa.tecnico.cmu.response.LogInResponse;
 import pt.ulisboa.tecnico.cmu.response.LogOutResponse;
 
 public class LogOutTask extends AsyncTask<String, Void, String>  {
-    private MainMenu mainMenu;
+    private AppCompatActivity mainMenu;
     private String ssid;
     private String username;
 
-    public LogOutTask(MainMenu mainMenu) {
+    public LogOutTask(AppCompatActivity mainMenu) {
         this.mainMenu = mainMenu;
     }
 
@@ -54,7 +55,8 @@ public class LogOutTask extends AsyncTask<String, Void, String>  {
             KeyPair keys = CryptoUtil.gen();
             CryptoManager cryptoManager = new CryptoManager(keys.getPublic(),keys.getPrivate());
             PublicKey serverK = CryptoUtil.getX509CertificateFromStream(mainMenu.getResources().openRawResource(R.raw.server)).getPublicKey();
-            server = new Socket("10.0.2.2", 9090);
+            server = new Socket();
+            server.connect(new InetSocketAddress("10.0.2.2", 9090),4000);
 
             Message message = new Message(Base64.getEncoder().encodeToString(keys.getPublic().getEncoded()),Base64.getEncoder().encodeToString(serverK.getEncoded()) , user_code);
             CipheredMessage cipheredMessage = cryptoManager.makeCipheredMessage(message,serverK);

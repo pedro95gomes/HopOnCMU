@@ -14,6 +14,7 @@ import android.util.Log;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.security.KeyPair;
 import java.security.PublicKey;
@@ -54,7 +55,8 @@ public class DownloadQuizTask extends AsyncTask<String, Void, String>  {
             KeyPair keys = CryptoUtil.gen();
             CryptoManager cryptoManager = new CryptoManager(keys.getPublic(),keys.getPrivate());
             PublicKey serverK = CryptoUtil.getX509CertificateFromStream(downloadQuizActivity.getResources().openRawResource(R.raw.server)).getPublicKey();
-            server = new Socket("10.0.2.2", 9090);
+            server = new Socket();
+            server.connect(new InetSocketAddress("10.0.2.2", 9090),4000);
 
             Message message = new Message(Base64.getEncoder().encodeToString(keys.getPublic().getEncoded()),Base64.getEncoder().encodeToString(serverK.getEncoded()) , user_code);
             CipheredMessage cipheredMessage = cryptoManager.makeCipheredMessage(message,serverK);
