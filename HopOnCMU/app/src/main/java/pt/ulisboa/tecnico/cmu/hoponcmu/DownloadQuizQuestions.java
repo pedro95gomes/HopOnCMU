@@ -42,18 +42,18 @@ public class DownloadQuizQuestions extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.downloadquiz);
-
         network = (TextView) findViewById(R.id.network);
         files = getApplicationContext().fileList();
 
         ssid = getIntent().getExtras().getString("ssid");
 
         String netssid = getCurrentSSID();
+        netssid = new String("M"+1); // o wifi esta a retornar unknow
         Map<String,String> museums = openLocationsFile();
         for(String key: museums.keySet()){
             if(netssid.equals("M"+key)){
-                String file = museums.get(key);
-                name = file.substring(0, file.indexOf("."));
+                System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"+museums.get(key));
+                name = museums.get(key);
             }
         }
 
