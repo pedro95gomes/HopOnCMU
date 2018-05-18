@@ -3,6 +3,7 @@ package pt.ulisboa.tecnico.cmu.hoponcmu;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -34,7 +35,14 @@ public class Quiz extends AppCompatActivity {
         quizzes = (ListView) findViewById(R.id.listquizes);
         getfiles = getApplicationContext().fileList();
         files = new String[getfiles.length-1];
-        System.arraycopy( getfiles, 1, files, 0, files.length );
+        int index_files = 0;
+        for(int i=0; i < getfiles.length ; i++){
+            if(!getfiles[i].equals("museums.txt")) {
+                files[index_files] = getfiles[i];
+                index_files++;
+            }
+        }
+        //System.arraycopy( getfiles, 1, files, 0, files.length );
         sessionId = getIntent().getExtras().getString("ssid");
 
         ArrayAdapter<String> fileslist = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,files);
