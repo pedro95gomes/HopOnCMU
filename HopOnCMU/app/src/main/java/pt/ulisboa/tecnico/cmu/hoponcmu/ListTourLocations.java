@@ -36,4 +36,7 @@ public class ListTourLocations extends AppCompatActivity {  //Lists all tour loc
     }
 
 
+    public void logOut2(View view) {
+        new LogOutTask(this).execute(ssid);
+    }
 }

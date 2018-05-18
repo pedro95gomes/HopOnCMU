@@ -8,4 +8,11 @@
         android:id="@+id/listquizes"
         android:layout_width="match_parent"
         android:layout_height="462sp" />
+
+    <Button
+        android:id="@+id/button5"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="logOut2"
+        android:text="LogOut" />
 </LinearLayout>

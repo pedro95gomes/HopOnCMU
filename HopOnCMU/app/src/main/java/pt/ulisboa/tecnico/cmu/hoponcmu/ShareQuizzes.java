@@ -247,6 +247,10 @@ public class ShareQuizzes extends AppCompatActivity {
         unregisterReceiver(mReceiver);
     }
 
+    public void logOut2(View view) {
+        new LogOutTask(this).execute(ssid);
+    }
+
     public class ServerClass extends Thread{
 
         Socket socket;
