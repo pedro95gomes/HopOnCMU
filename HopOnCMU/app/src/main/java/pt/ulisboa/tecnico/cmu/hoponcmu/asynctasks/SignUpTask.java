@@ -1,9 +1,15 @@
 package pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks;
 
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
@@ -26,10 +32,12 @@ import pt.ulisboa.tecnico.cmu.hoponcmu.R;
 import pt.ulisboa.tecnico.cmu.hoponcmu.SignUp;
 import pt.ulisboa.tecnico.cmu.response.SignUpResponse;
 
-public class SignUpTask extends BaseTask {
+public class SignUpTask extends AsyncTask<String, Void, String>  {
+
+    private SignUp signUpActivity;
 
     public SignUpTask(SignUp signUpActivity) {
-        super(signUpActivity);
+        this.signUpActivity = signUpActivity;
     }
 
     @TargetApi(Build.VERSION_CODES.O)
@@ -41,7 +49,7 @@ public class SignUpTask extends BaseTask {
         try {
             KeyPair keys = CryptoUtil.gen();
             CryptoManager cryptoManager = new CryptoManager(keys.getPublic(),keys.getPrivate());
-            PublicKey serverK = CryptoUtil.getX509CertificateFromStream(getActivity().getResources().openRawResource(R.raw.server)).getPublicKey();
+            PublicKey serverK = CryptoUtil.getX509CertificateFromStream(signUpActivity.getResources().openRawResource(R.raw.server)).getPublicKey();
             server = new Socket("10.0.2.2", 9090);
 
             Message message = new Message(Base64.getEncoder().encodeToString(keys.getPublic().getEncoded()),Base64.getEncoder().encodeToString(serverK.getEncoded()) , user_code);
@@ -75,12 +83,26 @@ public class SignUpTask extends BaseTask {
     protected void onPostExecute(String o) {
         if (o != null && o.equals("true")) {
             //Toast.makeText(signUpActivity, "Registered Successfully", Toast.LENGTH_SHORT);
-            Intent intent = new Intent(getActivity(), LogIn.class);
+            Intent intent = new Intent(signUpActivity, LogIn.class);
             intent.putExtra("Toast", "User registered successfully!");
-            getActivity().startActivity(intent);  //Ir para a activity do LogIn
+            signUpActivity.startActivity(intent);  //Ir para a activity do LogIn
         } else{
-            TextView t = (TextView) getActivity().findViewById(R.id.invalid_account);
+            TextView t = (TextView) signUpActivity.findViewById(R.id.invalid_account);
             t.setVisibility(View.VISIBLE);
         }
+    }
+
+    public String getCurrentSSID() {
+        ConnectivityManager connManager = (ConnectivityManager) signUpActivity.getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        String ssid=null;
+        if (networkInfo.isConnected()) {
+            WifiManager wifiManager = (WifiManager) signUpActivity.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+            WifiInfo connectionInfo = wifiManager.getConnectionInfo();
+            if (connectionInfo != null && !TextUtils.isEmpty(connectionInfo.getSSID())) {
+                ssid = connectionInfo.getSSID();
+            }
+        }
+        return ssid;
     }
 }

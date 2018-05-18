@@ -80,6 +80,7 @@ public class CommandHandlerImpl implements CommandHandler {
 		if(sv.isPassword(lginc.getUsername(), lginc.getPassword())) {
 			UUID uuid = UUID.randomUUID();
 			sessionId = uuid.toString();
+			System.out.println(sessionId);
 			sv.setSessionId(lginc.getUsername(), sessionId); // Generate and set user session Id
 		}
 		LogInResponse logedIn =  new LogInResponse(lginc.getUsername(), sessionId);
@@ -132,7 +133,7 @@ public class CommandHandlerImpl implements CommandHandler {
 		boolean success = false;
 		for(Quizz quizz : quizzes) {
 			if(quizz.getName().equals(pac.getQuizzName())) {
-				sv.setUserAnswers(pac.getUserName(), quizz.getName(), pac.getAnswers(), pac.getTime_taken());
+				sv.setUserAnswers(pac.getSessionId(), quizz.getName(), pac.getAnswers(), pac.getTime_taken());
 				success = true;
 			}
 		}

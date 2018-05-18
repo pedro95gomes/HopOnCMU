@@ -1,9 +1,15 @@
 package pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks;
 
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
@@ -27,11 +33,12 @@ import pt.ulisboa.tecnico.cmu.hoponcmu.MainMenu;
 import pt.ulisboa.tecnico.cmu.hoponcmu.R;
 import pt.ulisboa.tecnico.cmu.response.LogInResponse;
 
-public class LogInTask extends BaseTask {
+public class LogInTask extends AsyncTask<String, Void, String>  {
+    private LogIn logInActivity;
     private String sessionId;
 
     public LogInTask(LogIn logInActivity) {
-        super(logInActivity);
+        this.logInActivity = logInActivity;
     }
 
     @TargetApi(Build.VERSION_CODES.O)
@@ -45,7 +52,7 @@ public class LogInTask extends BaseTask {
 
             KeyPair keys = CryptoUtil.gen();
             CryptoManager cryptoManager = new CryptoManager(keys.getPublic(),keys.getPrivate());
-            PublicKey serverK = CryptoUtil.getX509CertificateFromStream(getActivity().getResources().openRawResource(R.raw.server)).getPublicKey();
+            PublicKey serverK = CryptoUtil.getX509CertificateFromStream(logInActivity.getResources().openRawResource(R.raw.server)).getPublicKey();
             server = new Socket("10.0.2.2", 9090);
 
 
@@ -83,13 +90,27 @@ public class LogInTask extends BaseTask {
     @Override
     protected void onPostExecute(String o) {
         if (o != null && o.equals("true")) {
-            Intent intent = new Intent(getActivity(), MainMenu.class);
+            Intent intent = new Intent(logInActivity, MainMenu.class);
             intent.putExtra("ssid", sessionId);
-            getActivity().startActivity(intent);  //Ir para a activity do MainMenu
+            logInActivity.startActivity(intent);  //Ir para a activity do MainMenu
         }
         else {
-            TextView login_invalido = (TextView) getActivity().findViewById(R.id.invalid_login);
+            TextView login_invalido = (TextView) logInActivity.findViewById(R.id.invalid_login);
             login_invalido.setVisibility(View.VISIBLE);
         }
+    }
+
+    public String getCurrentSSID() {
+        ConnectivityManager connManager = (ConnectivityManager) logInActivity.getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        String ssid=null;
+        if (networkInfo.isConnected()) {
+            WifiManager wifiManager = (WifiManager) logInActivity.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+            WifiInfo connectionInfo = wifiManager.getConnectionInfo();
+            if (connectionInfo != null && !TextUtils.isEmpty(connectionInfo.getSSID())) {
+                ssid = connectionInfo.getSSID();
+            }
+        }
+        return ssid;
     }
 }

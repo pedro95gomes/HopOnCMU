@@ -1,9 +1,15 @@
 package pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks;
 
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -45,10 +51,12 @@ public class PostQuizAnswersTask extends AsyncTask<String, Void, String> {
         try {
             KeyPair keys = CryptoUtil.gen();
             CryptoManager cryptoManager = new CryptoManager(keys.getPublic(),keys.getPrivate());
-            PublicKey serverK = CryptoUtil.getX509CertificateFromStream(this.postQuizActivity.getResources().openRawResource(R.raw.server)).getPublicKey();
+            PublicKey serverK = CryptoUtil.getX509CertificateFromStream(postQuizActivity.getResources().openRawResource(R.raw.server)).getPublicKey();
             server = new Socket("10.0.2.2", 9090);
 
             Message message = new Message(Base64.getEncoder().encodeToString(keys.getPublic().getEncoded()),Base64.getEncoder().encodeToString(serverK.getEncoded()) , user_code);
+            System.out.println("sessionid "+user_code.getSessionId());
+            System.out.println("timetaken "+user_code.getTime_taken());
             CipheredMessage cipheredMessage = cryptoManager.makeCipheredMessage(message,serverK);
             ObjectOutputStream oos = new ObjectOutputStream(server.getOutputStream());
             oos.writeObject(cipheredMessage);
@@ -88,4 +96,18 @@ public class PostQuizAnswersTask extends AsyncTask<String, Void, String> {
             Toast.makeText(postQuizActivity.getApplicationContext(), "Not possible to submit answers", Toast.LENGTH_LONG);
         }
     }
+    public String getCurrentSSID() {
+        ConnectivityManager connManager = (ConnectivityManager) postQuizActivity.getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        String ssid=null;
+        if (networkInfo.isConnected()) {
+            WifiManager wifiManager = (WifiManager) postQuizActivity.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+            WifiInfo connectionInfo = wifiManager.getConnectionInfo();
+            if (connectionInfo != null && !TextUtils.isEmpty(connectionInfo.getSSID())) {
+                ssid = connectionInfo.getSSID();
+            }
+        }
+        return ssid;
+    }
+
 }

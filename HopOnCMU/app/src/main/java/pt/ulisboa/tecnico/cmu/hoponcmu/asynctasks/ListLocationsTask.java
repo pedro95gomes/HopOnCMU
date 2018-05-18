@@ -1,8 +1,14 @@
 package pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks;
 
 import android.annotation.TargetApi;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -26,12 +32,13 @@ import pt.ulisboa.tecnico.cmu.hoponcmu.ListTourLocations;
 import pt.ulisboa.tecnico.cmu.hoponcmu.R;
 import pt.ulisboa.tecnico.cmu.response.ListLocationsResponse;
 
-public class ListLocationsTask extends BaseTask {
+public class ListLocationsTask extends AsyncTask<String, Void, String>  {
 
+    private ListTourLocations listLocationsActivity;
     private List<String> locations = null;
 
     public ListLocationsTask(ListTourLocations listLocationsActivity) {
-        super(listLocationsActivity);
+        this.listLocationsActivity = listLocationsActivity;
     }
 
     @TargetApi(Build.VERSION_CODES.O)
@@ -44,7 +51,7 @@ public class ListLocationsTask extends BaseTask {
         try {
             KeyPair keys = CryptoUtil.gen();
             CryptoManager cryptoManager = new CryptoManager(keys.getPublic(),keys.getPrivate());
-            PublicKey serverK = CryptoUtil.getX509CertificateFromStream(getActivity().getResources().openRawResource(R.raw.server)).getPublicKey();
+            PublicKey serverK = CryptoUtil.getX509CertificateFromStream(listLocationsActivity.getResources().openRawResource(R.raw.server)).getPublicKey();
             server = new Socket("10.0.2.2", 9090);
 
             Message message = new Message(Base64.getEncoder().encodeToString(keys.getPublic().getEncoded()),Base64.getEncoder().encodeToString(serverK.getEncoded()) , user_code);
@@ -84,14 +91,28 @@ public class ListLocationsTask extends BaseTask {
     @Override
     protected void onPostExecute(String o) {
         if (o != null && o.equals("true")) {
-            ListView listlist_location = getActivity().findViewById(R.id.list);
+            ListView listlist_location = listLocationsActivity.findViewById(R.id.list);
             if (locations.size() != 0) {
-                ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, locations);
+                ArrayAdapter<String> adapter = new ArrayAdapter<String>(listLocationsActivity, android.R.layout.simple_list_item_1, locations);
                 listlist_location.setAdapter(adapter);
             } else {
-                ListView nothing = getActivity().findViewById(R.id.nothing);
+                ListView nothing = listLocationsActivity.findViewById(R.id.nothing);
                 nothing.setVisibility(View.VISIBLE);
             }
         }
+    }
+
+    public String getCurrentSSID() {
+        ConnectivityManager connManager = (ConnectivityManager) listLocationsActivity.getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        String ssid=null;
+        if (networkInfo.isConnected()) {
+            WifiManager wifiManager = (WifiManager) listLocationsActivity.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+            WifiInfo connectionInfo = wifiManager.getConnectionInfo();
+            if (connectionInfo != null && !TextUtils.isEmpty(connectionInfo.getSSID())) {
+                ssid = connectionInfo.getSSID();
+            }
+        }
+        return ssid;
     }
 }

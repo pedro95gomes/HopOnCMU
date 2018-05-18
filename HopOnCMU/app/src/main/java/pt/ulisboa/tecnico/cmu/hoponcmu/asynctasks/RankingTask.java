@@ -1,8 +1,14 @@
 package pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks;
 
 import android.annotation.TargetApi;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -104,6 +110,20 @@ public class RankingTask extends AsyncTask<String, Void, String> {
             ResultsAdapterRanking fileslist = new ResultsAdapterRanking(ranking_activity, ranking_list);
             list.setAdapter(fileslist);
         }
+    }
+
+    public String getCurrentSSID() {
+        ConnectivityManager connManager = (ConnectivityManager) ranking_activity.getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        String ssid=null;
+        if (networkInfo.isConnected()) {
+            WifiManager wifiManager = (WifiManager) ranking_activity.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+            WifiInfo connectionInfo = wifiManager.getConnectionInfo();
+            if (connectionInfo != null && !TextUtils.isEmpty(connectionInfo.getSSID())) {
+                ssid = connectionInfo.getSSID();
+            }
+        }
+        return ssid;
     }
 }
 

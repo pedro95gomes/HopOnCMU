@@ -1,8 +1,14 @@
 package pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks;
 
 import android.annotation.TargetApi;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.ListView;
 
@@ -24,14 +30,14 @@ import pt.ulisboa.tecnico.cmu.hoponcmu.R;
 import pt.ulisboa.tecnico.cmu.hoponcmu.ReadQuizResults;
 import pt.ulisboa.tecnico.cmu.response.QuizResultsResponse;
 
-public class ReadResultsTask extends BaseTask {
-
+public class ReadResultsTask extends AsyncTask<String, Void, String>  {
+    private ReadQuizResults readQuizResultsActivity;
     private String[] files;
     private Map<String, Integer> results;
     private Map<String, Integer> numQuestions;
 
     public ReadResultsTask(ReadQuizResults readQuizResultsActivity) {
-        super(readQuizResultsActivity);
+        this.readQuizResultsActivity = readQuizResultsActivity;
     }
 
     @TargetApi(Build.VERSION_CODES.O)
@@ -39,13 +45,13 @@ public class ReadResultsTask extends BaseTask {
     protected String doInBackground(String[] params) {      //Username | Code
         Socket server = null;
         String register_success = null;
-        files = ((ReadQuizResults)getActivity()).getQuizNames();
+        files = readQuizResultsActivity.getQuizNames();
         QuizResultsCommand user_code = new QuizResultsCommand(params[0],files);
 
         try {
             KeyPair keys = CryptoUtil.gen();
             CryptoManager cryptoManager = new CryptoManager(keys.getPublic(),keys.getPrivate());
-            PublicKey serverK = CryptoUtil.getX509CertificateFromStream(getActivity().getResources().openRawResource(R.raw.server)).getPublicKey();
+            PublicKey serverK = CryptoUtil.getX509CertificateFromStream(readQuizResultsActivity.getResources().openRawResource(R.raw.server)).getPublicKey();
             server = new Socket("10.0.2.2", 9090);
 
             Message message = new Message(Base64.getEncoder().encodeToString(keys.getPublic().getEncoded()),Base64.getEncoder().encodeToString(serverK.getEncoded()) , user_code);
@@ -86,9 +92,24 @@ public class ReadResultsTask extends BaseTask {
     @Override
     protected void onPostExecute(String o) {
         if (o != null && o.equals("true")) {
-            ListView list = (ListView) getActivity().findViewById(R.id.list);
-            ResultsAdapter fileslist = new ResultsAdapter(getActivity(), files, results, numQuestions);
+            ListView list = (ListView) readQuizResultsActivity.findViewById(R.id.list);
+            ResultsAdapter fileslist = new ResultsAdapter(readQuizResultsActivity, files, results, numQuestions);
             list.setAdapter(fileslist);
         }
     }
+
+    public String getCurrentSSID() {
+        ConnectivityManager connManager = (ConnectivityManager) readQuizResultsActivity.getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        String ssid=null;
+        if (networkInfo.isConnected()) {
+            WifiManager wifiManager = (WifiManager) readQuizResultsActivity.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+            WifiInfo connectionInfo = wifiManager.getConnectionInfo();
+            if (connectionInfo != null && !TextUtils.isEmpty(connectionInfo.getSSID())) {
+                ssid = connectionInfo.getSSID();
+            }
+        }
+        return ssid;
+    }
+
 }

@@ -6,13 +6,13 @@ import pt.ulisboa.tecnico.cmu.response.Response;
 
 public class PostAnswersCommand implements Command{
 	private static final long serialVersionUID = -8807331723807741905L;
-	private String username;
+	private String sessionId;
 	private String quizzname;
 	private List<String> answers;
 	private int time_taken;
 
-	public PostAnswersCommand(String username, String quizzname, List<String> answers,  int time_taken){
-		this.username = username;
+	public PostAnswersCommand(String sessionId, String quizzname, List<String> answers,  int time_taken){
+		this.sessionId = sessionId;
 		this.quizzname = quizzname;
 		this.answers = answers;
 		this.time_taken=time_taken;
@@ -31,11 +31,11 @@ public class PostAnswersCommand implements Command{
 		return this.answers;
 	}
 
-	public String getUserName() {
-		return this.username;
+	public String getSessionId() {
+		return this.sessionId;
 	}
 
 	public int getTime_taken(){
-		return time_taken;
+		return this.time_taken;
 	}
 }

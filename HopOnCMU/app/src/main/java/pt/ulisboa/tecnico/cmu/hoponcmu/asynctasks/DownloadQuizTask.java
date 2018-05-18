@@ -1,9 +1,15 @@
 package pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks;
 
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.ObjectInputStream;
@@ -25,13 +31,14 @@ import pt.ulisboa.tecnico.cmu.hoponcmu.MainMenu;
 import pt.ulisboa.tecnico.cmu.hoponcmu.R;
 import pt.ulisboa.tecnico.cmu.response.DownloadQuestionsResponse;
 
-public class DownloadQuizTask extends BaseTask {
+public class DownloadQuizTask extends AsyncTask<String, Void, String>  {
 
+    private DownloadQuizQuestions downloadQuizActivity;
     private List<String[]> questions;
     private String ssid;
 
     public DownloadQuizTask(DownloadQuizQuestions downloadQuizActivity) {
-        super(downloadQuizActivity);
+        this.downloadQuizActivity = downloadQuizActivity;
     }
 
     @TargetApi(Build.VERSION_CODES.O)
@@ -46,7 +53,7 @@ public class DownloadQuizTask extends BaseTask {
         try {
             KeyPair keys = CryptoUtil.gen();
             CryptoManager cryptoManager = new CryptoManager(keys.getPublic(),keys.getPrivate());
-            PublicKey serverK = CryptoUtil.getX509CertificateFromStream(getActivity().getResources().openRawResource(R.raw.server)).getPublicKey();
+            PublicKey serverK = CryptoUtil.getX509CertificateFromStream(downloadQuizActivity.getResources().openRawResource(R.raw.server)).getPublicKey();
             server = new Socket("10.0.2.2", 9090);
 
             Message message = new Message(Base64.getEncoder().encodeToString(keys.getPublic().getEncoded()),Base64.getEncoder().encodeToString(serverK.getEncoded()) , user_code);
@@ -85,12 +92,26 @@ public class DownloadQuizTask extends BaseTask {
     @Override
     protected void onPostExecute(String o) {
         if (o != null && o.equals("true")) {
-            ((DownloadQuizQuestions)getActivity()).saveQuizFile(questions);
-            Intent intent = new Intent(getActivity(), MainMenu.class);
+            downloadQuizActivity.saveQuizFile(questions);
+            Intent intent = new Intent(downloadQuizActivity, MainMenu.class);
             intent.putExtra("Toast", "File downloaded successfully");
             intent.putExtra("ssid", ssid);
             Log.d("File:", "Successfully downloaded");
-            getActivity().startActivity(intent);  //Ir para a activity do LogIn
+            downloadQuizActivity.startActivity(intent);  //Ir para a activity do LogIn
         }
+    }
+
+    public String getCurrentSSID() {
+        ConnectivityManager connManager = (ConnectivityManager) downloadQuizActivity.getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        String ssid= null;
+        if (networkInfo.isConnected()) {
+            WifiManager wifiManager = (WifiManager) downloadQuizActivity.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+            WifiInfo connectionInfo = wifiManager.getConnectionInfo();
+            if (connectionInfo != null && !TextUtils.isEmpty(connectionInfo.getSSID())) {
+                ssid = connectionInfo.getSSID();
+            }
+        }
+        return ssid;
     }
 }

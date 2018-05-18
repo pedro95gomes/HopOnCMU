@@ -1,10 +1,16 @@
 package pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks;
 
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
@@ -28,12 +34,13 @@ import pt.ulisboa.tecnico.cmu.hoponcmu.R;
 import pt.ulisboa.tecnico.cmu.response.LogInResponse;
 import pt.ulisboa.tecnico.cmu.response.LogOutResponse;
 
-public class LogOutTask extends BaseTask {
+public class LogOutTask extends AsyncTask<String, Void, String>  {
+    private MainMenu mainMenu;
     private String ssid;
     private String username;
 
-    public LogOutTask(AppCompatActivity appCompatActivity) {
-        super(appCompatActivity);
+    public LogOutTask(MainMenu mainMenu) {
+        this.mainMenu = mainMenu;
     }
 
     @TargetApi(Build.VERSION_CODES.O)
@@ -46,7 +53,7 @@ public class LogOutTask extends BaseTask {
         try {
             KeyPair keys = CryptoUtil.gen();
             CryptoManager cryptoManager = new CryptoManager(keys.getPublic(),keys.getPrivate());
-            PublicKey serverK = CryptoUtil.getX509CertificateFromStream(getActivity().getResources().openRawResource(R.raw.server)).getPublicKey();
+            PublicKey serverK = CryptoUtil.getX509CertificateFromStream(mainMenu.getResources().openRawResource(R.raw.server)).getPublicKey();
             server = new Socket("10.0.2.2", 9090);
 
             Message message = new Message(Base64.getEncoder().encodeToString(keys.getPublic().getEncoded()),Base64.getEncoder().encodeToString(serverK.getEncoded()) , user_code);
@@ -83,10 +90,24 @@ public class LogOutTask extends BaseTask {
     @Override
     protected void onPostExecute(String o) {
         if (o != null && o.equals("true")) {
-            Intent intent = new Intent(getActivity(), LogIn.class);
+            Intent intent = new Intent(mainMenu, LogIn.class);
             intent.putExtra("Toast", "User "+username+" logged out!");
-            getActivity().startActivity(intent);  //Ir para a activity do Log In
-            getActivity().finish();
+            mainMenu.startActivity(intent);  //Ir para a activity do Log In
+            mainMenu.finish();
         }
+    }
+
+    public String getCurrentSSID() {
+        ConnectivityManager connManager = (ConnectivityManager) mainMenu.getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        String ssid=null;
+        if (networkInfo.isConnected()) {
+            WifiManager wifiManager = (WifiManager) mainMenu.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+            WifiInfo connectionInfo = wifiManager.getConnectionInfo();
+            if (connectionInfo != null && !TextUtils.isEmpty(connectionInfo.getSSID())) {
+                ssid = connectionInfo.getSSID();
+            }
+        }
+        return ssid;
     }
 }
