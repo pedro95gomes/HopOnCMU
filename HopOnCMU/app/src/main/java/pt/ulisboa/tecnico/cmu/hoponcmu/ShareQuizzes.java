@@ -1,8 +1,11 @@
 package pt.ulisboa.tecnico.cmu.hoponcmu;
 
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.net.wifi.WifiManager;
 import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
@@ -14,7 +17,9 @@ import android.net.wifi.p2p.WifiP2pManager.Channel;
 import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Message;
+import android.os.Messenger;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
@@ -45,11 +50,17 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import pt.inesc.termite.wifidirect.SimWifiP2pBroadcast;
+import pt.inesc.termite.wifidirect.SimWifiP2pManager;
+import pt.inesc.termite.wifidirect.service.SimWifiP2pService;
+import pt.inesc.termite.wifidirect.sockets.SimWifiP2pSocketManager;
 import pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks.LogOutTask;
+import pt.ulisboa.tecnico.cmu.wifip2p.SimWifiP2pBroadcastReceiver;
 
 
 public class ShareQuizzes extends AppCompatActivity {
 
+    /* REAL */
     private final IntentFilter intentFilter = new IntentFilter();
     WifiManager wifiManager;
     Button btnOff, btnDiscover, btnSend;
@@ -71,6 +82,12 @@ public class ShareQuizzes extends AppCompatActivity {
     SendReceive sendReceive;
     String ssid;
 
+    /* SIMULATOR */
+    SimWifiP2pManager simmManager;
+    SimWifiP2pManager.Channel simmChannel = null;
+    Messenger simmService = null;
+    IntentFilter terIntentFilter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -78,9 +95,38 @@ public class ShareQuizzes extends AppCompatActivity {
 
         ssid = getIntent().getExtras().getString("ssid");
 
+        SimWifiP2pSocketManager.Init(getApplicationContext());
+
+        /* REAL */
         initialWork();
         exqListner();
+        /* SIMULATOR */
+        //initWork();
     }
+
+    private void initWork() {
+        btnOff = findViewById(R.id.onOff);
+        btnSend = findViewById(R.id.send);
+        btnDiscover = findViewById(R.id.discover);
+        listView = findViewById(R.id.list);
+        readmagBox = findViewById(R.id.readMsg);
+        writeMsg = findViewById(R.id.writeMsg);
+        connectionStatus = findViewById(R.id.status);
+
+        terIntentFilter = new IntentFilter();
+
+        terIntentFilter.addAction(SimWifiP2pBroadcast.WIFI_P2P_STATE_CHANGED_ACTION);
+        terIntentFilter.addAction(SimWifiP2pBroadcast.WIFI_P2P_PEERS_CHANGED_ACTION);
+        terIntentFilter.addAction(SimWifiP2pBroadcast.WIFI_P2P_NETWORK_MEMBERSHIP_CHANGED_ACTION);
+        terIntentFilter.addAction(SimWifiP2pBroadcast.WIFI_P2P_GROUP_OWNERSHIP_CHANGED_ACTION);
+
+        SimWifiP2pBroadcastReceiver receiver = new SimWifiP2pBroadcastReceiver(this);
+        registerReceiver(receiver, terIntentFilter);
+
+        Intent intent = new Intent(getApplicationContext(), SimWifiP2pService.class);
+        bindService(intent, simmConnection, Context.BIND_AUTO_CREATE);
+    }
+
     Handler handler = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
@@ -185,8 +231,6 @@ public class ShareQuizzes extends AppCompatActivity {
         mManager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
         mChannel = mManager.initialize(this, getMainLooper(),null);
         mReceiver = new WiFiDirectBroadcastReceiver(mManager,mChannel,this);
-
-
     }
 
     WifiP2pManager.PeerListListener peerListListener = new PeerListListener() {
@@ -333,5 +377,23 @@ public class ShareQuizzes extends AppCompatActivity {
         }
     }
 
+    /* SIMULATOR */
+    private ServiceConnection simmConnection = new ServiceConnection() {
+        // callbacks for service binding, passed to bindService()
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            simmService = new Messenger(service);
+            simmManager = new SimWifiP2pManager(simmService);
+            simmChannel   =  simmManager.initialize(getApplication(),   getMainLooper(),
+                    null);
+        }
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            simmService = null;
+            simmManager = null;
+            simmChannel = null;
+        }
+    };
 
 }
