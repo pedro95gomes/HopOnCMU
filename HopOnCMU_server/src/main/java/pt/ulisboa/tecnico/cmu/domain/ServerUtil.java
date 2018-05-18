@@ -306,10 +306,15 @@ public class ServerUtil {
 			fr = new FileReader(path_locations);
 			BufferedReader br = new BufferedReader(fr);
 			String line = br.readLine();
-			String[] splitline = line.split("\\s+");
+			String[] splitline;
 			while(line != null) {
-				locations.put(splitline[0], splitline[1]);
-				line = br.readLine();
+				try {
+					splitline = line.split("\\s+");
+					locations.put(splitline[0], splitline[1]);
+					line = br.readLine();
+				} catch(ArrayIndexOutOfBoundsException e){
+					break;
+				}
 			}
 			br.close();
 		} catch (FileNotFoundException e) {
@@ -317,7 +322,6 @@ public class ServerUtil {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
 		return locations;
 	}
 

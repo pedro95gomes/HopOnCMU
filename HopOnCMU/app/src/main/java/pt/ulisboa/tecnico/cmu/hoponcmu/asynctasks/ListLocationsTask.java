@@ -98,7 +98,7 @@ public class ListLocationsTask extends AsyncTask<String, Void, String>  {
             ListView listlist_location = listLocationsActivity.findViewById(R.id.list);
             List<String> locs = new ArrayList<String>();
             for(String key: locations.keySet()){
-                locs.add(locations.get(locs));
+                locs.add(locations.get(key));
             }
             if (locations.size() != 0) {
                 ArrayAdapter<String> adapter = new ArrayAdapter<String>(listLocationsActivity, android.R.layout.simple_list_item_1, locs);
