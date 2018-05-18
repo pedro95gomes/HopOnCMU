@@ -16,6 +16,13 @@
     <ListView
         android:id="@+id/list"
         android:layout_width="match_parent"
-        android:layout_height="462sp" />
+        android:layout_height="433dp" />
+
+    <Button
+        android:id="@+id/button4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="logOut2"
+        android:text="LogOut" />
 
 </LinearLayout>

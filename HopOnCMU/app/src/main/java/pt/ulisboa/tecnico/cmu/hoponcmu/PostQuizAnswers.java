@@ -160,4 +160,7 @@ public class PostQuizAnswers extends AppCompatActivity {
     }
 
 
+    public void logOut2(View view) {
+        new LogOutTask(this).execute(sessionId);
+    }
 }

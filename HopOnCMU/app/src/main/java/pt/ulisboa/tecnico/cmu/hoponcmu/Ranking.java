@@ -2,6 +2,7 @@ package pt.ulisboa.tecnico.cmu.hoponcmu;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ListView;
 
 import pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks.*;
@@ -25,4 +26,7 @@ public class Ranking extends AppCompatActivity {
     }
 
 
+    public void logOut2(View view) {
+        new LogOutTask(this).execute(ssid);
+    }
 }

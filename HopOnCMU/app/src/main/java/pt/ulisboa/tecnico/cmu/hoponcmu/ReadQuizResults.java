@@ -41,4 +41,7 @@ public class ReadQuizResults extends AppCompatActivity {        //Asks results t
     }
 
 
+    public void logOut2(View view) {
+        new LogOutTask(this).execute(ssid);
+    }
 }
