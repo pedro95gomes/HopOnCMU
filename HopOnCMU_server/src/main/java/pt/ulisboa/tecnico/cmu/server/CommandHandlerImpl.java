@@ -82,6 +82,7 @@ public class CommandHandlerImpl implements CommandHandler {
 			sessionId = uuid.toString();
 			System.out.println(sessionId);
 			sv.setSessionId(lginc.getUsername(), sessionId); // Generate and set user session Id
+			
 		}
 		LogInResponse logedIn =  new LogInResponse(lginc.getUsername(), sessionId);
 		return logedIn;

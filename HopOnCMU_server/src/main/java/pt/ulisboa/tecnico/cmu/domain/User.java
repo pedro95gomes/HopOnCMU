@@ -57,6 +57,7 @@ public class User implements Serializable{
 	public void setAnswers(String quizzname, List<String> answers){
 		for(String a : answers)
 			System.out.println(a);
+		if(this.answers==null) this.answers = new HashMap<String, List<String>>();
 		this.answers.put(quizzname, answers);
 	}
 	
@@ -77,6 +78,7 @@ public class User implements Serializable{
 	}
 	
 	public void setResult(String quizzname, int result) {
+		if(this.results==null) results= new HashMap<String, Integer>();
 		this.results.put(quizzname, result);
 	}
 
@@ -85,6 +87,7 @@ public class User implements Serializable{
 	}
 
 	public void setTimeTaken(String quizzname, int time) {
+		if(time_taken==null) time_taken = new HashMap<String, Integer>();
 		time_taken.put(quizzname, time);
 	}
 	
