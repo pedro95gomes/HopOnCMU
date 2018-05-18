@@ -40,8 +40,5 @@ public class ReadQuizResults extends AppCompatActivity {        //Asks results t
         return this.list_quiz;
     }
 
-    public void onDestroy() {
-        new LogOutTask(this).execute(ssid);
-        super.onDestroy();
-    }
+
 }

@@ -40,7 +40,7 @@ public class LogOutTask extends BaseTask {
     @Override
     protected String doInBackground(String[] params) {      //Username | SessionId
         Socket server = null;
-        LogOutCommand user_code = new LogOutCommand(params[0],params[1]);
+        LogOutCommand user_code = new LogOutCommand(params[0]);
         String success = "false";
 
         try {

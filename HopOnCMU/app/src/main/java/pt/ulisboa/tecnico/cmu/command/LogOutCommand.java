@@ -6,7 +6,7 @@ public class LogOutCommand implements Command{
     private static final long serialVersionUID = -8807331723807741905L;
     private String sessionId;
     
-    public LogOutCommand(String username, String sessionId){
+    public LogOutCommand(String sessionId){
     	this.sessionId = sessionId;
     }
 

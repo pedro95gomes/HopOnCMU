@@ -24,8 +24,5 @@ public class Ranking extends AppCompatActivity {
 
     }
 
-    public void onDestroy() {
-        new LogOutTask(this).execute(ssid);
-        super.onDestroy();
-    }
+
 }

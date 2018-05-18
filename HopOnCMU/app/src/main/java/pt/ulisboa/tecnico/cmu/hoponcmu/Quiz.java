@@ -74,8 +74,5 @@ public class Quiz extends AppCompatActivity {
         return questions;
     }
 
-    public void onDestroy() {
-        new LogOutTask(this).execute(sessionId);
-        super.onDestroy();
-    }
+
 }

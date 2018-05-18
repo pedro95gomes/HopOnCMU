@@ -35,8 +35,5 @@ public class ListTourLocations extends AppCompatActivity {  //Lists all tour loc
         //Depois se quisermos, também dá para fazer uma ação se o user clicar em cada item da lista
     }
 
-    public void onDestroy() {
-        new LogOutTask(this).execute(ssid);
-        super.onDestroy();
-    }
+
 }

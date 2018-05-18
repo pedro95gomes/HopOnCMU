@@ -159,8 +159,5 @@ public class PostQuizAnswers extends AppCompatActivity {
         }
     }
 
-    public void onDestroy() {
-        new LogOutTask(this).execute(sessionId);
-        super.onDestroy();
-    }
+
 }

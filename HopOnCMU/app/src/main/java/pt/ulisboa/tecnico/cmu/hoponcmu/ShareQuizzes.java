@@ -329,8 +329,5 @@ public class ShareQuizzes extends AppCompatActivity {
         }
     }
 
-    public void onDestroy() {
-        new LogOutTask(this).execute(ssid);
-        super.onDestroy();
-    }
+
 }
