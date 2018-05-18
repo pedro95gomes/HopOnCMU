@@ -49,7 +49,15 @@ public class ReadResultsTask extends AsyncTask<String, Void, String>  {
         String register_success = null;
         getfiles = readQuizResultsActivity.getQuizNames();
         files = new String[getfiles.length-1];
-        System.arraycopy( getfiles, 1, files, 0, files.length );
+        int index_files = 0;
+        for(int i=0; i < getfiles.length ; i++){
+            if(!getfiles[i].equals("museums.txt")) {
+                files[index_files] = getfiles[i];
+                index_files++;
+            }
+        }
+
+        //System.arraycopy( getfiles, 1, files, 0, files.length );
         QuizResultsCommand user_code = new QuizResultsCommand(params[0],files);
 
         try {
