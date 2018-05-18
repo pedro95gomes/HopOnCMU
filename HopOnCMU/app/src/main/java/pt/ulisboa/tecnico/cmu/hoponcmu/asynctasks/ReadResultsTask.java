@@ -34,6 +34,7 @@ import pt.ulisboa.tecnico.cmu.response.QuizResultsResponse;
 public class ReadResultsTask extends AsyncTask<String, Void, String>  {
     private ReadQuizResults readQuizResultsActivity;
     private String[] files;
+    private String[] getfiles;
     private Map<String, Integer> results;
     private Map<String, Integer> numQuestions;
 
@@ -46,7 +47,9 @@ public class ReadResultsTask extends AsyncTask<String, Void, String>  {
     protected String doInBackground(String[] params) {      //Username | Code
         Socket server = null;
         String register_success = null;
-        files = readQuizResultsActivity.getQuizNames();
+        getfiles = readQuizResultsActivity.getQuizNames();
+        files = new String[getfiles.length-1];
+        System.arraycopy( getfiles, 1, files, 0, files.length );
         QuizResultsCommand user_code = new QuizResultsCommand(params[0],files);
 
         try {
