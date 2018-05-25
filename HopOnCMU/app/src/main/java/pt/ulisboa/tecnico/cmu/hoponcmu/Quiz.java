@@ -1,7 +1,7 @@
 package pt.ulisboa.tecnico.cmu.hoponcmu;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
+import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -19,7 +19,7 @@ import java.util.List;
 
 import pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks.LogOutTask;
 
-public class Quiz extends AppCompatActivity {
+public class Quiz extends Activity {
 
     String[] files;
     String[] getfiles;

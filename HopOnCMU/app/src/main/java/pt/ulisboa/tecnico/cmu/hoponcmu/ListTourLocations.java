@@ -1,7 +1,7 @@
 package pt.ulisboa.tecnico.cmu.hoponcmu;
 
 import android.content.Context;
-import android.support.v7.app.AppCompatActivity;
+import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -20,7 +20,7 @@ import java.util.Map;
 import pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks.ListLocationsTask;
 import pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks.LogOutTask;
 
-public class ListTourLocations extends AppCompatActivity {  //Lists all tour locations
+public class ListTourLocations extends Activity {  //Lists all tour locations
 
     private ListView list;
     private ArrayList<String> list_location;      //Array que vai ter o strings com o nome das locations

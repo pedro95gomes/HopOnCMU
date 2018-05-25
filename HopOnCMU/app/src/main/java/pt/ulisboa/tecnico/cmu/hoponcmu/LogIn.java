@@ -2,10 +2,8 @@ package pt.ulisboa.tecnico.cmu.hoponcmu;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+import android.app.Activity;
+
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -14,7 +12,7 @@ import android.widget.Toast;
 
 import pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks.LogInTask;
 
-public class LogIn extends AppCompatActivity {
+public class LogIn extends Activity {
 
     private EditText username;
     private EditText code;
@@ -42,11 +40,11 @@ public class LogIn extends AppCompatActivity {
 
     public void logIn (View v){
         /* Para execução correta */
-        new LogInTask(LogIn.this).execute(username.getText().toString(), code.getText().toString());
+        //new LogInTask(LogIn.this).execute(username.getText().toString(), code.getText().toString());
         /* Para testar no smartphone */
-        /*Intent intent = new Intent(this, MainMenu.class);
+        Intent intent = new Intent(this, MainMenu.class);
         intent.putExtra("ssid", 420420420);
-        startActivity(intent);*/  //Ir para a activity do MainMenu
+        startActivity(intent);  //Ir para a activity do MainMenu
     }
 
     public void signUp (View v){

@@ -20,7 +20,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
-import android.support.v7.app.AppCompatActivity;
+import android.app.Activity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -58,7 +58,7 @@ import pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks.LogOutTask;
 import pt.ulisboa.tecnico.cmu.wifip2p.SimWifiP2pBroadcastReceiver;
 
 
-public class ShareQuizzes extends AppCompatActivity {
+public class ShareQuizzes extends Activity {
 
     /* REAL */
     private final IntentFilter intentFilter = new IntentFilter();
@@ -104,7 +104,7 @@ public class ShareQuizzes extends AppCompatActivity {
         //initWork();
     }
 
-    private void initWork() {
+   /* private void initWork() {
         btnOff = findViewById(R.id.onOff);
         btnSend = findViewById(R.id.send);
         btnDiscover = findViewById(R.id.discover);
@@ -125,7 +125,7 @@ public class ShareQuizzes extends AppCompatActivity {
 
         Intent intent = new Intent(getApplicationContext(), SimWifiP2pService.class);
         bindService(intent, simmConnection, Context.BIND_AUTO_CREATE);
-    }
+    }*/
 
     Handler handler = new Handler(new Handler.Callback() {
         @Override
@@ -206,13 +206,13 @@ public class ShareQuizzes extends AppCompatActivity {
     }
 
     private void initialWork() {
-        btnOff = findViewById(R.id.onOff);
-        btnSend = findViewById(R.id.send);
-        btnDiscover = findViewById(R.id.discover);
-        listView = findViewById(R.id.list);
-        readmagBox = findViewById(R.id.readMsg);
-        writeMsg = findViewById(R.id.writeMsg);
-        connectionStatus = findViewById(R.id.status);
+        btnOff = (Button) findViewById(R.id.onOff);
+        btnSend = (Button) findViewById(R.id.send);
+        btnDiscover = (Button) findViewById(R.id.discover);
+        listView = (ListView) findViewById(R.id.list);
+        readmagBox = (TextView) findViewById(R.id.readMsg);
+        writeMsg = (EditText) findViewById(R.id.writeMsg);
+        connectionStatus = (TextView) findViewById(R.id.status);
 
         // Indicates a change in the Wi-Fi P2P status.
         intentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);

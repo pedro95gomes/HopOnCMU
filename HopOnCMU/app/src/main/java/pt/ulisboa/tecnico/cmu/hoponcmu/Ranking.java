@@ -1,13 +1,13 @@
 package pt.ulisboa.tecnico.cmu.hoponcmu;
 
-import android.support.v7.app.AppCompatActivity;
+import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ListView;
 
 import pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks.*;
 
-public class Ranking extends AppCompatActivity {
+public class Ranking extends Activity {
 
     private ListView list;
     private String ssid;

@@ -22,7 +22,6 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
-import java.util.Base64;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;

@@ -1,15 +1,9 @@
 package pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks;
 
-import android.annotation.TargetApi;
-import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.net.wifi.WifiInfo;
-import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
-import android.os.Build;
-import android.text.TextUtils;
+
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
@@ -20,13 +14,11 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.security.KeyPair;
 import java.security.PublicKey;
-import java.util.Base64;
 
 import pt.ulisboa.tecnico.cmu.command.SignUpCommand;
 import pt.ulisboa.tecnico.cmu.crypto.CipheredMessage;
 import pt.ulisboa.tecnico.cmu.crypto.CryptoManager;
 import pt.ulisboa.tecnico.cmu.crypto.CryptoUtil;
-import pt.ulisboa.tecnico.cmu.crypto.KeystoreManager;
 import pt.ulisboa.tecnico.cmu.crypto.Message;
 import pt.ulisboa.tecnico.cmu.hoponcmu.LogIn;
 import pt.ulisboa.tecnico.cmu.hoponcmu.R;
@@ -41,7 +33,6 @@ public class SignUpTask extends AsyncTask<String, Void, String>  {
         this.signUpActivity = signUpActivity;
     }
 
-    @TargetApi(Build.VERSION_CODES.O)
     @Override
     protected String doInBackground(String[] params) {      //Username | Code
         Socket server = null;
@@ -53,8 +44,7 @@ public class SignUpTask extends AsyncTask<String, Void, String>  {
             PublicKey serverK = CryptoUtil.getX509CertificateFromStream(signUpActivity.getResources().openRawResource(R.raw.server)).getPublicKey();
             server = new Socket();
             server.connect(new InetSocketAddress("10.0.2.2", 9090),4000);
-
-            Message message = new Message(Base64.getEncoder().encodeToString(keys.getPublic().getEncoded()),Base64.getEncoder().encodeToString(serverK.getEncoded()) , user_code);
+            Message message = new Message(android.util.Base64.encodeToString(keys.getPublic().getEncoded(), Base64.DEFAULT),android.util.Base64.encodeToString(serverK.getEncoded(), Base64.DEFAULT) , user_code);
             CipheredMessage cipheredMessage = cryptoManager.makeCipheredMessage(message,serverK);
             ObjectOutputStream oos = new ObjectOutputStream(server.getOutputStream());
             oos.writeObject(cipheredMessage);

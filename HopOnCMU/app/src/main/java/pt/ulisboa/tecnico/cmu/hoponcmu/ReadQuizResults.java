@@ -1,7 +1,7 @@
 package pt.ulisboa.tecnico.cmu.hoponcmu;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
+import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -17,7 +17,7 @@ import pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks.LogOutTask;
 import pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks.ReadResultsTask;
 import pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks.ResultsAdapter;
 
-public class ReadQuizResults extends AppCompatActivity {        //Asks results to server and shows them
+public class ReadQuizResults extends Activity {        //Asks results to server and shows them
 
     private ListView list;
     private String[] list_quiz;      //Array que vai ter as posições do ranking

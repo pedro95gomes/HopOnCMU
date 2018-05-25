@@ -1,7 +1,7 @@
 package pt.ulisboa.tecnico.cmu.hoponcmu;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
+import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -19,7 +19,7 @@ import pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks.SignUpTask;
 import pt.ulisboa.tecnico.cmu.response.Response;
 import pt.ulisboa.tecnico.cmu.response.SignUpResponse;
 
-public class SignUp extends AppCompatActivity {
+public class SignUp extends Activity {
 
     private EditText username;
     private EditText code;

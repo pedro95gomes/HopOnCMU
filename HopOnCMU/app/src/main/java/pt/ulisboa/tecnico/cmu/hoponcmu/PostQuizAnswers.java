@@ -1,18 +1,16 @@
 package pt.ulisboa.tecnico.cmu.hoponcmu;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -26,9 +24,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks.*;
+import pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks.LogOutTask;
+import pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks.PostQuizAnswersTask;
 
-public class PostQuizAnswers extends AppCompatActivity {
+public class PostQuizAnswers extends Activity {
 
     //Show all questions for user to answer and submit them to server
     List<String[]> questions;

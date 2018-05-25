@@ -1,14 +1,14 @@
 package pt.ulisboa.tecnico.cmu.hoponcmu;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
+import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
 import pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks.LogOutTask;
 
-public class MainMenu extends AppCompatActivity {
+public class MainMenu extends Activity {
 
     Button listLocations;
     Button downloadQuestions;

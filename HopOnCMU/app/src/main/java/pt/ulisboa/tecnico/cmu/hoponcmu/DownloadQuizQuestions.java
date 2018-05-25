@@ -9,7 +9,7 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.v7.app.AppCompatActivity;
+import android.app.Activity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -30,7 +30,7 @@ import java.util.Map;
 import pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks.DownloadQuizTask;
 import pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks.LogOutTask;
 
-public class DownloadQuizQuestions extends AppCompatActivity {
+public class DownloadQuizQuestions extends Activity {
 
     //Download (only) quiz questions from server
     private String name;
@@ -48,7 +48,8 @@ public class DownloadQuizQuestions extends AppCompatActivity {
         ssid = getIntent().getExtras().getString("ssid");
 
         String netssid = getCurrentSSID();
-        netssid = new String("M"+1); // o wifi esta a retornar unknow
+        //netssid = new String("M"+1); // o wifi esta a retornar unknow
+        System.out.println("aaaaaaaaaaaaaaaaaaa" + netssid);
         Map<String,String> museums = openLocationsFile();
         for(String key: museums.keySet()){
             if(netssid.equals("M"+key)){
@@ -114,9 +115,11 @@ public class DownloadQuizQuestions extends AppCompatActivity {
         NetworkInfo networkInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
         String ssid= null;
         if (networkInfo.isConnected()) {
+            System.out.println("bbbbbbbbbbb");
             WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
             WifiInfo connectionInfo = wifiManager.getConnectionInfo();
             if (connectionInfo != null && !TextUtils.isEmpty(connectionInfo.getSSID())) {
+                System.out.println("bbbbbbbbbbb");
                 ssid = connectionInfo.getSSID();
             }
         }

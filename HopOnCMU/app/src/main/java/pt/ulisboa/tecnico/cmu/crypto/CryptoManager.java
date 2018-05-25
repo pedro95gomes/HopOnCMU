@@ -2,6 +2,7 @@ package pt.ulisboa.tecnico.cmu.crypto;
 
 import android.annotation.TargetApi;
 import android.os.Build;
+import android.util.Base64;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -18,7 +19,6 @@ import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
-import java.util.Base64;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -91,7 +91,6 @@ public class CryptoManager {
      * @throws Exception 
      */
 
-    @TargetApi(Build.VERSION_CODES.O)
     public Message decipherCipheredMessage(CipheredMessage cipheredMessage){
         Message deciphMsg = null;
         try {
@@ -100,7 +99,7 @@ public class CryptoManager {
             deciphMsg = (Message) fromBytes(decipheredContent);
 
 
-            X509EncodedKeySpec keySpec = new X509EncodedKeySpec(Base64.getDecoder().decode(deciphMsg.getSender().getBytes()));
+            X509EncodedKeySpec keySpec = new X509EncodedKeySpec(android.util.Base64.decode(deciphMsg.getSender().getBytes(), Base64.DEFAULT));
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
             PublicKey pubKey = keyFactory.generatePublic(keySpec);
 
