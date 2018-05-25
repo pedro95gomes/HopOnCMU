@@ -7,14 +7,18 @@ import android.net.NetworkInfo;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.widget.Toast;
 
+import pt.inesc.termite.wifidirect.SimWifiP2pBroadcast;
+import pt.inesc.termite.wifidirect.SimWifiP2pInfo;
+import pt.inesc.termite.wifidirect.SimWifiP2pManager;
+
 
 public class SimWifiBroadcastReceiver extends BroadcastReceiver {
 
-    private WifiP2pManager mManager;
-    private WifiP2pManager.Channel mChannel;
+    private SimWifiP2pManager mManager;
+    private SimWifiP2pManager.Channel mChannel;
     private ShareQuizzes shareQuizzes;
 
-    public SimWifiBroadcastReceiver(WifiP2pManager mManager, WifiP2pManager.Channel mChannel, ShareQuizzes shareQuizzes){
+    public SimWifiBroadcastReceiver(SimWifiP2pManager mManager, SimWifiP2pManager.Channel mChannel, ShareQuizzes shareQuizzes){
         this.mChannel=mChannel;
         this.mManager=mManager;
         this.shareQuizzes=shareQuizzes;
@@ -26,33 +30,40 @@ public class SimWifiBroadcastReceiver extends BroadcastReceiver {
         String action = intent.getAction();
 
         if(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION.equals(action)){
-            int state = intent.getIntExtra(WifiP2pManager.EXTRA_WIFI_STATE,-1);
-
-            if(state==WifiP2pManager.WIFI_P2P_STATE_ENABLED){
-                Toast.makeText(context,"Wifi is on",Toast.LENGTH_SHORT).show();
-            }else{
-                Toast.makeText(context,"Wifi is off",Toast.LENGTH_SHORT).show();
+            if (SimWifiP2pBroadcast.WIFI_P2P_STATE_CHANGED_ACTION.equals(action)) {
+                int state = intent.getIntExtra(SimWifiP2pBroadcast.EXTRA_WIFI_STATE,
+                        -
+                                1);
+                if (state == SimWifiP2pBroadcast.WIFI_P2P_STATE_ENABLED) {
+                    Toast.makeText(context, "Wifi is on", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(context, "Wifi is off", Toast.LENGTH_SHORT).show();
+                }
             }
 
-        } else if(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION.equals(action)){
+        } else if(SimWifiP2pBroadcast.WIFI_P2P_PEERS_CHANGED_ACTION.equals(action)){
             if(mManager!=null){
                 mManager.requestPeers(mChannel,shareQuizzes.peerListListener);
             }
-        } else if(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION.equals(action)){
+        } else if(SimWifiP2pBroadcast.WIFI_P2P_NETWORK_MEMBERSHIP_CHANGED_ACTION.
+                equals(action)){
+            SimWifiP2pInfo ginfo = (SimWifiP2pInfo) intent.getSerializableExtra(
+                    SimWifiP2pBroadcast.EXTRA_GROUP_INFO);
             if(mManager==null){
                 return;
             }
 
-            NetworkInfo networkInfo = intent.getParcelableExtra(WifiP2pManager.EXTRA_NETWORK_INFO);
-
-            if(networkInfo.isConnected()){
-                mManager.requestConnectionInfo(mChannel,shareQuizzes.connectionInfoListener);
+            if(ginfo.askIsConnected()){
+                mManager.requestGroupInfo(mChannel,shareQuizzes.connectionInfoListener);
             }else{
                 shareQuizzes.connectionStatus.setText("Device Disconnected");
             }
 
-        } else if(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION.equals(action)){
-            //do something
+        } else if(SimWifiP2pBroadcast.WIFI_P2P_GROUP_OWNERSHIP_CHANGED_ACTION.
+                equals(action)) {
+            SimWifiP2pInfo ginfo = (SimWifiP2pInfo) intent.getSerializableExtra(
+                    SimWifiP2pBroadcast.EXTRA_GROUP_INFO);
+            //TODO
         }
 
     }

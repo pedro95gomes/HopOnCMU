@@ -51,6 +51,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import pt.inesc.termite.wifidirect.SimWifiP2pBroadcast;
+import pt.inesc.termite.wifidirect.SimWifiP2pDevice;
+import pt.inesc.termite.wifidirect.SimWifiP2pDeviceList;
+import pt.inesc.termite.wifidirect.SimWifiP2pInfo;
 import pt.inesc.termite.wifidirect.SimWifiP2pManager;
 import pt.inesc.termite.wifidirect.service.SimWifiP2pService;
 import pt.inesc.termite.wifidirect.sockets.SimWifiP2pSocketManager;
@@ -71,9 +74,16 @@ public class ShareQuizzes extends Activity {
     Channel mChannel;
     BroadcastReceiver mReceiver;
 
-    List<WifiP2pDevice> peers = new ArrayList<WifiP2pDevice>();
+    /* normal */
+    List<SimWifiP2pDevice> peers = new ArrayList<SimWifiP2pDevice>();
     String[] deviceNames;
-    WifiP2pDevice[] devices;
+    SimWifiP2pDevice[] devices;
+
+    /* group */
+    List<SimWifiP2pDevice> peers_group = new ArrayList<SimWifiP2pDevice>();
+    String[] deviceNames_group;
+    SimWifiP2pDevice[] devices_group;
+    ListView listView_group;
 
     static final int MESSAGE_READ=1;
 
@@ -98,20 +108,20 @@ public class ShareQuizzes extends Activity {
         SimWifiP2pSocketManager.Init(getApplicationContext());
 
         /* REAL */
-        initialWork();
         exqListner();
         /* SIMULATOR */
-        //initWork();
+        initWork();
+        //TODO
     }
 
-   /* private void initWork() {
-        btnOff = findViewById(R.id.onOff);
-        btnSend = findViewById(R.id.send);
-        btnDiscover = findViewById(R.id.discover);
-        listView = findViewById(R.id.list);
-        readmagBox = findViewById(R.id.readMsg);
-        writeMsg = findViewById(R.id.writeMsg);
-        connectionStatus = findViewById(R.id.status);
+   private void initWork() {
+        btnOff = (Button) findViewById(R.id.onOff);
+        btnSend = (Button)  findViewById(R.id.send);
+        btnDiscover = (Button)  findViewById(R.id.discover);
+        listView = (ListView) findViewById(R.id.list);
+        readmagBox = (TextView) findViewById(R.id.readMsg);
+        writeMsg = (EditText) findViewById(R.id.writeMsg);
+        connectionStatus = (TextView) findViewById(R.id.status);
 
         terIntentFilter = new IntentFilter();
 
@@ -125,7 +135,7 @@ public class ShareQuizzes extends Activity {
 
         Intent intent = new Intent(getApplicationContext(), SimWifiP2pService.class);
         bindService(intent, simmConnection, Context.BIND_AUTO_CREATE);
-    }*/
+    }
 
     Handler handler = new Handler(new Handler.Callback() {
         @Override
@@ -178,9 +188,9 @@ public class ShareQuizzes extends Activity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                final WifiP2pDevice device = devices[position];
+                final SimWifiP2pDevice device = devices[position];
                 WifiP2pConfig config = new WifiP2pConfig();
-                config.deviceAddress = device.deviceAddress;
+                config.deviceAddress = device.realDeviceAddress; //FIXME
 
                 mManager.connect(mChannel,config, new ActionListener() {
                     @Override
@@ -205,46 +215,19 @@ public class ShareQuizzes extends Activity {
         });
     }
 
-    private void initialWork() {
-        btnOff = (Button) findViewById(R.id.onOff);
-        btnSend = (Button) findViewById(R.id.send);
-        btnDiscover = (Button) findViewById(R.id.discover);
-        listView = (ListView) findViewById(R.id.list);
-        readmagBox = (TextView) findViewById(R.id.readMsg);
-        writeMsg = (EditText) findViewById(R.id.writeMsg);
-        connectionStatus = (TextView) findViewById(R.id.status);
+    SimWifiP2pManager.PeerListListener peerListListener = new SimWifiP2pManager.PeerListListener(){
 
-        // Indicates a change in the Wi-Fi P2P status.
-        intentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
-
-        // Indicates a change in the list of available peers.
-        intentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
-
-        // Indicates the state of Wi-Fi P2P connectivity has changed.
-        intentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
-
-        // Indicates this device's details have changed.
-        intentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
-
-        wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-
-        mManager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
-        mChannel = mManager.initialize(this, getMainLooper(),null);
-        mReceiver = new WiFiDirectBroadcastReceiver(mManager,mChannel,this);
-    }
-
-    WifiP2pManager.PeerListListener peerListListener = new PeerListListener() {
         @Override
-        public void onPeersAvailable(WifiP2pDeviceList list) {
-            if(!list.getDeviceList().equals(peers)){
+        public void onPeersAvailable(SimWifiP2pDeviceList simWifiP2pDeviceList) {
+            if(!simWifiP2pDeviceList.getDeviceList().equals(peers)){
                 peers.clear();
-                peers.addAll(list.getDeviceList());
+                peers.addAll(simWifiP2pDeviceList.getDeviceList());
 
-                deviceNames = new String[list.getDeviceList().size()];
-                devices = new WifiP2pDevice[list.getDeviceList().size()];
+                deviceNames = new String[simWifiP2pDeviceList.getDeviceList().size()];
+                devices = new SimWifiP2pDevice[simWifiP2pDeviceList.getDeviceList().size()];
                 int index =0;
 
-                for(WifiP2pDevice device : list.getDeviceList()){
+                for(SimWifiP2pDevice device : simWifiP2pDeviceList.getDeviceList()){
                     deviceNames[index]=device.deviceName;
                     devices[index]=device;
                     index++;
@@ -262,20 +245,51 @@ public class ShareQuizzes extends Activity {
         }
     };
 
-    WifiP2pManager.ConnectionInfoListener connectionInfoListener = new WifiP2pManager.ConnectionInfoListener() {
+    SimWifiP2pManager.GroupInfoListener connectionInfoListener = new SimWifiP2pManager.GroupInfoListener() {
         @Override
-        public void onConnectionInfoAvailable(WifiP2pInfo info) {
-            final InetAddress groupOwnerAddress = info.groupOwnerAddress;
+        public void onGroupInfoAvailable(SimWifiP2pDeviceList simWifiP2pDeviceList, SimWifiP2pInfo simWifiP2pInfo) {
 
-            if(info.groupFormed && info.isGroupOwner){
+            if(!simWifiP2pInfo.getDevicesInNetwork().equals(peers_group)){
+                peers_group.clear();
+                peers_group.addAll(simWifiP2pDeviceList.getDeviceList());
+
+                deviceNames_group = new String[simWifiP2pDeviceList.getDeviceList().size()];
+                devices_group = new SimWifiP2pDevice[simWifiP2pDeviceList.getDeviceList().size()];
+                int index =0;
+
+                for(String deviceName : simWifiP2pInfo.getDevicesInNetwork()){
+                    SimWifiP2pDevice device = simWifiP2pDeviceList.getByName(deviceName);
+                    deviceNames_group[index]=device.deviceName;
+                    devices_group[index]=device;
+                    index++;
+                }
+
+                ArrayAdapter<String> adapter = new ArrayAdapter<String>(getApplicationContext(),android.R.layout.simple_list_item_1,deviceNames);
+                listView_group.setAdapter(adapter);
+
+            }
+
+            if(peers_group.size()==0){
+                Toast.makeText(getApplicationContext(),"No Devices Found",Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+
+
+            /*InetAddress groupOwnerAddress = null;
+
+            if(simWifiP2pInfo.askIsConnected() && simWifiP2pInfo.askIsGO()){
                 connectionStatus.setText("Host");
                 server = new ServerClass();
                 server.start();
-            } else if(info.groupFormed){
+            } else if(simWifiP2pInfo.askIsConnected()){
+                for(String swd : simWifiP2pInfo.getDevicesInNetwork()){
+                }
+                groupOwnerAddress = simWifiP2pInfo.
                 connectionStatus.setText("Client");
                 client = new ClientClass(groupOwnerAddress);
                 client.start();
-            }
+            }*/
         }
     };
 

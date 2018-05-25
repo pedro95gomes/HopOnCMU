@@ -98,14 +98,21 @@ public class CryptoManager {
             byte[] decipheredContent = CryptoUtil.symDecipher(cipheredMessage.getContent(), cipheredMessage.getIV(), key);
             deciphMsg = (Message) fromBytes(decipheredContent);
 
-
-            X509EncodedKeySpec keySpec = new X509EncodedKeySpec(android.util.Base64.decode(deciphMsg.getSender().getBytes(), Base64.DEFAULT));
+            //FIXME FOR SECURITY
+            X509EncodedKeySpec keySpec = new X509EncodedKeySpec(deciphMsg.getSender().getBytes());
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
             PublicKey pubKey = keyFactory.generatePublic(keySpec);
 
             byte[] decipheredIntegrityBytes = CryptoUtil.symDecipher(cipheredMessage.getIntegrityCheck(), cipheredMessage.getIV(), key);
             IntegrityCheck check = (IntegrityCheck) fromBytes(decipheredIntegrityBytes);
-            if(verifyIntegrity(deciphMsg, cipheredMessage.getIV(), check,pubKey )) return deciphMsg;
+
+            System.out.println("DecMsg: " +deciphMsg);
+            System.out.println("IV length: "+cipheredMessage.getIV().length + " toStr: " + cipheredMessage.getIV().toString());
+            System.out.println("Check digsign lentgh: "+ check.getDigitalSignature().length);
+            System.out.println("pubk toStr: "+pubKey.toString());
+
+            if(verifyIntegrity(deciphMsg, cipheredMessage.getIV(), check,pubKey ))
+                return deciphMsg;
             else throw new IllegalStateException("Invalid Signature");
         } catch (ClassNotFoundException | IOException | NoSuchAlgorithmException | NoSuchPaddingException | InvalidAlgorithmParameterException | InvalidKeyException | BadPaddingException | IllegalBlockSizeException e) {
             e.printStackTrace();

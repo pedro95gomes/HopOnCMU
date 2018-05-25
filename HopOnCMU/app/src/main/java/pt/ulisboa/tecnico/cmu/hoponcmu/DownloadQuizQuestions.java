@@ -48,7 +48,7 @@ public class DownloadQuizQuestions extends Activity {
         ssid = getIntent().getExtras().getString("ssid");
 
         String netssid = getCurrentSSID();
-        //netssid = new String("M"+1); // o wifi esta a retornar unknow
+        netssid = new String("M"+1); // o wifi esta a retornar unknow
         System.out.println("aaaaaaaaaaaaaaaaaaa" + netssid);
         Map<String,String> museums = openLocationsFile();
         for(String key: museums.keySet()){
