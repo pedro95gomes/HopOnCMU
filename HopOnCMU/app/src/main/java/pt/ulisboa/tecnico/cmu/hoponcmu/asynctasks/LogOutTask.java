@@ -44,7 +44,7 @@ public class LogOutTask extends AsyncTask<String, Void, String>  {
             server = new Socket();
             server.connect(new InetSocketAddress("10.0.2.2", 9090),4000);
 
-            Message message = new Message(android.util.Base64.encodeToString(keys.getPublic().getEncoded(), Base64.DEFAULT),android.util.Base64.encodeToString(serverK.getEncoded(), Base64.DEFAULT) , user_code);
+            Message message = new Message(android.util.Base64.encodeToString(keys.getPublic().getEncoded(), Base64.NO_WRAP),android.util.Base64.encodeToString(serverK.getEncoded(), Base64.DEFAULT) , user_code);
             CipheredMessage cipheredMessage = cryptoManager.makeCipheredMessage(message,serverK);
             ObjectOutputStream oos = new ObjectOutputStream(server.getOutputStream());
             oos.writeObject(cipheredMessage);
