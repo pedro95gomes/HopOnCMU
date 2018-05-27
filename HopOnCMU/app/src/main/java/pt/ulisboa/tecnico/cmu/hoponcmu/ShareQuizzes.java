@@ -30,13 +30,16 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,7 +59,9 @@ import pt.inesc.termite.wifidirect.SimWifiP2pDeviceList;
 import pt.inesc.termite.wifidirect.SimWifiP2pInfo;
 import pt.inesc.termite.wifidirect.SimWifiP2pManager;
 import pt.inesc.termite.wifidirect.service.SimWifiP2pService;
+import pt.inesc.termite.wifidirect.sockets.SimWifiP2pSocket;
 import pt.inesc.termite.wifidirect.sockets.SimWifiP2pSocketManager;
+import pt.inesc.termite.wifidirect.sockets.SimWifiP2pSocketServer;
 import pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks.LogOutTask;
 import pt.ulisboa.tecnico.cmu.wifip2p.SimWifiP2pBroadcastReceiver;
 
@@ -70,9 +75,8 @@ public class ShareQuizzes extends Activity {
     ListView listView;
     TextView readmagBox, connectionStatus;
     EditText writeMsg;
-    WifiP2pManager mManager;
-    Channel mChannel;
     BroadcastReceiver mReceiver;
+    Boolean simbound = false;
 
     /* normal */
     List<SimWifiP2pDevice> peers = new ArrayList<SimWifiP2pDevice>();
@@ -107,10 +111,9 @@ public class ShareQuizzes extends Activity {
 
         SimWifiP2pSocketManager.Init(getApplicationContext());
 
-        /* REAL */
-        exqListner();
         /* SIMULATOR */
         initWork();
+        //exqListner();
         //TODO
     }
 
@@ -130,37 +133,23 @@ public class ShareQuizzes extends Activity {
         terIntentFilter.addAction(SimWifiP2pBroadcast.WIFI_P2P_NETWORK_MEMBERSHIP_CHANGED_ACTION);
         terIntentFilter.addAction(SimWifiP2pBroadcast.WIFI_P2P_GROUP_OWNERSHIP_CHANGED_ACTION);
 
-        SimWifiP2pBroadcastReceiver receiver = new SimWifiP2pBroadcastReceiver(this);
-        registerReceiver(receiver, terIntentFilter);
-
-        Intent intent = new Intent(getApplicationContext(), SimWifiP2pService.class);
-        bindService(intent, simmConnection, Context.BIND_AUTO_CREATE);
+        mReceiver = new SimWifiP2pBroadcastReceiver(this);
+        registerReceiver(mReceiver, terIntentFilter);
     }
-
-    Handler handler = new Handler(new Handler.Callback() {
-        @Override
-        public boolean handleMessage(Message msg) {
-
-            switch (msg.what){
-                case MESSAGE_READ:
-                    byte[] readBuff = (byte[]) msg.obj;
-                    String tempMsg = new String(readBuff,0,msg.arg1);
-                    readmagBox.setText(tempMsg);
-            }
-            return true;
-        }
-    });
 
     private void exqListner() {
         btnOff.setOnClickListener(new View.OnClickListener() {
             @Override
 
             public void onClick(View view){
-                if(wifiManager.isWifiEnabled()){
-                    wifiManager.setWifiEnabled(false);
+                if(!simbound){
+                    Intent intent = new Intent(view.getContext(), SimWifiP2pService.class);
+                    bindService(intent, simmConnection, Context.BIND_AUTO_CREATE);
+                    simbound = true;
                     btnOff.setText("ON");
                 }else{
-                    wifiManager.setWifiEnabled(true);
+                    unbindService(simmConnection);
+                    simbound = false;
                     btnOff.setText("OFF");
                 }
             }
@@ -169,19 +158,13 @@ public class ShareQuizzes extends Activity {
         btnDiscover.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view){
-                mManager.discoverPeers(mChannel, new WifiP2pManager.ActionListener(){
-                    @Override
-                    public void onSuccess(){
-
-                        connectionStatus.setText("Discovery Started");
-                    }
-
-                    @Override
-                    public void onFailure(int i){
-
-                        connectionStatus.setText("Discovery Starting fail");
-                    }
-                });
+                if(simbound) {
+                    simmManager.requestPeers(simmChannel, peerListListener);
+                    simmManager.requestGroupInfo(simmChannel, connectionInfoListener);
+                } else{
+                    Toast.makeText(view.getContext(), "Service not bound",
+                            Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -189,10 +172,8 @@ public class ShareQuizzes extends Activity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 final SimWifiP2pDevice device = devices[position];
-                WifiP2pConfig config = new WifiP2pConfig();
-                config.deviceAddress = device.realDeviceAddress; //FIXME
 
-                mManager.connect(mChannel,config, new ActionListener() {
+                simmManager.connect(mChannel,config, new ActionListener() {
                     @Override
                     public void onSuccess() {
                         Toast.makeText(getApplicationContext(),"Connected to" + device.deviceName,Toast.LENGTH_SHORT).show();
@@ -210,7 +191,7 @@ public class ShareQuizzes extends Activity {
             @Override
             public void onClick(View v) {
                 String msg = writeMsg.getText().toString();
-                sendReceive.write(msg.getBytes());
+                sendReceive.write(msg);
             }
         });
     }
@@ -235,7 +216,6 @@ public class ShareQuizzes extends Activity {
 
                 ArrayAdapter<String> adapter = new ArrayAdapter<String>(getApplicationContext(),android.R.layout.simple_list_item_1,deviceNames);
                 listView.setAdapter(adapter);
-
             }
 
             if(peers.size()==0){
@@ -274,8 +254,6 @@ public class ShareQuizzes extends Activity {
                 return;
             }
 
-
-
             /*InetAddress groupOwnerAddress = null;
 
             if(simWifiP2pInfo.askIsConnected() && simWifiP2pInfo.askIsGO()){
@@ -305,19 +283,19 @@ public class ShareQuizzes extends Activity {
         unregisterReceiver(mReceiver);
     }
 
-    public void logOut2(View view) {
+    public void logOut(View view) {
         new LogOutTask(this).execute(ssid);
     }
 
     public class ServerClass extends Thread{
 
-        Socket socket;
-        ServerSocket serverSocket;
+        SimWifiP2pSocket socket;
+        SimWifiP2pSocketServer serverSocket;
 
         @Override
         public void run() {
             try {
-                serverSocket = new ServerSocket(8888);
+                serverSocket = new SimWifiP2pSocketServer(10001);
                 socket = serverSocket.accept();
                 sendReceive= new SendReceive(socket);
                 sendReceive.start();
@@ -329,20 +307,23 @@ public class ShareQuizzes extends Activity {
 
     public class ClientClass extends Thread{
 
-        Socket socket;
+        SimWifiP2pSocket socket;
         String hostAdd;
 
         public ClientClass(InetAddress hostAddress){
             hostAdd = hostAddress.getHostAddress();
-            socket = new Socket();
+            socket = null;
         }
 
         @Override
         public void run() {
             try {
-                socket.connect(new InetSocketAddress(hostAdd, 8888), 500);
+                socket = new SimWifiP2pSocket(hostAdd,10001);
                 sendReceive= new SendReceive(socket);
                 sendReceive.start();
+            } catch (UnknownHostException e) {
+                System.out.println("Unknown Host:" + e.getMessage());
+                e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -351,14 +332,14 @@ public class ShareQuizzes extends Activity {
 
     private class SendReceive extends Thread{
 
-        private Socket socket;
-        private InputStream inputStream;
+        private SimWifiP2pSocket socket;
+        private BufferedReader inputStream;
         private OutputStream outputStream;
 
-        public SendReceive(Socket skt){
+        public SendReceive(SimWifiP2pSocket skt){
             socket=skt;
             try {
-                inputStream=socket.getInputStream();
+                inputStream=new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 outputStream=socket.getOutputStream();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -367,14 +348,13 @@ public class ShareQuizzes extends Activity {
 
         @Override
         public void run() {
-            byte[] buffer = new byte[1024];
-            int bytes;
+            String message;
 
             while(socket!=null){
                 try {
-                    bytes=inputStream.read(buffer);
-                    if(bytes>0){
-                        handler.obtainMessage(MESSAGE_READ,bytes,-1,buffer).sendToTarget();
+                    message=inputStream.readLine();
+                    if(message!=null){
+                        readmagBox.setText(message);
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -382,9 +362,9 @@ public class ShareQuizzes extends Activity {
             }
         }
 
-        public void write(byte[] bytes){
+        public void write(String message){
             try {
-                outputStream.write(bytes);
+                outputStream.write(message.getBytes());
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -401,12 +381,14 @@ public class ShareQuizzes extends Activity {
             simmManager = new SimWifiP2pManager(simmService);
             simmChannel   =  simmManager.initialize(getApplication(),   getMainLooper(),
                     null);
+            simbound=true;
         }
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
             simmService = null;
             simmManager = null;
             simmChannel = null;
+            simbound=false;
         }
     };
 
