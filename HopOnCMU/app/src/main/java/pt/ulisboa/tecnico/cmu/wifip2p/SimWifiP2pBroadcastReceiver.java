@@ -1,5 +1,6 @@
 package pt.ulisboa.tecnico.cmu.wifip2p;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -10,16 +11,21 @@ import android.widget.Toast;
 import pt.inesc.termite.wifidirect.SimWifiP2pBroadcast;
 import pt.inesc.termite.wifidirect.SimWifiP2pInfo;
 import pt.inesc.termite.wifidirect.SimWifiP2pManager;
+import pt.ulisboa.tecnico.cmu.hoponcmu.MainMenu;
 import pt.ulisboa.tecnico.cmu.hoponcmu.ShareQuizzes;
 
 
 public class SimWifiP2pBroadcastReceiver extends BroadcastReceiver {
 
-    private ShareQuizzes mActivity;
+    private Activity mActivity;
 
     public SimWifiP2pBroadcastReceiver(ShareQuizzes shareQuizzes){
         super();
         this.mActivity=shareQuizzes;
+    }
+    public SimWifiP2pBroadcastReceiver(MainMenu main){
+        super();
+        this.mActivity=main;
     }
 
     @Override

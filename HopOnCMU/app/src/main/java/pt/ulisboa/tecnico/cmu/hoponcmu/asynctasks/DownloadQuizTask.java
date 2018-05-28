@@ -30,6 +30,7 @@ public class DownloadQuizTask extends AsyncTask<String, Void, String>  {
     private String sessionId;
     private String ssid;
 
+
     public DownloadQuizTask(DownloadQuizQuestions downloadQuizActivity) {
         this.downloadQuizActivity = downloadQuizActivity;
     }

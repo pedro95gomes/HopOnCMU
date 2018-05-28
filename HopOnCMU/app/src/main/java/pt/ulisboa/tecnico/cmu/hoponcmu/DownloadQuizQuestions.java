@@ -37,6 +37,7 @@ public class DownloadQuizQuestions extends Activity {
     private TextView network;
     String[] files;
     String ssid;
+    private String beacon;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,10 +47,9 @@ public class DownloadQuizQuestions extends Activity {
         files = getApplicationContext().fileList();
 
         ssid = getIntent().getExtras().getString("ssid");
+        beacon = getIntent().getExtras().getString("beacon");
 
-        String netssid = getCurrentSSID();
-        netssid = new String("M"+1); // o wifi esta a retornar unknow
-        System.out.println("aaaaaaaaaaaaaaaaaaa" + netssid);
+        String netssid = beacon;
         Map<String,String> museums = openLocationsFile();
         for(String key: museums.keySet()){
             if(netssid.equals("M"+key)){

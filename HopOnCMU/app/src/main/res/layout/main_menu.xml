@@ -60,5 +60,22 @@
             android:layout_height="wrap_content"
             android:text="Log Out"
             android:onClick="logOut"/>
+        <Button
+            android:id="@+id/idWifiOnButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Wifi-On" />
+
+        <Button
+            android:id="@+id/idWifiOffButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Wifi Off" />
+
+        <Button
+            android:id="@+id/idInRangeButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="in range" />
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>
