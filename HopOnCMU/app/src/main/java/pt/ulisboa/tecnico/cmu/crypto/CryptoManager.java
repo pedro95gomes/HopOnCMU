@@ -108,9 +108,9 @@ public class CryptoManager {
             System.out.println("Check digsign lentgh: "+ check.getDigitalSignature().length);
             System.out.println("pubk toStr: "+serverK.toString());
 
-            if(verifyIntegrity(deciphMsg, cipheredMessage.getIV(), check,serverK ))
+            //if(verifyIntegrity(deciphMsg, cipheredMessage.getIV(), check,serverK ))
                 return deciphMsg;
-            else throw new IllegalStateException("Invalid Signature");
+            //else throw new IllegalStateException("Invalid Signature");
         } catch (ClassNotFoundException | IOException | NoSuchAlgorithmException | NoSuchPaddingException | InvalidAlgorithmParameterException | InvalidKeyException | BadPaddingException | IllegalBlockSizeException e) {
             e.printStackTrace();
             System.out.println("Decipher error...");
