@@ -40,8 +40,9 @@ public class SignUpTask extends AsyncTask<String, Void, String>  {
         String success = null;
         try {
             KeyPair keys = CryptoUtil.gen();
-            CryptoManager cryptoManager = new CryptoManager(keys.getPublic(),keys.getPrivate());
+
             PublicKey serverK = CryptoUtil.getX509CertificateFromStream(signUpActivity.getResources().openRawResource(R.raw.server)).getPublicKey();
+            CryptoManager cryptoManager = new CryptoManager(keys.getPublic(),keys.getPrivate(),serverK);
             server = new Socket();
             server.connect(new InetSocketAddress("10.0.2.2", 9090),4000);
             Message message = new Message(android.util.Base64.encodeToString(keys.getPublic().getEncoded(), Base64.NO_WRAP),android.util.Base64.encodeToString(serverK.getEncoded(), Base64.NO_WRAP) , user_code);

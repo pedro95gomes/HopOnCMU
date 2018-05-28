@@ -52,8 +52,9 @@ public class ReadResultsTask extends AsyncTask<String, Void, String>  {
 
         try {
             KeyPair keys = CryptoUtil.gen();
-            CryptoManager cryptoManager = new CryptoManager(keys.getPublic(),keys.getPrivate());
+
             PublicKey serverK = CryptoUtil.getX509CertificateFromStream(readQuizResultsActivity.getResources().openRawResource(R.raw.server)).getPublicKey();
+            CryptoManager cryptoManager = new CryptoManager(keys.getPublic(),keys.getPrivate(),serverK);
             server = new Socket();
             server.connect(new InetSocketAddress("10.0.2.2", 9090),4000);
 

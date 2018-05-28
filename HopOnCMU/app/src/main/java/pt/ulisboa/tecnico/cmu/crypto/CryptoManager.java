@@ -33,15 +33,17 @@ public class CryptoManager {
     private PublicKey pubKey;
     private PrivateKey privKey;
     private static CryptoManager cryptoManager;
+    public PublicKey serverK;
 
-    public CryptoManager(PublicKey publicKey, PrivateKey privateKey){
+    public CryptoManager(PublicKey publicKey, PrivateKey privateKey,PublicKey serverK){
     	this.pubKey=publicKey;
     	this.privKey=privateKey;
+    	this.serverK=serverK;
     }
     
-    public static CryptoManager getInstance(PublicKey publicKey, PrivateKey privateKey){
+    public static CryptoManager getInstance(PublicKey publicKey, PrivateKey privateKey,PublicKey serverK){
     	if(cryptoManager==null){
-    		cryptoManager = new CryptoManager(publicKey, privateKey);
+    		cryptoManager = new CryptoManager(publicKey, privateKey,serverK);
     	}
     	return cryptoManager;
     }
@@ -98,27 +100,20 @@ public class CryptoManager {
             byte[] decipheredContent = CryptoUtil.symDecipher(cipheredMessage.getContent(), cipheredMessage.getIV(), key);
             deciphMsg = (Message) fromBytes(decipheredContent);
 
-            //FIXME FOR SECURITY
-            X509EncodedKeySpec keySpec = new X509EncodedKeySpec(deciphMsg.getSender().getBytes());
-            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-            PublicKey pubKey = keyFactory.generatePublic(keySpec);
-
             byte[] decipheredIntegrityBytes = CryptoUtil.symDecipher(cipheredMessage.getIntegrityCheck(), cipheredMessage.getIV(), key);
             IntegrityCheck check = (IntegrityCheck) fromBytes(decipheredIntegrityBytes);
 
             System.out.println("DecMsg: " +deciphMsg);
             System.out.println("IV length: "+cipheredMessage.getIV().length + " toStr: " + cipheredMessage.getIV().toString());
             System.out.println("Check digsign lentgh: "+ check.getDigitalSignature().length);
-            System.out.println("pubk toStr: "+pubKey.toString());
+            System.out.println("pubk toStr: "+serverK.toString());
 
-            if(verifyIntegrity(deciphMsg, cipheredMessage.getIV(), check,pubKey ))
+            if(verifyIntegrity(deciphMsg, cipheredMessage.getIV(), check,serverK ))
                 return deciphMsg;
             else throw new IllegalStateException("Invalid Signature");
         } catch (ClassNotFoundException | IOException | NoSuchAlgorithmException | NoSuchPaddingException | InvalidAlgorithmParameterException | InvalidKeyException | BadPaddingException | IllegalBlockSizeException e) {
             e.printStackTrace();
             System.out.println("Decipher error...");
-        } catch (InvalidKeySpecException e) {
-            e.printStackTrace();
         }
         return deciphMsg;
     }
