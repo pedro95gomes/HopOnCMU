@@ -7,20 +7,12 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.net.wifi.WifiManager;
-import android.net.wifi.p2p.WifiP2pConfig;
-import android.net.wifi.p2p.WifiP2pDevice;
-import android.net.wifi.p2p.WifiP2pDeviceList;
-import android.net.wifi.p2p.WifiP2pInfo;
-import android.net.wifi.p2p.WifiP2pManager;
-import android.net.wifi.p2p.WifiP2pManager.ActionListener;
-import android.net.wifi.p2p.WifiP2pManager.Channel;
-import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Message;
 import android.os.Messenger;
 import android.app.Activity;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -32,26 +24,13 @@ import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.net.wifi.p2p.WifiP2pManager.*;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import pt.inesc.termite.wifidirect.SimWifiP2pBroadcast;
 import pt.inesc.termite.wifidirect.SimWifiP2pDevice;
@@ -65,13 +44,12 @@ import pt.inesc.termite.wifidirect.sockets.SimWifiP2pSocketServer;
 import pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks.LogOutTask;
 import pt.ulisboa.tecnico.cmu.wifip2p.SimWifiP2pBroadcastReceiver;
 
-
 public class ShareQuizzes extends Activity {
 
     /* REAL */
     private final IntentFilter intentFilter = new IntentFilter();
     WifiManager wifiManager;
-    Button btnOff, btnDiscover, btnSend;
+    Button btnOff, btnDiscover, btnSend, btnDisconnect;
     ListView listView;
     TextView readmagBox, connectionStatus;
     EditText writeMsg;
@@ -89,11 +67,11 @@ public class ShareQuizzes extends Activity {
     SimWifiP2pDevice[] devices_group;
     ListView listView_group;
 
-    static final int MESSAGE_READ=1;
-
-    ServerClass server;
-    ClientClass client;
-    SendReceive sendReceive;
+    //ServerClass server;
+    //ClientClass client;
+    SimWifiP2pSocket mCliSocket;
+    SimWifiP2pSocketServer mSrvSocket;
+    //SendReceive sendReceive;
     String ssid;
 
     /* SIMULATOR */
@@ -112,15 +90,18 @@ public class ShareQuizzes extends Activity {
         SimWifiP2pSocketManager.Init(getApplicationContext());
 
         /* SIMULATOR */
-        initWork();
-        //exqListner();
-        //TODO
+        initService();
+        setupListeners();
     }
 
-   private void initWork() {
+   private void initService() {
         btnOff = (Button) findViewById(R.id.onOff);
         btnSend = (Button)  findViewById(R.id.send);
+        btnSend.setEnabled(false);
         btnDiscover = (Button)  findViewById(R.id.discover);
+        btnDiscover.setEnabled(false);
+        btnDisconnect = (Button)  findViewById(R.id.idDisconnectButton);
+        btnDisconnect.setEnabled(false);
         listView = (ListView) findViewById(R.id.list);
         readmagBox = (TextView) findViewById(R.id.readMsg);
         writeMsg = (EditText) findViewById(R.id.writeMsg);
@@ -137,7 +118,7 @@ public class ShareQuizzes extends Activity {
         registerReceiver(mReceiver, terIntentFilter);
     }
 
-    private void exqListner() {
+    private void setupListeners() {
         btnOff.setOnClickListener(new View.OnClickListener() {
             @Override
 
@@ -146,11 +127,18 @@ public class ShareQuizzes extends Activity {
                     Intent intent = new Intent(view.getContext(), SimWifiP2pService.class);
                     bindService(intent, simmConnection, Context.BIND_AUTO_CREATE);
                     simbound = true;
-                    btnOff.setText("ON");
+                    btnDiscover.setEnabled(true);
+                    btnOff.setText("Turn OFF");
+
+                    // spawn the chat server background task
+                    new IncommingCommTask().executeOnExecutor(
+                            AsyncTask.THREAD_POOL_EXECUTOR);
+
                 }else{
                     unbindService(simmConnection);
                     simbound = false;
-                    btnOff.setText("OFF");
+                    btnDiscover.setEnabled(false);
+                    btnOff.setText("Turn ON");
                 }
             }
         });
@@ -160,7 +148,7 @@ public class ShareQuizzes extends Activity {
             public void onClick(View view){
                 if(simbound) {
                     simmManager.requestPeers(simmChannel, peerListListener);
-                    simmManager.requestGroupInfo(simmChannel, connectionInfoListener);
+                    //simmManager.requestGroupInfo(simmChannel, connectionInfoListener);
                 } else{
                     Toast.makeText(view.getContext(), "Service not bound",
                             Toast.LENGTH_SHORT).show();
@@ -173,17 +161,10 @@ public class ShareQuizzes extends Activity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 final SimWifiP2pDevice device = devices[position];
 
-                simmManager.connect(mChannel,config, new ActionListener() {
-                    @Override
-                    public void onSuccess() {
-                        Toast.makeText(getApplicationContext(),"Connected to" + device.deviceName,Toast.LENGTH_SHORT).show();
-                    }
+                new OutgoingCommTask().executeOnExecutor(
+                        AsyncTask.THREAD_POOL_EXECUTOR,
+                        device.getVirtIp());
 
-                    @Override
-                    public void onFailure(int position) {
-                        Toast.makeText(getApplicationContext(),"Not Connected ",Toast.LENGTH_SHORT).show();
-                    }
-                });
             }
         });
 
@@ -191,7 +172,24 @@ public class ShareQuizzes extends Activity {
             @Override
             public void onClick(View v) {
                 String msg = writeMsg.getText().toString();
-                sendReceive.write(msg);
+                new SendCommTask().executeOnExecutor(
+                        AsyncTask.THREAD_POOL_EXECUTOR,
+                        msg);
+                }
+        });
+
+        btnDisconnect.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                findViewById(R.id.idDisconnectButton).setEnabled(false);
+                if (mCliSocket != null) {
+                    try {
+                        mCliSocket.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                mCliSocket = null;
             }
         });
     }
@@ -253,21 +251,6 @@ public class ShareQuizzes extends Activity {
                 Toast.makeText(getApplicationContext(),"No Devices Found",Toast.LENGTH_SHORT).show();
                 return;
             }
-
-            /*InetAddress groupOwnerAddress = null;
-
-            if(simWifiP2pInfo.askIsConnected() && simWifiP2pInfo.askIsGO()){
-                connectionStatus.setText("Host");
-                server = new ServerClass();
-                server.start();
-            } else if(simWifiP2pInfo.askIsConnected()){
-                for(String swd : simWifiP2pInfo.getDevicesInNetwork()){
-                }
-                groupOwnerAddress = simWifiP2pInfo.
-                connectionStatus.setText("Client");
-                client = new ClientClass(groupOwnerAddress);
-                client.start();
-            }*/
         }
     };
 
@@ -285,90 +268,6 @@ public class ShareQuizzes extends Activity {
 
     public void logOut(View view) {
         new LogOutTask(this).execute(ssid);
-    }
-
-    public class ServerClass extends Thread{
-
-        SimWifiP2pSocket socket;
-        SimWifiP2pSocketServer serverSocket;
-
-        @Override
-        public void run() {
-            try {
-                serverSocket = new SimWifiP2pSocketServer(10001);
-                socket = serverSocket.accept();
-                sendReceive= new SendReceive(socket);
-                sendReceive.start();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    public class ClientClass extends Thread{
-
-        SimWifiP2pSocket socket;
-        String hostAdd;
-
-        public ClientClass(InetAddress hostAddress){
-            hostAdd = hostAddress.getHostAddress();
-            socket = null;
-        }
-
-        @Override
-        public void run() {
-            try {
-                socket = new SimWifiP2pSocket(hostAdd,10001);
-                sendReceive= new SendReceive(socket);
-                sendReceive.start();
-            } catch (UnknownHostException e) {
-                System.out.println("Unknown Host:" + e.getMessage());
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    private class SendReceive extends Thread{
-
-        private SimWifiP2pSocket socket;
-        private BufferedReader inputStream;
-        private OutputStream outputStream;
-
-        public SendReceive(SimWifiP2pSocket skt){
-            socket=skt;
-            try {
-                inputStream=new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                outputStream=socket.getOutputStream();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        @Override
-        public void run() {
-            String message;
-
-            while(socket!=null){
-                try {
-                    message=inputStream.readLine();
-                    if(message!=null){
-                        readmagBox.setText(message);
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        public void write(String message){
-            try {
-                outputStream.write(message.getBytes());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
     }
 
     /* SIMULATOR */
@@ -392,4 +291,105 @@ public class ShareQuizzes extends Activity {
         }
     };
 
+    /*
+     * Asynctasks implementing message exchange
+     */
+
+    public class IncommingCommTask extends AsyncTask<Void, String, Void> {
+
+        @Override
+        protected Void doInBackground(Void... params) {
+
+            Log.d("Incoming", "IncommingCommTask started (" + this.hashCode() + ").");
+
+            try {
+                mSrvSocket = new SimWifiP2pSocketServer(Integer.parseInt(getString(R.string.port)));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            while (!Thread.currentThread().isInterrupted()) {
+                try {
+                    SimWifiP2pSocket sock = mSrvSocket.accept();
+                    try {
+                        BufferedReader sockIn = new BufferedReader(
+                                new InputStreamReader(sock.getInputStream()));
+                        String st = sockIn.readLine();
+                        onProgressUpdate(st);
+                    } catch (IOException e) {
+                        Log.d("Error reading socket:", e.getMessage());
+                    } finally {
+                        sock.close();
+                    }
+                } catch (IOException e) {
+                    Log.d("Error socket:", e.getMessage());
+                    break;
+                    //e.printStackTrace();
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(String... values) {
+            readmagBox.setText(values[0]);
+        }
+    }
+
+    public class OutgoingCommTask extends AsyncTask<String, Void, String> {
+
+        @Override
+        protected void onPreExecute() {
+            Toast t = Toast.makeText(ShareQuizzes.this, "Connecting...", Toast.LENGTH_SHORT);
+            t.show();
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+            try {
+                mCliSocket = new SimWifiP2pSocket(params[0],
+                        Integer.parseInt(getString(R.string.port)));
+            } catch (UnknownHostException e) {
+                return "Unknown Host:" + e.getMessage();
+            } catch (IOException e) {
+                return "IO error:" + e.getMessage();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            if (result != null) {
+                findViewById(R.id.send).setEnabled(false);
+                readmagBox.setText(result);
+            } else {
+                btnDisconnect.setEnabled(true);
+                findViewById(R.id.send).setEnabled(true);
+            }
+        }
+    }
+
+    public class SendCommTask extends AsyncTask<String, String, Void> {
+
+        @Override
+        protected Void doInBackground(String... msg) {
+            try {
+                mCliSocket.getOutputStream().write((msg[0] + "\n").getBytes());
+                BufferedReader sockIn = new BufferedReader(
+                        new InputStreamReader(mCliSocket.getInputStream()));
+                sockIn.readLine();
+                mCliSocket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            mCliSocket = null;
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            readmagBox.setText("");
+            Toast t = Toast.makeText(ShareQuizzes.this, "Sent",Toast.LENGTH_SHORT);
+            t.show();
+        }
+    }
 }

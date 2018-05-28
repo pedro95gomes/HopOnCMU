@@ -66,6 +66,22 @@
         app:layout_constraintVertical_bias="0.0" />
 
     <Button
+        android:id="@+id/idDisconnectButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="Disconnect"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.937"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.081" />
+
+    <Button
         android:id="@+id/discover"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -76,10 +92,9 @@
         android:text="Discover"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.741"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.08" />
+        app:layout_constraintVertical_bias="0.081" />
 
     <EditText
         android:id="@+id/writeMsg"
@@ -128,7 +143,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:text="LogOut"
-        android:onClick="logOut2"
+        android:onClick="logOut"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
