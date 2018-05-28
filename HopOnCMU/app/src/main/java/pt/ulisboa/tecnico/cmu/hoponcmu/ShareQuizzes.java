@@ -1,8 +1,10 @@
 package pt.ulisboa.tecnico.cmu.hoponcmu;
 
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
@@ -30,6 +32,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 
 import pt.inesc.termite.wifidirect.SimWifiP2pBroadcast;
@@ -42,6 +45,7 @@ import pt.inesc.termite.wifidirect.sockets.SimWifiP2pSocket;
 import pt.inesc.termite.wifidirect.sockets.SimWifiP2pSocketManager;
 import pt.inesc.termite.wifidirect.sockets.SimWifiP2pSocketServer;
 import pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks.LogOutTask;
+import pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks.ReadResultsForSharingTask;
 import pt.ulisboa.tecnico.cmu.wifip2p.SimWifiP2pBroadcastReceiver;
 
 public class ShareQuizzes extends Activity {
@@ -49,12 +53,15 @@ public class ShareQuizzes extends Activity {
     /* REAL */
     private final IntentFilter intentFilter = new IntentFilter();
     WifiManager wifiManager;
-    Button btnOff, btnDiscover, btnSend, btnDisconnect;
+    Button btnOff, btnDiscover, btnSend, btnDisconnect, btnGet,btnQuiz;
     ListView listView;
-    TextView readmagBox, connectionStatus;
+    TextView connectionStatus;
     EditText writeMsg;
     BroadcastReceiver mReceiver;
     Boolean simbound = false;
+    private boolean finished=false;
+
+    String[] list_quiz;
 
     /* normal */
     List<SimWifiP2pDevice> peers = new ArrayList<SimWifiP2pDevice>();
@@ -79,6 +86,9 @@ public class ShareQuizzes extends Activity {
     SimWifiP2pManager.Channel simmChannel = null;
     Messenger simmService = null;
     IntentFilter terIntentFilter;
+    Map<String, Integer> results;
+
+    String beacon="";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,6 +99,8 @@ public class ShareQuizzes extends Activity {
 
         SimWifiP2pSocketManager.Init(getApplicationContext());
 
+        list_quiz = getApplicationContext().fileList();
+
         /* SIMULATOR */
         initService();
         setupListeners();
@@ -97,14 +109,13 @@ public class ShareQuizzes extends Activity {
    private void initService() {
         btnOff = (Button) findViewById(R.id.onOff);
         btnSend = (Button)  findViewById(R.id.send);
-        btnSend.setEnabled(false);
-        btnDiscover = (Button)  findViewById(R.id.discover);
+       btnQuiz = (Button)  findViewById(R.id.quiz);
+       btnGet = (Button)  findViewById(R.id.get);
+       btnDiscover = (Button)  findViewById(R.id.discover);
         btnDiscover.setEnabled(false);
         btnDisconnect = (Button)  findViewById(R.id.idDisconnectButton);
         btnDisconnect.setEnabled(false);
         listView = (ListView) findViewById(R.id.list);
-        readmagBox = (TextView) findViewById(R.id.readMsg);
-        writeMsg = (EditText) findViewById(R.id.writeMsg);
         connectionStatus = (TextView) findViewById(R.id.status);
 
         terIntentFilter = new IntentFilter();
@@ -171,12 +182,35 @@ public class ShareQuizzes extends Activity {
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String msg = writeMsg.getText().toString();
+
+                String msg = createMessageFromMap(results);
+
                 new SendCommTask().executeOnExecutor(
                         AsyncTask.THREAD_POOL_EXECUTOR,
                         msg);
-                }
+            }
         });
+
+        btnQuiz.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                String msg = createMessageFromMap(results);
+
+                new SendCommTask().executeOnExecutor(
+                        AsyncTask.THREAD_POOL_EXECUTOR,
+                        msg);
+            }
+        });
+
+        btnGet.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ReadResultsForSharingTask task = new ReadResultsForSharingTask(ShareQuizzes.this);
+                task.execute(ssid);
+            }
+        });
+
 
         btnDisconnect.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -194,6 +228,17 @@ public class ShareQuizzes extends Activity {
         });
     }
 
+    private String createMessageFromMap(Map<String, Integer> results){
+        StringBuilder sb = new StringBuilder();
+        for(String name : results.keySet()){
+            sb.append(name);
+            sb.append(" : ");
+            sb.append(results.get(name));
+            sb.append(" correct answers-");
+        }
+        return sb.toString();
+    }
+
     SimWifiP2pManager.PeerListListener peerListListener = new SimWifiP2pManager.PeerListListener(){
 
         @Override
@@ -207,6 +252,8 @@ public class ShareQuizzes extends Activity {
                 int index =0;
 
                 for(SimWifiP2pDevice device : simWifiP2pDeviceList.getDeviceList()){
+                    if(device.deviceName.contains("M"))
+                        beacon=device.deviceName;
                     deviceNames[index]=device.deviceName;
                     devices[index]=device;
                     index++;
@@ -295,10 +342,12 @@ public class ShareQuizzes extends Activity {
      * Asynctasks implementing message exchange
      */
 
-    public class IncommingCommTask extends AsyncTask<Void, String, Void> {
+    public class IncommingCommTask extends AsyncTask<Void, String, Boolean> {
+
+        String st = null;
 
         @Override
-        protected Void doInBackground(Void... params) {
+        protected Boolean doInBackground(Void... params) {
 
             Log.d("Incoming", "IncommingCommTask started (" + this.hashCode() + ").");
 
@@ -313,8 +362,11 @@ public class ShareQuizzes extends Activity {
                     try {
                         BufferedReader sockIn = new BufferedReader(
                                 new InputStreamReader(sock.getInputStream()));
-                        String st = sockIn.readLine();
-                        onProgressUpdate(st);
+                        st = sockIn.readLine();
+                        if(st!=null)
+                            return true;
+                        else
+                            return false;
                     } catch (IOException e) {
                         Log.d("Error reading socket:", e.getMessage());
                     } finally {
@@ -326,12 +378,27 @@ public class ShareQuizzes extends Activity {
                     //e.printStackTrace();
                 }
             }
-            return null;
+            return false;
         }
 
         @Override
-        protected void onProgressUpdate(String... values) {
-            readmagBox.setText(values[0]);
+        protected void onPostExecute(Boolean result){
+            if(result) {
+                StringBuilder b = new StringBuilder();
+                String[] sts= st.split("-");
+                for(String s : sts){
+                    b.append(s+"\n");
+                }
+                //readmagBox.setText(st);
+                new AlertDialog.Builder(ShareQuizzes.this)
+                        .setTitle("Quiz Results")
+                        .setMessage(b.toString())
+                        .setNeutralButton("Dismiss", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                            }
+                        })
+                        .show();
+            }
         }
     }
 
@@ -360,10 +427,8 @@ public class ShareQuizzes extends Activity {
         protected void onPostExecute(String result) {
             if (result != null) {
                 findViewById(R.id.send).setEnabled(false);
-                readmagBox.setText(result);
             } else {
                 btnDisconnect.setEnabled(true);
-                findViewById(R.id.send).setEnabled(true);
             }
         }
     }
@@ -373,10 +438,7 @@ public class ShareQuizzes extends Activity {
         @Override
         protected Void doInBackground(String... msg) {
             try {
-                mCliSocket.getOutputStream().write((msg[0] + "\n").getBytes());
-                BufferedReader sockIn = new BufferedReader(
-                        new InputStreamReader(mCliSocket.getInputStream()));
-                sockIn.readLine();
+                mCliSocket.getOutputStream().write(msg[0].getBytes());
                 mCliSocket.close();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -387,9 +449,20 @@ public class ShareQuizzes extends Activity {
 
         @Override
         protected void onPostExecute(Void result) {
-            readmagBox.setText("");
             Toast t = Toast.makeText(ShareQuizzes.this, "Sent",Toast.LENGTH_SHORT);
             t.show();
         }
+    }
+
+    public String[] getQuizNames() {
+        return this.list_quiz;
+    }
+
+    public void setQuizResult(Map<String, Integer> res){
+        this.results = res;
+    }
+
+    public void setFinished(boolean f){
+        this.finished=f;
     }
 }

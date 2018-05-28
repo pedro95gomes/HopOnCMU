@@ -330,6 +330,8 @@ public class ServerUtil {
 		int numQuestion = 0;
 		String username = sessions.get(ssid);
 		User user = getUser(username);
+		if(!user.haveAnswered(quizz.getName()))
+			return -1;
 		for(String answer : user.getAnswers(quizz.getName())) {
 			if(answer.equals(quizz.getAnswer(numQuestion))) {
 				result+=1;

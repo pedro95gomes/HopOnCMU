@@ -142,26 +142,8 @@ public class PostQuizAnswers extends Activity {
     }
 
     private void submitAnswers(){
-        Map<String,String> museums = openLocationsFile();
-        int idmuseum=-1;
         quizname = quizname.substring(0, quizname.indexOf("."));
-        for(String key: museums.keySet()){
-            String file = museums.get(key);
-            if(file.equals(quizname)){
-                idmuseum=Integer.valueOf(key);
-            }
-            Log.d("idmuseum",String.valueOf(idmuseum));
-        }
-        String netssid = getCurrentSSID();
-        netssid = new String("M"+1);
-        //Check if user is submitting this on the first stop or the second
-        if(netssid.equals("M"+idmuseum) || netssid.equals("M"+(idmuseum+1))) {
-            new PostQuizAnswersTask(this).execute(sessionId, quizname);
-        }
-        else{
-            Toast t = Toast.makeText(this, "Please connect to M"+idmuseum+" or M"+(idmuseum+1)+" SSID via WiFi", Toast.LENGTH_LONG);
-            t.show();
-        }
+        new PostQuizAnswersTask(this).execute(sessionId, quizname);
     }
 
     private void updateQuestions() {

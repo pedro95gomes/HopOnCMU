@@ -203,6 +203,7 @@ public class MainMenu extends Activity implements SimWifiP2pManager.PeerListList
             if(device.deviceName.contains("M"))
                 beacon = device.deviceName;
         }
+        System.out.print("QQQQQQQQQQQQQQQQQQQQQ" + beacon);
 
         // display list of devices in range
         new AlertDialog.Builder(this)

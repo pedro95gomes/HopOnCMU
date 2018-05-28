@@ -51,7 +51,13 @@ public class User implements Serializable{
 	}
 	
 	public List<String> getAnswers(String quizzname){
+		
 		return this.answers.get(quizzname);
+
+	}
+	
+	public boolean haveAnswered(String quizzname) {
+		return answers.containsKey(quizzname);
 	}
 	
 	public void setAnswers(String quizzname, List<String> answers){

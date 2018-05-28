@@ -157,8 +157,10 @@ public class CommandHandlerImpl implements CommandHandler {
 			for(String name : answered_quizes){
 				if(quizz.getName().equals(name)){
 					int result = sv.checkAnswers(qrc.getUserSSID(), quizz);
-					results.put(name, result);
-					numQuestions.put(name, quizz.getNumQuestions());
+					if(result!=-1) {
+						results.put(name, result);
+						numQuestions.put(name, quizz.getNumQuestions());
+					}
 				}
         		/*else{
         			results.put(quizz.getName(), 0);
