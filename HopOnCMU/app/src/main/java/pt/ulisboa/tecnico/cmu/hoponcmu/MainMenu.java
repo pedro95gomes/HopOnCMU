@@ -115,13 +115,14 @@ public class MainMenu extends Activity implements SimWifiP2pManager.PeerListList
     }
 
     public void getQuiz(View view) {
+        Intent intent = new Intent(this, Quiz.class);
+        intent.putExtra("ssid", sessionId);
         if(beacon.contains("M")) {
-            Intent intent = new Intent(this, Quiz.class);
-            intent.putExtra("ssid", sessionId);
-            startActivity(intent);
+            intent.putExtra("beacon", beacon);
         }else{
-        Toast.makeText(this, "no near museums", Toast.LENGTH_SHORT).show();
+            intent.putExtra("beacon", "N");
         }
+        startActivity(intent);
     }
 
     public void shareQuizzes(View view) {

@@ -42,6 +42,7 @@ public class PostQuizAnswers extends Activity {
     TextView texttime;
     String quizname;
     String sessionId;
+    String beacon;
     int currentQuestion;
     QuizChronometer chronometer;
     int timeTaken = 0;
@@ -75,7 +76,7 @@ public class PostQuizAnswers extends Activity {
         question = (TextView) findViewById(R.id.pergunta);
         qNum = (TextView) findViewById(R.id.questionnumber);
         texttime = (TextView) findViewById(R.id.texttime);
-
+        beacon = getIntent().getExtras().getString("beacon");
         chronometer = new QuizChronometer(this);
         answers = new ArrayList<String>();
         currentQuestion = 0;
@@ -143,7 +144,17 @@ public class PostQuizAnswers extends Activity {
 
     private void submitAnswers(){
         quizname = quizname.substring(0, quizname.indexOf("."));
-        new PostQuizAnswersTask(this).execute(sessionId, quizname);
+        if(beacon.contains("M")){
+            new PostQuizAnswersTask(this).execute(sessionId, quizname);
+        }else{
+            saveAnswersToFile(quizname);
+            //TODO
+        }
+    }
+
+    private void saveAnswersToFile(String s) {
+        //TODO
+        //FIXME
     }
 
     private void updateQuestions() {
@@ -172,19 +183,6 @@ public class PostQuizAnswers extends Activity {
         }
     }
 
-    public String getCurrentSSID() {
-        ConnectivityManager connManager = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-        String ssid= null;
-        if (networkInfo.isConnected()) {
-            WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-            WifiInfo connectionInfo = wifiManager.getConnectionInfo();
-            if (connectionInfo != null && !TextUtils.isEmpty(connectionInfo.getSSID())) {
-                ssid = connectionInfo.getSSID();
-            }
-        }
-        return ssid;
-    }
 
     public Map<String,String> openLocationsFile(){
         Map<String,String> locations = new HashMap<>();

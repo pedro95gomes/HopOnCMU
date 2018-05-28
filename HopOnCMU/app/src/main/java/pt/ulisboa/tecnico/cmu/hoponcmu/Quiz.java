@@ -25,6 +25,7 @@ public class Quiz extends Activity {
     String[] getfiles;
     ListView quizzes;
     String sessionId;
+    String beacon;
     //Answer a quiz
 
     @Override
@@ -34,6 +35,7 @@ public class Quiz extends Activity {
 
         quizzes = (ListView) findViewById(R.id.listquizes);
         getfiles = getApplicationContext().fileList();
+        beacon = getIntent().getExtras().getString("beacon");
         files = new String[getfiles.length-1];
         int index_files = 0;
         for(int i=0; i < getfiles.length ; i++){
@@ -62,6 +64,7 @@ public class Quiz extends Activity {
                 intent.putExtra("quizname", quizname);
                 intent.putExtra("ssid", getIntent().getStringExtra("ssid"));
                 intent.putExtra("q_count", q_count);
+                intent.putExtra("beacon", beacon);
                 startActivity(intent);
             }
         });
