@@ -110,22 +110,6 @@ public class DownloadQuizQuestions extends Activity {
         }
     }
 
-    public String getCurrentSSID() {
-        ConnectivityManager connManager = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-        String ssid= null;
-        if (networkInfo.isConnected()) {
-            System.out.println("bbbbbbbbbbb");
-            WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-            WifiInfo connectionInfo = wifiManager.getConnectionInfo();
-            if (connectionInfo != null && !TextUtils.isEmpty(connectionInfo.getSSID())) {
-                System.out.println("bbbbbbbbbbb");
-                ssid = connectionInfo.getSSID();
-            }
-        }
-        return ssid;
-    }
-
     public Map<String,String> openLocationsFile(){
         Map<String,String> locations = new HashMap<>();
         try {

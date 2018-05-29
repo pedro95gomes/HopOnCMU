@@ -1,5 +1,5 @@
-1 BelemTower
-2 MuseuEletricidade
+1 belem
+2 paco
 3 Oceanario
 4 ParqueDasNacoes
 5 PanteaoNacional

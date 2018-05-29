@@ -1,6 +1,7 @@
 package pt.ulisboa.tecnico.cmu.hoponcmu;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -16,17 +17,24 @@ import android.os.Messenger;
 import android.app.Activity;
 import android.util.Log;
 import android.view.View;
+import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -45,6 +53,8 @@ import pt.inesc.termite.wifidirect.sockets.SimWifiP2pSocket;
 import pt.inesc.termite.wifidirect.sockets.SimWifiP2pSocketManager;
 import pt.inesc.termite.wifidirect.sockets.SimWifiP2pSocketServer;
 import pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks.LogOutTask;
+import pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks.PostQuizAnswersFromOtherUserTask;
+import pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks.PostQuizAnswersTask;
 import pt.ulisboa.tecnico.cmu.hoponcmu.asynctasks.ReadResultsForSharingTask;
 import pt.ulisboa.tecnico.cmu.wifip2p.SimWifiP2pBroadcastReceiver;
 
@@ -53,7 +63,7 @@ public class ShareQuizzes extends Activity {
     /* REAL */
     private final IntentFilter intentFilter = new IntentFilter();
     WifiManager wifiManager;
-    Button btnOff, btnDiscover, btnSend, btnDisconnect, btnGet,btnQuiz;
+    Button btnOff, btnDiscover, btnSend, btnDisconnect, btnGet, btnShareQuiz, btnShareAns;
     ListView listView;
     TextView connectionStatus;
     EditText writeMsg;
@@ -62,6 +72,7 @@ public class ShareQuizzes extends Activity {
     private boolean finished=false;
 
     String[] list_quiz;
+    String[] list_ans;
 
     /* normal */
     List<SimWifiP2pDevice> peers = new ArrayList<SimWifiP2pDevice>();
@@ -89,6 +100,8 @@ public class ShareQuizzes extends Activity {
     Map<String, Integer> results;
 
     String beacon="";
+    private List<String> answers;
+    private int timeTaken;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,7 +112,15 @@ public class ShareQuizzes extends Activity {
 
         SimWifiP2pSocketManager.Init(getApplicationContext());
 
-        list_quiz = getApplicationContext().fileList();
+        String[] list = getApplicationContext().fileList();
+        for(String s : list){
+            if(s.contains("ans_")){
+                list_ans[list_ans.length]=s;
+            }
+            else{
+                list_quiz[list_quiz.length]=s;
+            }
+        }
 
         /* SIMULATOR */
         initService();
@@ -109,9 +130,11 @@ public class ShareQuizzes extends Activity {
    private void initService() {
         btnOff = (Button) findViewById(R.id.onOff);
         btnSend = (Button)  findViewById(R.id.send);
-       btnQuiz = (Button)  findViewById(R.id.quiz);
-       btnGet = (Button)  findViewById(R.id.get);
-       btnDiscover = (Button)  findViewById(R.id.discover);
+        findViewById(R.id.send).setEnabled(false);
+        btnShareAns = (Button) findViewById(R.id.share);
+        btnShareQuiz = (Button)  findViewById(R.id.quiz);
+        btnGet = (Button)  findViewById(R.id.get);
+        btnDiscover = (Button)  findViewById(R.id.discover);
         btnDiscover.setEnabled(false);
         btnDisconnect = (Button)  findViewById(R.id.idDisconnectButton);
         btnDisconnect.setEnabled(false);
@@ -182,7 +205,6 @@ public class ShareQuizzes extends Activity {
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 String msg = createMessageFromMap(results);
 
                 new SendCommTask().executeOnExecutor(
@@ -191,15 +213,52 @@ public class ShareQuizzes extends Activity {
             }
         });
 
-        btnQuiz.setOnClickListener(new View.OnClickListener() {
+        btnShareQuiz.setOnClickListener(new View.OnClickListener() {
+
             @Override
             public void onClick(View v) {
+                final Dialog dialog = new Dialog(ShareQuizzes.this);
+                dialog.setContentView(R.layout.share_quizzes);
+                dialog.setTitle("Select quiz to share");
+                final ListView lv = (ListView) dialog.findViewById(R.id.List);
+                ListAdapter adapter = new ArrayAdapter(ShareQuizzes.this, android.R.layout.simple_list_item_1, list_quiz);
+                lv.setAdapter(adapter);
+                lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        String quiz = lv.getItemAtPosition(position).toString().trim();
+                        String msg = createMessageFromQuizz(quiz);
 
-                String msg = createMessageFromMap(results);
+                        new SendCommTask().executeOnExecutor(
+                                AsyncTask.THREAD_POOL_EXECUTOR,
+                                msg);
+                    }
+                });
+                dialog.show();
+            }
+        });
 
-                new SendCommTask().executeOnExecutor(
-                        AsyncTask.THREAD_POOL_EXECUTOR,
-                        msg);
+        btnShareAns.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final Dialog dialog = new Dialog(ShareQuizzes.this);
+                dialog.setContentView(R.layout.share_quizzes);
+                dialog.setTitle("Select quiz to share");
+                final ListView lv= (ListView) dialog.findViewById(R.id.List);
+                ListAdapter adapter = new ArrayAdapter(ShareQuizzes.this, android.R.layout.simple_list_item_1, list_quiz);
+                lv.setAdapter(adapter);
+                lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        String answers = lv.getItemAtPosition(position).toString().trim();
+                        String msg = createMessageFromAnswers(answers);
+
+                        new SendCommTask().executeOnExecutor(
+                                AsyncTask.THREAD_POOL_EXECUTOR,
+                                msg);
+                    }
+                });
+                dialog.show();
             }
         });
 
@@ -208,6 +267,7 @@ public class ShareQuizzes extends Activity {
             public void onClick(View v) {
                 ReadResultsForSharingTask task = new ReadResultsForSharingTask(ShareQuizzes.this);
                 task.execute(ssid);
+                findViewById(R.id.send).setEnabled(true);
             }
         });
 
@@ -228,8 +288,35 @@ public class ShareQuizzes extends Activity {
         });
     }
 
+    private String createMessageFromAnswers(String ans_quizname) {
+        List<String> answers = openAnswersFile(ans_quizname);
+        StringBuilder sb = new StringBuilder();
+        sb.append("answers=");
+        sb.append("ans_quizname=");
+        sb.append(ssid+"=");
+        for(String answer : answers){
+            sb.append(answer+"-");
+        }
+        return sb.toString();
+    }
+
+    private String createMessageFromQuizz(String quizname) {
+        List<String[]> questions = openQuizFile(quizname);
+        StringBuilder sb = new StringBuilder();
+        sb.append("quiz=");
+        sb.append(quizname+"=");
+        for(String[] question : questions){
+            for(String text : question){
+                sb.append(text+":");
+            }
+            sb.append("-");
+        }
+        return sb.toString();
+    }
+
     private String createMessageFromMap(Map<String, Integer> results){
         StringBuilder sb = new StringBuilder();
+        sb.append("results=");
         for(String name : results.keySet()){
             sb.append(name);
             sb.append(" : ");
@@ -237,6 +324,42 @@ public class ShareQuizzes extends Activity {
             sb.append(" correct answers-");
         }
         return sb.toString();
+    }
+
+    public List<String[]> openQuizFile(String quizname){
+        List<String[]> questions = new ArrayList<String[]>();
+        try {
+            FileInputStream fis = getApplicationContext().openFileInput(quizname);
+            ObjectInputStream ois = new ObjectInputStream(fis);
+            questions = (List<String[]>) ois.readObject();
+            ois.close();
+            fis.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return questions;
+    }
+
+    public List<String> openAnswersFile(String quizname){
+        List<String> answers = new ArrayList<String>();
+        try {
+            FileInputStream fis = getApplicationContext().openFileInput(quizname);
+            ObjectInputStream ois = new ObjectInputStream(fis);
+            answers = (List<String>) ois.readObject();
+            ois.close();
+            fis.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return answers;
     }
 
     SimWifiP2pManager.PeerListListener peerListListener = new SimWifiP2pManager.PeerListListener(){
@@ -338,6 +461,14 @@ public class ShareQuizzes extends Activity {
         }
     };
 
+    public int getTimeTaken() {
+        return timeTaken;
+    }
+
+    public List<String> getAnswers() {
+        return answers;
+    }
+
     /*
      * Asynctasks implementing message exchange
      */
@@ -384,21 +515,75 @@ public class ShareQuizzes extends Activity {
         @Override
         protected void onPostExecute(Boolean result){
             if(result) {
-                StringBuilder b = new StringBuilder();
-                String[] sts= st.split("-");
-                for(String s : sts){
-                    b.append(s+"\n");
+                String[] what = st.split("=");
+                if (what[0].equals("answers")) {
+                    doReceiveAnswers(what[1],what[2],what[3]); //quizname, ssid, data
+                } else if (what[0].equals("quiz")) {
+                    doReceiveQuiz(what[1], what[2]); //quizname, data
+                } else if (what[0].equals("results")) {
+                    doReceiveResults(what[1]); // data
                 }
-                //readmagBox.setText(st);
-                new AlertDialog.Builder(ShareQuizzes.this)
-                        .setTitle("Quiz Results")
-                        .setMessage(b.toString())
-                        .setNeutralButton("Dismiss", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                            }
-                        })
-                        .show();
             }
+        }
+    }
+
+    private void doReceiveResults(String st) {
+        StringBuilder b = new StringBuilder();
+        String[] sts= st.split("-");
+        for(String s : sts){
+            b.append(s+"\n");
+        }
+        //readmagBox.setText(st);
+        new AlertDialog.Builder(ShareQuizzes.this)
+                .setTitle("Quiz Results")
+                .setMessage(b.toString())
+                .setNeutralButton("Dismiss", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                })
+                .show();
+    }
+
+    private void doReceiveQuiz(String quizname, String data) {
+        List<String[]> questions = new ArrayList<String[]>();
+        String[] parse_questions = data.split("-");
+        for(String parse : parse_questions){
+            String[] question_aux = parse.split(":");
+            int num_quest=0;
+            String[] question = new String[6];
+            for(String text : question_aux){
+                question[num_quest] = text;
+                num_quest++;
+            }
+            questions.add(question);
+        }
+        saveQuizFile(questions, quizname);
+    }
+
+    private void doReceiveAnswers(String quizname, String ssid_toPost, String data) {
+        List<String> answers = new ArrayList<String>();
+        String[] answers_aux = data.split("-");
+        for(String answer : answers_aux){
+            answers.add(answer);
+        }
+
+        this.answers = answers.subList(0, answers.size()-2);
+        this.timeTaken = Integer.valueOf(answers.get(answers.size()-1));
+        new PostQuizAnswersFromOtherUserTask(this).execute(ssid_toPost, quizname);
+    }
+
+    public void saveQuizFile(List<String[]> questions, String name){
+        try {
+            FileOutputStream fos = getApplicationContext().openFileOutput(name+".txt", Context.MODE_PRIVATE);
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(questions);
+            Log.d("File questions:", questions.toString());
+            oos.close();
+            fos.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -426,8 +611,6 @@ public class ShareQuizzes extends Activity {
         @Override
         protected void onPostExecute(String result) {
             if (result != null) {
-                findViewById(R.id.send).setEnabled(false);
-            } else {
                 btnDisconnect.setEnabled(true);
             }
         }

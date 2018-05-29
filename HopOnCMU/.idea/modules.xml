@@ -4,7 +4,6 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/HopOnCMU.iml" filepath="$PROJECT_DIR$/HopOnCMU.iml" />
       <module fileurl="file://$PROJECT_DIR$/Termite-WifiP2P-API/Termite-WifiP2P-API.iml" filepath="$PROJECT_DIR$/Termite-WifiP2P-API/Termite-WifiP2P-API.iml" />
-      <module fileurl="file://$PROJECT_DIR$/Termite-WifiP2P-API/Termite-WifiP2P-API.iml" filepath="$PROJECT_DIR$/Termite-WifiP2P-API/Termite-WifiP2P-API.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>

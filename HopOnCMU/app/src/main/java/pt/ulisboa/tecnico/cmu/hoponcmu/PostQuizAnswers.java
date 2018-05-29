@@ -17,8 +17,10 @@ import android.widget.Toast;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -147,14 +149,33 @@ public class PostQuizAnswers extends Activity {
         if(beacon.contains("M")){
             new PostQuizAnswersTask(this).execute(sessionId, quizname);
         }else{
+            String text = "Could not connect to network.";
+            Toast t = Toast.makeText(this, text, Toast.LENGTH_SHORT);
+            t.show();
+
             saveAnswersToFile(quizname);
-            //TODO
+            text = "Saving answers to file: "+"ans_"+quizname+".txt";
+            t = Toast.makeText(this, text, Toast.LENGTH_SHORT);
+            t.show();
+
         }
     }
 
-    private void saveAnswersToFile(String s) {
-        //TODO
-        //FIXME
+    private void saveAnswersToFile(String quizname) {
+        try {
+            FileOutputStream fos = getApplicationContext().openFileOutput("ans_"+quizname+".txt", Context.MODE_PRIVATE);
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            List<String> answers_aux = answers;
+            answers_aux.add(String.valueOf(timeTaken));
+            oos.writeObject(answers_aux);
+            Log.d("Saved answers:", answers.toString());
+            oos.close();
+            fos.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void updateQuestions() {

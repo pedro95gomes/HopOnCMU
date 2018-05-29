@@ -24,32 +24,32 @@ import pt.ulisboa.tecnico.cmu.hoponcmu.R;
 import pt.ulisboa.tecnico.cmu.hoponcmu.ShareQuizzes;
 import pt.ulisboa.tecnico.cmu.response.PostAnswersResponse;
 
-public class PostQuizAnswersTask extends AsyncTask<String, Void, String> {
+public class PostQuizAnswersFromOtherUserTask extends AsyncTask<String, Void, String> {
 
-    private PostQuizAnswers postQuizActivity;
+    private ShareQuizzes activity;
     private String sessionId;
 
-    public PostQuizAnswersTask(PostQuizAnswers postQuizActivity) {
-        this.postQuizActivity = postQuizActivity;
+    public PostQuizAnswersFromOtherUserTask(ShareQuizzes activity) {
+        this.activity = activity;
     }
 
     @Override
     protected String doInBackground(String[] params) {      //SessionId | Quizname
         Socket server = null;
         sessionId = params[0];
-        System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAA" + postQuizActivity.getTimeTaken());
-        PostAnswersCommand user_code = new PostAnswersCommand(sessionId,params[1],postQuizActivity.getAnswers(),postQuizActivity.getTimeTaken());
+        System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAA" + activity.getTimeTaken());
+        PostAnswersCommand user_code = new PostAnswersCommand(sessionId,params[1],activity.getAnswers(),activity.getTimeTaken());
         String success = "false";
 
         try {
             KeyPair keys = CryptoUtil.gen();
 
-            PublicKey serverK = CryptoUtil.getX509CertificateFromStream(postQuizActivity.getResources().openRawResource(R.raw.server)).getPublicKey();
+            PublicKey serverK = CryptoUtil.getX509CertificateFromStream(activity.getResources().openRawResource(R.raw.server)).getPublicKey();
             CryptoManager cryptoManager = new CryptoManager(keys.getPublic(),keys.getPrivate(),serverK);
             server = new Socket();
             server.connect(new InetSocketAddress("10.0.2.2", 9090),4000);
 
-            Message message = new Message(android.util.Base64.encodeToString(keys.getPublic().getEncoded(), Base64.NO_WRAP),android.util.Base64.encodeToString(serverK.getEncoded(), Base64.NO_WRAP) , user_code);
+            Message message = new Message(Base64.encodeToString(keys.getPublic().getEncoded(), Base64.NO_WRAP), Base64.encodeToString(serverK.getEncoded(), Base64.NO_WRAP) , user_code);
             CipheredMessage cipheredMessage = cryptoManager.makeCipheredMessage(message,serverK);
             ObjectOutputStream oos = new ObjectOutputStream(server.getOutputStream());
             oos.writeObject(cipheredMessage);
@@ -80,13 +80,12 @@ public class PostQuizAnswersTask extends AsyncTask<String, Void, String> {
     @Override
     protected void onPostExecute(String o) {
         if (o != null && o.equals("true")) {
-            Intent intent = new Intent(postQuizActivity, MainMenu.class);
-            intent.putExtra("ssid", sessionId);
-            intent.putExtra("Toast", "Answers submited successfully");
-            postQuizActivity.startActivity(intent);  //Ir para a activity do MainMenu
+            Toast t = Toast.makeText(activity, "Answers submitted successfully",Toast.LENGTH_SHORT);
+            t.show();
         }
         else {
-            Toast.makeText(postQuizActivity.getApplicationContext(), "Not possible to submit answers", Toast.LENGTH_LONG);
+            Toast t = Toast.makeText(activity, "Not possible to submit answers", Toast.LENGTH_LONG);
+            t.show();
         }
     }
 }
