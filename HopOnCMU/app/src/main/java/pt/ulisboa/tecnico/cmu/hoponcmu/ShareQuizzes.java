@@ -292,7 +292,7 @@ public class ShareQuizzes extends Activity {
         List<String> answers = openAnswersFile(ans_quizname);
         StringBuilder sb = new StringBuilder();
         sb.append("answers=");
-        sb.append("ans_quizname=");
+        sb.append(ans_quizname.split("_")[1]+"=");
         sb.append(ssid+"=");
         for(String answer : answers){
             sb.append(answer+"-");
